@@ -12,7 +12,7 @@ const byAction = {
 
 const rootKey = '00000000-0000-0000-0000-000000000000'
 
-const toSlateOp = ops => {
+const toSlateOp = (ops, currentTree) => {
   const iterate = (acc, op) => {
     const action = byAction[op.action]
 
@@ -21,14 +21,14 @@ const toSlateOp = ops => {
     return result
   }
 
-  const [tree, defer] = ops.reduce(iterate, [
+  const [tempTree, defer] = ops.reduce(iterate, [
     {
       [rootKey]: {}
     },
     []
   ])
 
-  return defer.map(op => op(tree))
+  return defer.flatMap(op => op(tempTree, currentTree))
 }
 
 export { toSlateOp }

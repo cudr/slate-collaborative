@@ -1,4 +1,5 @@
 import { toSlatePath, toJS } from '../utils/index'
+import { getTarget } from '../path'
 
 const removeTextOp = ({ index, path }) => () => ({
   type: 'remove_text',
@@ -7,6 +8,19 @@ const removeTextOp = ({ index, path }) => () => ({
   text: '*',
   marks: []
 })
+
+const removeMarkOp = ({ path, index }) => (map, doc) => {
+  const slatePath = toSlatePath(path)
+  const target = getTarget(doc, slatePath)
+
+  return {
+    type: 'remove_mark',
+    path: slatePath,
+    mark: {
+      type: target.marks[index].type
+    }
+  }
+}
 
 const removeNodesOp = ({ index, path }) => () => {
   const nPath = toSlatePath(path)
@@ -21,7 +35,8 @@ const removeNodesOp = ({ index, path }) => () => {
 
 const removeByType = {
   text: removeTextOp,
-  nodes: removeNodesOp
+  nodes: removeNodesOp,
+  marks: removeMarkOp
 }
 
 const opRemove = (op, [map, ops]) => {

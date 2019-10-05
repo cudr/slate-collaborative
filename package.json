@@ -5,8 +5,9 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "release": "yarn prebuild && yarn build && lerna publish from-package",
-    "dev": "concurrently \"lerna run --parallel watch\" \"lerna run dev --stream\"",
+    "dev": "concurrently \"yarn watch\" \"lerna run dev --stream\"",
     "build": "lerna run build --stream",
+    "watch": "lerna run --parallel watch",
     "prebuild": "rm -rf ./packages/**/lib/",
     "format": "prettier --write"
   },
