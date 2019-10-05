@@ -1,0 +1,19 @@
+{
+  "include": ["packages/*/src"],
+  "compilerOptions": {
+    "module": "esnext",
+    "declaration": true,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "noLib": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "sourceMap": true,
+    "lib": ["es6", "es5"],
+    "paths": {
+      "@slate-collaborative/*": ["packages/*/src"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+lib/
+node_modules/
+.DS_Store
+lerna-debug.log
+/.npmrc
+yarn.lock
+yarn-error.log
+package-lock.json
+.idea
+tsconfig.tsbuildinfo
+**.code-workspace

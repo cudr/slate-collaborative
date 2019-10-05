@@ -1,0 +1,41 @@
+{
+  "name": "@slate-collaborative/client",
+  "version": "0.0.1",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "description": "slate-collaborative bridge",
+  "repository": "https://github.com/cudr/slate-collaborative",
+  "author": "cudr",
+  "license": "MIT",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "watch": "yarn build:js -w"
+  },
+  "dependencies": {
+    "@babel/preset-react": "^7.0.0",
+    "@slate-collaborative/bridge": "^0.0.1",
+    "automerge": "^0.12.1",
+    "immutable": "^4.0.0-rc.12",
+    "react": "^16.9.0",
+    "slate": "^0.47.8",
+    "socket.io-client": "^2.2.0",
+    "typescript": "^3.6.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/preset-typescript": "^7.6.0",
+    "@types/react": "^16.9.2",
+    "@types/slate": "^0.47.1",
+    "@types/socket.io-client": "^1.4.32"
+  }
+}
