@@ -6,7 +6,7 @@
     "rootDir": "src",
     "baseUrl": "src",
     "jsx": "react",
-    "lib": ["es6", "dom"],
+    "lib": ["dom", "dom.iterable", "es6"],
     "esModuleInterop": true
   }
 }

@@ -2,7 +2,9 @@ import { ExtendedEditor } from './model'
 
 const onChange = opts => (editor: ExtendedEditor, next: () => void) => {
   if (!editor.remote) {
-    editor.connection.receiveSlateOps(editor.operations)
+    const operations: any = editor.operations
+
+    editor.connection.receiveSlateOps(operations)
   }
 
   return next()
