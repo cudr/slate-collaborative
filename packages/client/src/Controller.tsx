@@ -1,4 +1,7 @@
-import React, { Component, ReactNode } from 'react'
+import React, { Component } from 'react'
+import { KeyUtils } from 'slate'
+
+import { hexGen } from '@slate-collaborative/bridge'
 
 import Connection from './Connection'
 
@@ -13,6 +16,8 @@ class Controller extends Component<ControllerProps> {
 
   componentDidMount() {
     const { editor, url, connectOpts } = this.props
+
+    KeyUtils.setGenerator(() => hexGen())
 
     editor.connection = new Connection({
       editor,

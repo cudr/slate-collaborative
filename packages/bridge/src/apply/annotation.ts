@@ -1,12 +1,14 @@
-export const addAnnotation = (doc: any, op: any) => {
+import { Operation, SyncDoc } from '../model'
+
+export const addAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
   return doc
 }
 
-export const removeAnnotation = (doc: any, op: any) => {
+export const removeAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
   return doc
 }
 
-export const setAnnotation = (doc: any, op: any) => {
+export const setAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
   return doc
 }
 

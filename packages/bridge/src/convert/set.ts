@@ -1,6 +1,7 @@
+import * as Automerge from 'automerge'
 import { toSlatePath, toJS } from '../utils/index'
 
-const setDataOp = ({ path, value }) => map => ({
+const setDataOp = ({ path, value }: Automerge.Diff) => map => ({
   type: 'set_node',
   path: toSlatePath(path),
   properties: {},
@@ -13,7 +14,7 @@ const setByType = {
   data: setDataOp
 }
 
-const opSet = (op, [map, ops]) => {
+const opSet = (op: Automerge.Diff, [map, ops]) => {
   const { link, value, path, obj, key } = op
   try {
     const set = setByType[key]

@@ -1,7 +1,8 @@
+import * as Automerge from 'automerge'
 import { toSlatePath, toJS } from '../utils/index'
 import { getTarget } from '../path'
 
-const removeTextOp = ({ index, path }) => () => ({
+const removeTextOp = ({ index, path }: Automerge.Diff) => () => ({
   type: 'remove_text',
   path: toSlatePath(path).slice(0, path.length),
   offset: index,
@@ -9,7 +10,7 @@ const removeTextOp = ({ index, path }) => () => ({
   marks: []
 })
 
-const removeMarkOp = ({ path, index }) => (map, doc) => {
+const removeMarkOp = ({ path, index }: Automerge.Diff) => (map, doc) => {
   const slatePath = toSlatePath(path)
   const target = getTarget(doc, slatePath)
 
@@ -22,7 +23,7 @@ const removeMarkOp = ({ path, index }) => (map, doc) => {
   }
 }
 
-const removeNodesOp = ({ index, obj, path }) => (map, doc) => {
+const removeNodesOp = ({ index, obj, path }: Automerge.Diff) => (map, doc) => {
   const slatePath = toSlatePath(path)
   if (!map.hasOwnProperty(obj)) {
     const target = getTarget(doc, [...slatePath, index] as any)
@@ -45,7 +46,7 @@ const removeByType = {
   marks: removeMarkOp
 }
 
-const opRemove = (op, [map, ops]) => {
+const opRemove = (op: Automerge.Diff, [map, ops]) => {
   try {
     const { index, path, obj } = op
 

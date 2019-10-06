@@ -35,8 +35,6 @@ class Connection {
 
     this.docSet = new Automerge.DocSet()
 
-    window['getDoc'] = () => toJS(this.docSet.getDoc(this.docId))
-
     this.connect()
   }
 
@@ -62,12 +60,6 @@ class Connection {
       if (operations.length !== 0) {
         const slateOps = toSlateOp(operations, currentDoc)
 
-        // console.log('start key', KeyUtils.create())
-
-        console.log('operations', operations, slateOps)
-
-        // console.log('this.editor', this.editor)
-
         this.editor.remote = true
 
         this.editor.withoutSaving(() => {
@@ -84,8 +76,6 @@ class Connection {
   }
 
   receiveSlateOps = (operations: Immutable.List<Operation>) => {
-    console.log('change slate ops!!!', operations.map(op => op.toJSON()).toJS())
-
     const doc = this.docSet.getDoc(this.docId)
     const message = `change from ${this.socket.id}`
 
@@ -94,8 +84,6 @@ class Connection {
     const changed = Automerge.change(doc, message, (d: any) =>
       applySlateOps(d, operations)
     )
-
-    // console.log('changed!!!', toJS(changed))
 
     this.docSet.setDoc(this.docId, changed)
   }

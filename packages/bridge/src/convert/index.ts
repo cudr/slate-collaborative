@@ -1,3 +1,5 @@
+import * as Automerge from 'automerge'
+
 import opInsert from './insert'
 import opRemove from './remove'
 import opSet from './set'
@@ -12,7 +14,7 @@ const byAction = {
 
 const rootKey = '00000000-0000-0000-0000-000000000000'
 
-const toSlateOp = (ops, currentTree) => {
+const toSlateOp = (ops: Automerge.Diff[], currentTree) => {
   const iterate = (acc, op) => {
     const action = byAction[op.action]
 
