@@ -22,11 +22,17 @@ const removeMarkOp = ({ path, index }) => (map, doc) => {
   }
 }
 
-const removeNodesOp = ({ index, path }) => () => {
-  const nPath = toSlatePath(path)
+const removeNodesOp = ({ index, obj, path }) => (map, doc) => {
+  const slatePath = toSlatePath(path)
+  if (!map.hasOwnProperty(obj)) {
+    const target = getTarget(doc, [...slatePath, index] as any)
+
+    map[obj] = target
+  }
+
   return {
     type: 'remove_node',
-    path: nPath.length ? nPath.concat(index) : [index],
+    path: slatePath.length ? slatePath.concat(index) : [index],
     node: {
       object: 'text'
     }

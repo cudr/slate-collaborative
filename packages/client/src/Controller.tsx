@@ -1,10 +1,10 @@
-import React, { PureComponent, ReactNode } from 'react'
+import React, { Component, ReactNode } from 'react'
 
 import Connection from './Connection'
 
 import { ControllerProps } from './model'
 
-class Controller extends PureComponent<ControllerProps> {
+class Controller extends Component<ControllerProps> {
   connection?: Connection
 
   state = {

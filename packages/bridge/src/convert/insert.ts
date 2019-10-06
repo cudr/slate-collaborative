@@ -1,4 +1,3 @@
-import { Block, Text } from 'slate'
 import { toSlatePath, toJS } from '../utils/index'
 
 const insertTextOp = ({ index, path, value }) => () => ({
@@ -9,44 +8,35 @@ const insertTextOp = ({ index, path, value }) => () => ({
   marks: []
 })
 
-const insertNodeOp = ({ value, index, path }) => map => {
+const insertNodeOp = ({ value, obj, index, path }) => map => {
   const ops = []
 
   const insertRecoursive = ({ nodes, ...json }: any, path) => {
-    const node = nodes
-      ? Block.fromJSON({ ...json, nodes: [] })
-      : Text.fromJSON(json)
+    const node = nodes ? { ...json, nodes: [] } : json
 
-    ops.push({
-      type: 'insert_node',
-      path,
-      node
-    })
+    if (node.object === 'mark') {
+      ops.push({
+        type: 'add_mark',
+        path: path.slice(0, -1),
+        mark: node
+      })
+    } else {
+      ops.push({
+        type: 'insert_node',
+        path,
+        node
+      })
+    }
 
     nodes && nodes.forEach((n, i) => insertRecoursive(n, [...path, i]))
   }
 
-  insertRecoursive(map[value], [...toSlatePath(path), index])
+  const source = map[value] || (map[obj] && toJS(map[obj]))
+
+  source && insertRecoursive(source, [...toSlatePath(path), index])
 
   return ops
 }
-
-// let count = 4000
-
-// const insertNodeOp = ({ value, index, path }) => map => {
-//   const node = map[value]
-
-//   if (!node) return null
-
-//   count += 1
-
-//   return {
-//     type: 'insert_node',
-//     path: [...toSlatePath(path), index],
-//     node, //: { ...node, key: count },
-//     data: {}
-//   }
-// }
 
 const insertByType = {
   text: insertTextOp,

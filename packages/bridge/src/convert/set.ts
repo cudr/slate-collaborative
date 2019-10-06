@@ -1,6 +1,6 @@
 import { toSlatePath, toJS } from '../utils/index'
 
-const setData = ({ path, value }) => map => ({
+const setDataOp = ({ path, value }) => map => ({
   type: 'set_node',
   path: toSlatePath(path),
   properties: {},
@@ -10,15 +10,15 @@ const setData = ({ path, value }) => map => ({
 })
 
 const setByType = {
-  data: setData
+  data: setDataOp
 }
 
 const opSet = (op, [map, ops]) => {
-  const { link, value, obj, key } = op
+  const { link, value, path, obj, key } = op
   try {
     const set = setByType[key]
 
-    if (set) {
+    if (set && path) {
       ops.push(set(op))
     } else {
       map[obj][key] = link ? map[value] : value
