@@ -7,7 +7,13 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "description": "slate-collaborative bridge",
-  "repository": "https://github.com/cudr/slate-collaborative",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cudr/slate-collaborative.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "cudr",
   "license": "MIT",
   "scripts": {
@@ -27,5 +33,13 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.6.0"
-  }
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "keywords": [
+    "slate",
+    "automerge",
+    "bridge"
+  ]
 }

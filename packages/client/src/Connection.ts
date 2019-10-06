@@ -58,12 +58,14 @@ class Connection {
       const operations = Automerge.diff(currentDoc, docNew)
 
       if (operations.length !== 0) {
-        const slateOps = toSlateOp(operations, this.connectOpts.query.name)
+        const slateOps = toSlateOp(operations, currentDoc)
 
         this.editor.remote = true
 
         this.editor.withoutSaving(() => {
-          slateOps.forEach(o => this.editor.applyOperation(o))
+          slateOps.forEach(o => {
+            this.editor.applyOperation(o)
+          })
         })
 
         setTimeout(() => (this.editor.remote = false), 5)

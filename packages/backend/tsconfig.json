@@ -5,6 +5,7 @@
     "outDir": "lib",
     "rootDir": "src",
     "baseUrl": "src",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "lib": ["dom", "dom.iterable", "esnext"]
   }
 }
