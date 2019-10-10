@@ -21,7 +21,7 @@ const opSet = (op: Automerge.Diff, [map, ops]) => {
 
     if (set && path) {
       ops.push(set(op))
-    } else {
+    } else if (map[obj]) {
       map[obj][key] = link ? map[value] : value
     }
 

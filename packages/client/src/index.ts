@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 
 import onChange from './onChange'
 import renderEditor from './renderEditor'
+import renderAnnotation from './renderAnnotation'
 
 import Connection from './Connection'
 
@@ -22,7 +23,8 @@ const plugin = (opts: PluginOptions = {}) => {
 
   return {
     onChange: onChange(options),
-    renderEditor: renderEditor(options)
+    renderEditor: renderEditor(options),
+    renderAnnotation
   }
 }
 

@@ -32,6 +32,8 @@ class Connection {
   private appendDoc = (path: string, value: ValueJSON) => {
     const sync = toSync(value)
 
+    sync.cursors = {}
+
     const doc = Automerge.from(sync)
 
     this.docSet.setDoc(path, doc)

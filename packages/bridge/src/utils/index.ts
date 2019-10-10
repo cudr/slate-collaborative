@@ -1,7 +1,14 @@
 import toSync from './toSync'
 import hexGen from './hexGen'
 
-export const toJS = node => JSON.parse(JSON.stringify(node))
+export const toJS = node => {
+  try {
+    return JSON.parse(JSON.stringify(node))
+  } catch (e) {
+    console.error(e)
+    return null
+  }
+}
 
 export const cloneNode = node => toSync(toJS(node))
 

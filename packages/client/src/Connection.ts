@@ -5,7 +5,12 @@ import io from 'socket.io-client'
 import { Value, Operation } from 'slate'
 import { ConnectionModel } from './model'
 
-import { applySlateOps, toSlateOp, toJS } from '@slate-collaborative/bridge'
+import {
+  applySlateOps,
+  toSlateOp,
+  hexGen,
+  toJS
+} from '@slate-collaborative/bridge'
 
 class Connection {
   url: string
@@ -15,6 +20,7 @@ class Connection {
   socket: SocketIOClient.Socket
   editor: any
   connectOpts: any
+  selection: any
   onConnect?: () => void
   onDisconnect?: () => void
 
@@ -68,11 +74,45 @@ class Connection {
           })
         })
 
-        setTimeout(() => (this.editor.remote = false), 5)
+        await Promise.resolve()
+
+        this.editor.remote = false
+
+        this.setCursors(docNew.cursors)
       }
     } catch (e) {
       console.error(e)
     }
+  }
+
+  setCursors = cursors => {
+    if (!cursors) return
+    // console.log('setCursors', cursors)
+    const {
+      value: { annotations }
+    } = this.editor
+
+    const keyMap = {}
+
+    this.editor.withoutSaving(() => {
+      annotations.forEach(anno => {
+        // if (cursors[anno.key]) {
+        //   console.log('set cursor', anno, )
+        //   this.editor.setAnnotation(anno, cursors[anno.key])
+        //   keyMap[anno.key] = true
+        // } else {
+        //   this.editor.removeAnnotation(anno)
+        // }
+
+        this.editor.removeAnnotation(anno)
+      })
+
+      Object.keys(cursors).forEach(key => {
+        if (key !== this.socket.id && !keyMap[key]) {
+          this.editor.addAnnotation(cursors[key])
+        }
+      })
+    })
   }
 
   receiveSlateOps = (operations: Immutable.List<Operation>) => {
@@ -82,7 +122,10 @@ class Connection {
     if (!doc) return
 
     const changed = Automerge.change(doc, message, (d: any) =>
-      applySlateOps(d, operations)
+      applySlateOps(d, operations, {
+        id: this.socket.id,
+        selection: this.editor.value.selection
+      })
     )
 
     this.docSet.setDoc(this.docId, changed)
