@@ -52,7 +52,7 @@ const opInsert = (op: Automerge.Diff, [map, ops]) => {
 
     if (link && map[obj]) {
       map[obj].splice(index, 0, map[value] || value)
-    } else if (type === 'text' && !path) {
+    } else if ((type === 'text' || type === 'list') && !path) {
       map[obj] = map[obj]
         ? map[obj]
             .slice(0, index)

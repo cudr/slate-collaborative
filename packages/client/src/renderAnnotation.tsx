@@ -18,7 +18,9 @@ const renderAnnotation = (props, editor, next) => {
   const { children, annotation, attributes, node } = props
 
   const isBackward = annotation.data.get('isBackward')
-  const cursorPath = annotation.data.get('cursorPath')
+  const cursorPath = isBackward ? annotation.anchor.path : annotation.focus.path
+
+  console.log('renderAnnotation', props, isBackward, cursorPath)
 
   const cursorStyles = { ...cursorStyleBase, left: isBackward ? '0%' : '100%' }
 
@@ -28,6 +30,7 @@ const renderAnnotation = (props, editor, next) => {
 
   const isTarget = targetNode && targetNode.key === node.key
 
+  console.log('isTarget', isTarget, targetNode, node)
   const showCursor = isTarget
 
   switch (annotation.type) {

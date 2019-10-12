@@ -1,16 +1,22 @@
-import { Editor } from 'slate'
+import { Editor, Controller, Value } from 'slate'
 import { PluginOptions } from './index'
 import Connection from './Connection'
 
-export interface ConnectionModel extends PluginOptions {
-  editor: Editor
-  onConnect: () => void
-  onDisconnect: () => void
+interface FixedController extends Controller {
+  setValue: (value: Value) => void
 }
 
 export interface ExtendedEditor extends Editor {
-  remote: boolean
-  connection: Connection
+  remote?: boolean
+  connection?: Connection
+  controller: FixedController
+  setFocus: () => void
+}
+
+export interface ConnectionModel extends PluginOptions {
+  editor: ExtendedEditor
+  onConnect: () => void
+  onDisconnect: () => void
 }
 
 export interface ControllerProps extends PluginOptions {

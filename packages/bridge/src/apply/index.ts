@@ -3,7 +3,6 @@ import { Operation, Operations, SyncDoc } from '../model'
 import node from './node'
 import mark from './mark'
 import text from './text'
-import selection from './selection'
 import annotation from './annotation'
 
 const setSelection = doc => doc
@@ -14,20 +13,17 @@ const opType: any = {
   ...annotation,
   ...node,
   ...mark,
-  ...selection
+  set_selection: setSelection
   // set_value: setValue
 }
 
-export const applyOperation = meta => (
-  doc: SyncDoc,
-  op: Operation
-): SyncDoc => {
+export const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
   try {
     const applyOp = opType[op.type]
 
     if (!applyOp) throw new TypeError('Unsupported operation type!')
 
-    return applyOp(doc, op, meta)
+    return applyOp(doc, op)
   } catch (e) {
     console.error(e)
 
@@ -35,5 +31,5 @@ export const applyOperation = meta => (
   }
 }
 
-export const applySlateOps = (doc: SyncDoc, operations: Operations, meta) =>
-  operations.reduce(applyOperation(meta), doc)
+export const applySlateOps = (doc: SyncDoc, operations: Operations) =>
+  operations.reduce(applyOperation, doc)

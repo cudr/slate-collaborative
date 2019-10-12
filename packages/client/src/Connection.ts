@@ -3,12 +3,14 @@ import Immutable from 'immutable'
 import io from 'socket.io-client'
 
 import { Value, Operation } from 'slate'
-import { ConnectionModel } from './model'
+import { ConnectionModel, ExtendedEditor } from './model'
 
 import {
+  setCursor,
+  removeCursor,
+  cursorOpFilter,
   applySlateOps,
   toSlateOp,
-  hexGen,
   toJS
 } from '@slate-collaborative/bridge'
 
@@ -18,7 +20,7 @@ class Connection {
   docSet: Automerge.DocSet<any>
   connection: Automerge.Connection<any>
   socket: SocketIOClient.Socket
-  editor: any
+  editor: ExtendedEditor
   connectOpts: any
   selection: any
   onConnect?: () => void
@@ -56,6 +58,9 @@ class Connection {
     const currentDoc = this.docSet.getDoc(this.docId)
     const docNew = this.connection.receiveMsg(data)
 
+    console.log('current doc before updates', toJS(currentDoc))
+    console.log('new doc with remote updates!!', toJS(docNew))
+
     if (!docNew) {
       return
     }
@@ -88,25 +93,31 @@ class Connection {
   setCursors = cursors => {
     if (!cursors) return
 
-    const {
-      value: { annotations }
-    } = this.editor
+    // const {
+    //   value: { annotations }
+    // } = this.editor
 
-    const keyMap = {}
+    // const keyMap = {}
 
-    console.log('cursors', cursors)
+    // console.log('cursors', cursors)
 
-    this.editor.withoutSaving(() => {
-      annotations.forEach(anno => {
-        this.editor.removeAnnotation(anno)
-      })
+    // this.editor.withoutSaving(() => {
+    //   annotations.forEach(anno => {
+    //     this.editor.removeAnnotation(anno)
+    //   })
 
-      Object.keys(cursors).forEach(key => {
-        if (key !== this.socket.id && !keyMap[key]) {
-          this.editor.addAnnotation(toJS(cursors[key]))
-        }
-      })
-    })
+    //   Object.keys(cursors).forEach(key => {
+    //     if (key !== this.socket.id && !keyMap[key]) {
+    //       this.editor.addAnnotation(toJS(cursors[key]))
+    //     }
+    //   })
+    // })
+
+    console.log(
+      '!!!!VAL',
+      this.connectOpts.query.name,
+      this.editor.value.toJSON({ preserveAnnotations: true })
+    )
   }
 
   receiveSlateOps = (operations: Immutable.List<Operation>) => {
@@ -115,51 +126,24 @@ class Connection {
 
     if (!doc) return
 
-    operations = operations.filter(op => op.type !== 'set_selection')
+    const {
+      value: { selection }
+    } = this.editor
 
-    const { value } = this.editor
-
-    const { selection } = value
-
-    const meta = {
+    const cursorData = {
       id: this.socket.id,
       selection,
+      selectionOps: operations.filter(op => op.type === 'set_selection'),
       annotationType: 'collaborative_selection'
     }
 
-    const cursor = doc.cursors[meta.id]
-    const cursorStart = cursor && cursor.anchor && cursor.anchor.offset
-    const cursorEnd = cursor && cursor.focus && cursor.focus.offset
-
-    console.log('cursor!!', cursorStart, cursorEnd)
-    console.log('selection!!', selection.start.offset, selection.end.offset)
-
-    if (
-      selection.start.offset !== cursorStart ||
-      selection.end.offset !== cursorEnd
-    ) {
-      console.log(
-        '!!!!!! append selection op!!!',
-        selection.start.toJS(),
-        selection.end.toJS()
-      )
-      const opData = {
-        type: 'set_selection',
-        properties: cursor || {},
-        newProperties: {
-          anchor: selection.start,
-          focus: selection.end
-        }
-      }
-
-      const op = Operation.fromJSON(opData)
-
-      operations = operations.push(op)
-    }
+    const withCursor = selection.isFocused ? setCursor : removeCursor
 
     const changed = Automerge.change(doc, message, (d: any) =>
-      applySlateOps(d, operations, meta)
+      withCursor(applySlateOps(d, cursorOpFilter(d, operations)), cursorData)
     )
+
+    console.log('doc with annotations!!', toJS(changed))
 
     this.docSet.setDoc(this.docId, changed)
   }

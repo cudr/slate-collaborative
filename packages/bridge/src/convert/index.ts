@@ -30,7 +30,11 @@ const toSlateOp = (ops: Automerge.Diff[], currentTree) => {
     []
   ])
 
-  return defer.flatMap(op => op(tempTree, currentTree))
+  const res = defer.flatMap(op => op(tempTree, currentTree))
+
+  console.log('toSlate@@@', ops, res)
+
+  return res
 }
 
 export { toSlateOp }
