@@ -17,18 +17,21 @@ const AnnotationSetOp = ({ key, value }: Automerge.Diff) => (map, doc) => {
 
   let op
 
-  if (!doc.annotations[key]) {
-    op = {
-      type: 'add_annotation',
-      annotation: map[value]
-    }
-  } else {
-    op = {
-      type: 'set_annotation',
-      properties: doc.annotations[key],
-      newProperties: map[value]
-    }
+  /**
+   * Looks like set_annotation option is broken, temporary disabled
+   */
+  // if (!doc.annotations[key]) {
+  op = {
+    type: 'add_annotation',
+    annotation: map[value]
   }
+  // } else {
+  //   op = {
+  //     type: 'set_annotation',
+  //     properties: toJS(doc.annotations[key]),
+  //     newProperties: map[value]
+  //   }
+  // }
 
   console.log('opSET!!', key, map[value], op)
 

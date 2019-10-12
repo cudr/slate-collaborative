@@ -130,17 +130,22 @@ class Connection {
       value: { selection }
     } = this.editor
 
+    const annotationType = 'collaborative_selection'
+
     const cursorData = {
       id: this.socket.id,
       selection,
-      selectionOps: operations.filter(op => op.type === 'set_selection'),
-      annotationType: 'collaborative_selection'
+      // selectionOps: operations.filter(op => op.type === 'set_selection'),
+      annotationType
     }
 
     const withCursor = selection.isFocused ? setCursor : removeCursor
 
     const changed = Automerge.change(doc, message, (d: any) =>
-      withCursor(applySlateOps(d, cursorOpFilter(d, operations)), cursorData)
+      withCursor(
+        applySlateOps(d, cursorOpFilter(operations, annotationType)),
+        cursorData
+      )
     )
 
     console.log('doc with annotations!!', toJS(changed))

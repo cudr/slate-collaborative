@@ -26,6 +26,16 @@ class Controller extends Component<ControllerProps> {
       onConnect: this.onConnect,
       onDisconnect: this.onDisconnect
     })
+
+    //@ts-ignore
+    if (!window.counter) {
+      //@ts-ignore
+      window.counter = 1
+    }
+    //@ts-ignore
+    window[`Editor_${counter}`] = editor
+    //@ts-ignore
+    window.counter += 1
   }
 
   componentWillUnmount() {
