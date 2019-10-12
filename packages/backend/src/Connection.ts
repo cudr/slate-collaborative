@@ -40,10 +40,18 @@ class Connection {
   }
 
   private saveDoc = throttle(pathname => {
-    if (this.options.onDocumentSave) {
-      const doc = this.docSet.getDoc(pathname)
+    try {
+      if (this.options.onDocumentSave) {
+        const doc = this.docSet.getDoc(pathname)
 
-      this.options.onDocumentSave(pathname, toJS(doc))
+        const data = toJS(doc)
+
+        delete data.cursors
+
+        this.options.onDocumentSave(pathname, data)
+      }
+    } catch (e) {
+      console.log(e)
     }
   }, (this.options && this.options.saveTreshold) || 2000)
 

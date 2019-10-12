@@ -15,23 +15,30 @@ const cursorStyleBase = {
 } as any
 
 const renderAnnotation = (props, editor, next) => {
-  const { children, annotation, attributes } = props
+  const { children, annotation, attributes, node } = props
 
-  const isLeft = annotation.focus.offset >= annotation.anchor.offset
+  const isBackward = annotation.data.get('isBackward')
+  const cursorPath = annotation.data.get('cursorPath')
 
-  console.log('isLeft', isLeft)
+  const cursorStyles = { ...cursorStyleBase, left: isBackward ? '0%' : '100%' }
 
-  const cursorStyles = { ...cursorStyleBase, left: isLeft ? '0%' : '100%' }
+  const { document } = editor.value
 
-  console.log('renderAnnotation', annotation.toJSON())
+  const targetNode = document.getNode(cursorPath)
+
+  const isTarget = targetNode && targetNode.key === node.key
+
+  const showCursor = isTarget
 
   switch (annotation.type) {
     case 'collaborative_selection':
       return (
         <span {...attributes} style={wrapStyles}>
-          <span contentEditable={false} style={cursorStyles}>
-            {annotation.key}
-          </span>
+          {showCursor ? (
+            <span contentEditable={false} style={cursorStyles}>
+              {annotation.key}
+            </span>
+          ) : null}
           {children}
         </span>
       )

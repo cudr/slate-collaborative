@@ -87,29 +87,23 @@ class Connection {
 
   setCursors = cursors => {
     if (!cursors) return
-    // console.log('setCursors', cursors)
+
     const {
       value: { annotations }
     } = this.editor
 
     const keyMap = {}
 
+    console.log('cursors', cursors)
+
     this.editor.withoutSaving(() => {
       annotations.forEach(anno => {
-        // if (cursors[anno.key]) {
-        //   console.log('set cursor', anno, )
-        //   this.editor.setAnnotation(anno, cursors[anno.key])
-        //   keyMap[anno.key] = true
-        // } else {
-        //   this.editor.removeAnnotation(anno)
-        // }
-
         this.editor.removeAnnotation(anno)
       })
 
       Object.keys(cursors).forEach(key => {
         if (key !== this.socket.id && !keyMap[key]) {
-          this.editor.addAnnotation(cursors[key])
+          this.editor.addAnnotation(toJS(cursors[key]))
         }
       })
     })
@@ -121,11 +115,42 @@ class Connection {
 
     if (!doc) return
 
+    const selectionOps = operations.filter(op => op.type === 'set_selection')
+
+    console.log('hasSelectionOps', selectionOps.size)
+
+    const { value } = this.editor
+
+    const { selection } = value
+
+    const meta = {
+      id: this.socket.id,
+      selection,
+      annotationType: 'collaborative_selection'
+    }
+
+    const cursor = doc.cursors[meta.id]
+    const cursorOffset = cursor && cursor.anchor && cursor.anchor.offset
+
+    if (!selectionOps.size && selection.start.offset !== cursorOffset) {
+      const opData = {
+        type: 'set_selection',
+        properties: {},
+        newProperties: {
+          anchor: selection.start,
+          focus: selection.end
+        }
+      }
+
+      const op = Operation.fromJSON(opData)
+
+      operations = operations.push(op)
+    }
+
+    console.log('operations', operations.toJSON())
+
     const changed = Automerge.change(doc, message, (d: any) =>
-      applySlateOps(d, operations, {
-        id: this.socket.id,
-        selection: this.editor.value.selection
-      })
+      applySlateOps(d, operations, meta)
     )
 
     this.docSet.setDoc(this.docId, changed)
