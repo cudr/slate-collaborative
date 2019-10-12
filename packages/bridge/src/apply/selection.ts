@@ -21,7 +21,9 @@ const setSelection = (doc, op, { id, selection, annotationType }) => {
   if (focus) cursor.focus = focus
   if (anchor) cursor.anchor = anchor
 
-  const cursorPath = (anchor && anchor.path) || (focus && focus.path)
+  const cursorPath = cursor.data.isBackward
+    ? anchor && anchor.path
+    : focus && focus.path
 
   if (cursorPath) cursor.data.cursorPath = toJS(cursorPath)
 

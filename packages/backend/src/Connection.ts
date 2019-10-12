@@ -124,6 +124,7 @@ class Connection {
 
     socket.leave(id)
 
+    this.garbageCursor(socket.nsp.name, id)
     this.garbageNsp()
   }
 
@@ -135,6 +136,20 @@ class Connection {
           if (!clientsList.length) this.removeDoc(nsp)
         })
       })
+  }
+
+  garbageCursor = (nsp, id) => {
+    const doc = this.docSet.getDoc(nsp)
+
+    if (!doc.cursors) return
+
+    const change = Automerge.change(
+      doc,
+      `remove cursor ${id}`,
+      (d: any) => delete d.cursors[id]
+    )
+
+    this.docSet.setDoc(nsp, change)
   }
 
   removeDoc = async nsp => {

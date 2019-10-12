@@ -115,9 +115,7 @@ class Connection {
 
     if (!doc) return
 
-    const selectionOps = operations.filter(op => op.type === 'set_selection')
-
-    console.log('hasSelectionOps', selectionOps.size)
+    operations = operations.filter(op => op.type !== 'set_selection')
 
     const { value } = this.editor
 
@@ -130,12 +128,24 @@ class Connection {
     }
 
     const cursor = doc.cursors[meta.id]
-    const cursorOffset = cursor && cursor.anchor && cursor.anchor.offset
+    const cursorStart = cursor && cursor.anchor && cursor.anchor.offset
+    const cursorEnd = cursor && cursor.focus && cursor.focus.offset
 
-    if (!selectionOps.size && selection.start.offset !== cursorOffset) {
+    console.log('cursor!!', cursorStart, cursorEnd)
+    console.log('selection!!', selection.start.offset, selection.end.offset)
+
+    if (
+      selection.start.offset !== cursorStart ||
+      selection.end.offset !== cursorEnd
+    ) {
+      console.log(
+        '!!!!!! append selection op!!!',
+        selection.start.toJS(),
+        selection.end.toJS()
+      )
       const opData = {
         type: 'set_selection',
-        properties: {},
+        properties: cursor || {},
         newProperties: {
           anchor: selection.start,
           focus: selection.end
@@ -146,8 +156,6 @@ class Connection {
 
       operations = operations.push(op)
     }
-
-    console.log('operations', operations.toJSON())
 
     const changed = Automerge.change(doc, message, (d: any) =>
       applySlateOps(d, operations, meta)
