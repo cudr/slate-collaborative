@@ -1,4 +1,4 @@
-import { Operation, SyncDoc } from '../model'
+import { Operation, SyncDoc } from '../model/index'
 
 export const addAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
   console.log('addAnnotation!!!', op.toJS())

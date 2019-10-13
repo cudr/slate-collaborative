@@ -45,18 +45,10 @@ class Client extends Component<ClienProps> {
         }
       },
       annotationDataMixin: {
-        name: this.props.name
+        name: this.props.name,
+        color,
+        alphaColor: color.slice(0, -2) + '0.2)'
       },
-      cursorStyle: {
-        background: color
-      },
-      caretStyle: {
-        background: color
-      },
-      selectionStyle: {
-        background: color.slice(0, -2) + '0.2)'
-      },
-      renderCursor: data => data.get('name'),
       // renderPreloader: () => <div>PRELOADER!!!!!!</div>,
       onConnect: this.onConnect,
       onDisconnect: this.onDisconnect

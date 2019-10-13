@@ -21,7 +21,10 @@ export const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
   try {
     const applyOp = opType[op.type]
 
-    if (!applyOp) throw new TypeError('Unsupported operation type!')
+    if (!applyOp) {
+      console.log('operation', op.toJS())
+      throw new TypeError(`Unsupported operation type: ${op.type}!`)
+    }
 
     return applyOp(doc, op)
   } catch (e) {

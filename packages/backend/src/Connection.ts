@@ -118,6 +118,8 @@ class Connection {
       this.connections[id].receiveMsg(data)
 
       this.saveDoc(name)
+
+      this.garbageCursors(name)
     } catch (e) {
       console.log(e)
     }

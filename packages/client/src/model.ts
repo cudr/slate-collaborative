@@ -1,8 +1,11 @@
 import { ReactNode } from 'react'
-import CSS from 'csstype'
 import { Editor, Controller, Value } from 'slate'
 
 import Connection from './Connection'
+
+type Data = {
+  [key: string]: any
+}
 
 interface FixedController extends Controller {
   setValue: (value: Value) => void
@@ -32,13 +35,9 @@ export interface PluginOptions {
   url?: string
   connectOpts?: SocketIOClient.ConnectOpts
   cursorAnnotationType?: string
-  caretStyle?: CSS.Properties
-  cursorStyle?: CSS.Properties
+  annotationDataMixin?: Data
   renderPreloader?: () => ReactNode
-  annotationDataMixin?: {
-    [key: string]: any
-  }
-  renderCursor?: (data: any) => ReactNode | string | any
+  renderCursor?: (data: Data) => ReactNode | any
   onConnect?: (connection: Connection) => void
   onDisconnect?: (connection: Connection) => void
 }

@@ -30,9 +30,7 @@ const toSlateOp = (ops: Automerge.Diff[], doc) => {
     []
   ])
 
-  const res = defer.flatMap(op => op(tempTree, doc)).filter(op => op)
-
-  return res
+  return defer.flatMap(op => op(tempTree, doc)).filter(op => op)
 }
 
 export { toSlateOp }
