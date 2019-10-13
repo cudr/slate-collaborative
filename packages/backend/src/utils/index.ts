@@ -7,7 +7,8 @@ export const getClients = (io, nsp) =>
 
 export const defaultOptions = {
   port: 9000,
-  saveTreshold: 2000
+  saveTreshold: 2000,
+  cursorAnnotationType: 'collaborative_selection'
 }
 
 export { defaultValue }

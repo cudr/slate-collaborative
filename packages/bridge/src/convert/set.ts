@@ -33,8 +33,6 @@ const AnnotationSetOp = ({ key, value }: Automerge.Diff) => (map, doc) => {
   //   }
   // }
 
-  console.log('opSET!!', key, map[value], op)
-
   return op
 }
 

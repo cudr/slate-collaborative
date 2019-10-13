@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 
 const wrapStyles = {
-  backgroundColor: 'rgba(233, 30, 99, 0.2)',
+  background: 'rgba(233, 30, 99, 0.2)',
   position: 'relative'
 }
 
@@ -24,50 +24,53 @@ const caretStyleBase = {
   userSelect: 'none',
   height: '100%',
   width: 2,
-  background: '#bf1b52'
-}
+  background: 'palevioletred'
+} as any
 
-const renderAnnotation = (props, editor, next) => {
+const renderAnnotation = ({
+  cursorAnnotationType,
+  renderCursor,
+  cursorStyle = {},
+  caretStyle = {},
+  selectionStyle = {}
+}) => (props, editor, next) => {
   const { children, annotation, attributes, node } = props
+
+  if (annotation.type !== cursorAnnotationType) return next()
 
   const isBackward = annotation.data.get('isBackward')
   const targetPath = annotation.data.get('targetPath')
+  const cursorText = renderCursor(annotation.data)
 
-  console.log(
-    'renderAnnotation',
-    annotation.toJS(),
-    props,
-    isBackward,
-    targetPath
-  )
-
-  const badgeStyles = { ...cursorStyleBase, left: isBackward ? '0%' : '100%' }
-  const caretStyles = { ...caretStyleBase, left: isBackward ? '0%' : '100%' }
+  const cursorStyles = {
+    ...cursorStyleBase,
+    ...cursorStyle,
+    left: isBackward ? '0%' : '100%'
+  }
+  const caretStyles = {
+    ...caretStyleBase,
+    ...caretStyle,
+    left: isBackward ? '0%' : '100%'
+  }
 
   const { document } = editor.value
 
   const targetNode = document.getNode(targetPath)
-
   const isShowCursor = targetNode && targetNode.key === node.key
 
-  switch (annotation.type) {
-    case 'collaborative_selection':
-      return (
-        <span {...attributes} style={wrapStyles}>
-          {isShowCursor ? (
-            <Fragment>
-              <span contentEditable={false} style={badgeStyles}>
-                {annotation.key}
-              </span>
-              <span contentEditable={false} style={caretStyles} />
-            </Fragment>
-          ) : null}
-          {children}
-        </span>
-      )
-    default:
-      return next()
-  }
+  return (
+    <span {...attributes} style={{ ...wrapStyles, ...selectionStyle }}>
+      {isShowCursor ? (
+        <Fragment>
+          <span contentEditable={false} style={cursorStyles}>
+            {cursorText}
+          </span>
+          <span contentEditable={false} style={caretStyles} />
+        </Fragment>
+      ) : null}
+      {children}
+    </span>
+  )
 }
 
 export default renderAnnotation

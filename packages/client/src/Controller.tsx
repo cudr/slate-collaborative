@@ -4,7 +4,6 @@ import { KeyUtils } from 'slate'
 import { hexGen } from '@slate-collaborative/bridge'
 
 import Connection from './Connection'
-
 import { ControllerProps } from './model'
 
 class Controller extends Component<ControllerProps> {
@@ -15,7 +14,13 @@ class Controller extends Component<ControllerProps> {
   }
 
   componentDidMount() {
-    const { editor, url, connectOpts } = this.props
+    const {
+      editor,
+      url,
+      cursorAnnotationType,
+      annotationDataMixin,
+      connectOpts
+    } = this.props
 
     KeyUtils.setGenerator(() => hexGen())
 
@@ -23,19 +28,11 @@ class Controller extends Component<ControllerProps> {
       editor,
       url,
       connectOpts,
+      cursorAnnotationType,
+      annotationDataMixin,
       onConnect: this.onConnect,
       onDisconnect: this.onDisconnect
     })
-
-    //@ts-ignore
-    if (!window.counter) {
-      //@ts-ignore
-      window.counter = 1
-    }
-    //@ts-ignore
-    window[`Editor_${counter}`] = editor
-    //@ts-ignore
-    window.counter += 1
   }
 
   componentWillUnmount() {
@@ -47,10 +44,10 @@ class Controller extends Component<ControllerProps> {
   }
 
   render() {
-    const { children, preloader } = this.props
+    const { children, renderPreloader } = this.props
     const { preloading } = this.state
 
-    if (preloader && preloading) return preloader()
+    if (renderPreloader && preloading) return renderPreloader()
 
     return children
   }

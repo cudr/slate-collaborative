@@ -1,7 +1,6 @@
 import React from 'react'
 
-import { PluginOptions } from './index'
-
+import { PluginOptions } from './model'
 import Controller from './Controller'
 
 const renderEditor = (opts: PluginOptions) => (

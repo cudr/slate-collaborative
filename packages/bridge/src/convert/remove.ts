@@ -41,9 +41,13 @@ const removeNodesOp = ({ index, obj, path }: Automerge.Diff) => (map, doc) => {
 }
 
 const removeAnnotationOp = ({ key }: Automerge.Diff) => (map, doc) => {
-  return {
-    type: 'remove_annotation',
-    annotation: toJS(doc.annotations[key])
+  const annotation = toJS(doc.annotations[key])
+
+  if (annotation) {
+    return {
+      type: 'remove_annotation',
+      annotation
+    }
   }
 }
 

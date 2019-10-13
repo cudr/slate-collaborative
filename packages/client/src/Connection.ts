@@ -22,7 +22,8 @@ class Connection {
   socket: SocketIOClient.Socket
   editor: ExtendedEditor
   connectOpts: any
-  selection: any
+  annotationDataMixin: any
+  cursorAnnotationType: string
   onConnect?: () => void
   onDisconnect?: () => void
 
@@ -31,11 +32,16 @@ class Connection {
     url,
     connectOpts,
     onConnect,
-    onDisconnect
+    onDisconnect,
+    cursorAnnotationType,
+    annotationDataMixin
   }: ConnectionModel) {
     this.url = url
     this.editor = editor
     this.connectOpts = connectOpts
+    this.cursorAnnotationType = cursorAnnotationType
+    this.annotationDataMixin = annotationDataMixin
+
     this.onConnect = onConnect
     this.onDisconnect = onDisconnect
 
@@ -58,9 +64,6 @@ class Connection {
     const currentDoc = this.docSet.getDoc(this.docId)
     const docNew = this.connection.receiveMsg(data)
 
-    console.log('current doc before updates', toJS(currentDoc))
-    console.log('new doc with remote updates!!', toJS(docNew))
-
     if (!docNew) {
       return
     }
@@ -82,42 +85,10 @@ class Connection {
         await Promise.resolve()
 
         this.editor.remote = false
-
-        this.setCursors(docNew.cursors)
       }
     } catch (e) {
       console.error(e)
     }
-  }
-
-  setCursors = cursors => {
-    if (!cursors) return
-
-    // const {
-    //   value: { annotations }
-    // } = this.editor
-
-    // const keyMap = {}
-
-    // console.log('cursors', cursors)
-
-    // this.editor.withoutSaving(() => {
-    //   annotations.forEach(anno => {
-    //     this.editor.removeAnnotation(anno)
-    //   })
-
-    //   Object.keys(cursors).forEach(key => {
-    //     if (key !== this.socket.id && !keyMap[key]) {
-    //       this.editor.addAnnotation(toJS(cursors[key]))
-    //     }
-    //   })
-    // })
-
-    console.log(
-      '!!!!VAL',
-      this.connectOpts.query.name,
-      this.editor.value.toJSON({ preserveAnnotations: true })
-    )
   }
 
   receiveSlateOps = (operations: Immutable.List<Operation>) => {
@@ -130,25 +101,17 @@ class Connection {
       value: { selection }
     } = this.editor
 
-    const annotationType = 'collaborative_selection'
-
-    const cursorData = {
-      id: this.socket.id,
-      selection,
-      // selectionOps: operations.filter(op => op.type === 'set_selection'),
-      annotationType
-    }
-
     const withCursor = selection.isFocused ? setCursor : removeCursor
 
     const changed = Automerge.change(doc, message, (d: any) =>
       withCursor(
-        applySlateOps(d, cursorOpFilter(operations, annotationType)),
-        cursorData
+        applySlateOps(d, cursorOpFilter(operations, this.cursorAnnotationType)),
+        this.socket.id,
+        selection,
+        this.cursorAnnotationType,
+        this.annotationDataMixin
       )
     )
-
-    console.log('doc with annotations!!', toJS(changed))
 
     this.docSet.setDoc(this.docId, changed)
   }
@@ -174,7 +137,7 @@ class Connection {
   }
 
   connect = () => {
-    this.socket = io(this.url, this.connectOpts)
+    this.socket = io(this.url, { ...this.connectOpts })
 
     this.socket.on('connect', () => {
       this.connection = new Automerge.Connection(this.docSet, this.sendData)
@@ -190,6 +153,8 @@ class Connection {
   disconnect = () => {
     this.onDisconnect()
 
+    console.log('disconnect', this.socket)
+
     this.connection && this.connection.close()
 
     delete this.connection
@@ -202,6 +167,7 @@ class Connection {
     this.onDisconnect()
 
     this.socket.close()
+    // this.socket.destroy()
   }
 }
 

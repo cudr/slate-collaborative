@@ -1,75 +1,68 @@
-import { toJS } from '../utils'
-
-import { Operation } from 'slate'
+import { Operation, Selection } from 'slate'
 import { List } from 'immutable'
+import merge from 'lodash/merge'
 
-export const setCursor = (doc, { id, selection, annotationType }) => {
+import { toJS } from '../utils'
+import { SyncDoc, CursorKey } from '../model'
+
+export const setCursor = (
+  doc: SyncDoc,
+  key: CursorKey,
+  selection: Selection,
+  type,
+  data
+) => {
+  if (!doc) return
+
   if (!doc.annotations) {
     doc.annotations = {}
   }
 
-  if (!doc.annotations[id]) {
-    doc.annotations[id] = {
-      key: id,
-      type: annotationType,
+  if (!doc.annotations[key]) {
+    doc.annotations[key] = {
+      key,
+      type,
       data: {}
     }
   }
 
-  const annotation = toJS(doc.annotations[id])
+  const annotation = toJS(doc.annotations[key])
 
-  // if (selectionOps.size) {
-  //   selectionOps.forEach(op => {
-  //     const { newProperties } = op.toJSON()
+  annotation.focus = selection.end.toJSON()
+  annotation.anchor = selection.start.toJSON()
 
-  //     if (newProperties.focus) annotation.focus = newProperties.focus
-  //     if (newProperties.anchor) annotation.anchor = newProperties.anchor
-  //     if (newProperties.data) annotation.data = newProperties.data
-  //   })
-  // }
+  annotation.data = merge(annotation.data, data, {
+    isBackward: selection.isBackward,
+    targetPath: selection.isBackward
+      ? annotation.anchor.path
+      : annotation.focus.path
+  })
 
-  // console.log('cursor!!', cursorStart, cursorEnd)
-  // console.log(
-  //   'selection!!',
-  //   selection.toJSON(),
-  //   selection.start.offset,
-  //   selection.end.offset
-  // )
-
-  annotation.focus = selection.end.toJSON() || {}
-  annotation.anchor = selection.start.toJSON() || {}
-
-  annotation.data.isBackward = selection.isBackward
-  annotation.data.targetPath = selection.isBackward
-    ? annotation.anchor.path
-    : annotation.focus.path
-
-  doc.annotations[id] = annotation
+  doc.annotations[key] = annotation
 
   return doc
 }
 
-export const removeCursor = (doc, { id }) => {
-  // console.log('!!!removeCursor', doc, id)
-  if (doc.annotations && doc.annotations[id]) {
-    delete doc.annotations[id]
+export const removeCursor = (doc: SyncDoc, key: CursorKey) => {
+  if (doc.annotations && doc.annotations[key]) {
+    delete doc.annotations[key]
   }
 
   return doc
 }
 
-export const cursorOpFilter = (ops: List<Operation>, annotationType) =>
+export const cursorOpFilter = (ops: List<Operation>, type: string) =>
   ops.filter(op => {
     if (op.type === 'set_annotation') {
       return !(
-        (op.properties && op.properties.type === annotationType) ||
-        (op.newProperties && op.newProperties.type === annotationType)
+        (op.properties && op.properties.type === type) ||
+        (op.newProperties && op.newProperties.type === type)
       )
     } else if (
       op.type === 'add_annotation' ||
       op.type === 'remove_annotation'
     ) {
-      return op.annotation.type !== annotationType
+      return op.annotation.type !== type
     }
 
     return true
