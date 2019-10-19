@@ -44,20 +44,20 @@ const connection = new CollaborativeBackend(options)
 ### options:
 ```
 {
-  port: number
+  port: number // posrt to start io connection
   connectOpts?: SocketIO.ServerOptions
-  defaultValue?: ValueJSON
-  saveTreshold?: number
-  cursorAnnotationType?: string
-  onAuthRequest?: (
+  defaultValue?: ValueJSON // default value
+  saveTreshold?: number // theshold of onDocumentSave callback execution
+  cursorAnnotationType?: string // type string for cursor annotations
+  onAuthRequest?: ( // auth callback
     query: Object,
     socket?: SocketIO.Socket
   ) => Promise<boolean> | boolean
-  onDocumentLoad?: (
+  onDocumentLoad?: ( // request slatejs document callback
     pathname: string,
     query?: Object
   ) => ValueJSON | null | false | undefined
-  onDocumentSave?: (pathname: string, json: ValueJSON) => Promise<void> | void
+  onDocumentSave?: (pathname: string, json: ValueJSON) => Promise<void> | void // save document callback 
 }
 ```
 
