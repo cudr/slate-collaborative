@@ -22,7 +22,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,babelrc}": [
+    "*.{js,jsx,ts,tsx,babelrc}": [
       "yarn run format",
       "git add"
     ]

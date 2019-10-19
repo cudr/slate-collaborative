@@ -17,7 +17,7 @@ const opType: any = {
   // set_value: setValue
 }
 
-export const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
+const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
   try {
     const applyOp = opType[op.type]
 
@@ -34,5 +34,7 @@ export const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
   }
 }
 
-export const applySlateOps = (doc: SyncDoc, operations: Operations) =>
+const applySlateOps = (doc: SyncDoc, operations: Operations) =>
   operations.reduce(applyOperation, doc)
+
+export { applyOperation, applySlateOps }
