@@ -46,7 +46,7 @@ const connection = new CollaborativeBackend(options)
 ### options:
 ```
 {
-  port: number // posrt to start io connection
+  port: number // port to start io connection
   connectOpts?: SocketIO.ServerOptions
   defaultValue?: ValueJSON // default value
   saveTreshold?: number // theshold of onDocumentSave callback execution
