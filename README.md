@@ -3,7 +3,7 @@ slatejs collaborative plugin &amp; microservice
 
 A little experiment for co-editing.
 
-Based on idea https://github.com/humandx/slate-automerge
+Based on idea of https://github.com/humandx/slate-automerge
 
 Watch the demo
 
