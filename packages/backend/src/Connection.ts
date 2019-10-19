@@ -22,6 +22,8 @@ class Connection {
     this.options = merge(defaultOptions, options)
 
     this.configure()
+
+    return this
   }
 
   private configure = () =>

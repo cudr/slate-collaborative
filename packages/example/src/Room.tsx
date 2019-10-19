@@ -31,6 +31,7 @@ class Room extends Component<RoomProps, RoomState> {
 
   componentDidMount() {
     this.addUser()
+    setTimeout(this.addUser, 10)
   }
 
   render() {

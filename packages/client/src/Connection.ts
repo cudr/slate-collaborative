@@ -50,6 +50,8 @@ class Connection {
     this.docSet = new Automerge.DocSet()
 
     this.connect()
+
+    return this
   }
 
   sendData = (data: any) => {
