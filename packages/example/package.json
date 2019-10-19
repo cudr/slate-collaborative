@@ -16,6 +16,8 @@
     "concurrently": "^4.1.2",
     "faker": "^4.1.0",
     "lodash": "^4.17.15",
+    "nodemon": "^1.19.2",
+    "randomcolor": "^0.5.4",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.1",
@@ -25,10 +27,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "build": "react-scripts build",
     "dev": "concurrently \"yarn start\" \"yarn serve\"",
-    "serve": "nodemon --watch ../backend/lib --inspect server.js",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "serve": "nodemon --watch ../backend/lib --inspect server.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -44,8 +45,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "nodemon": "^1.19.2"
   }
 }

@@ -3,9 +3,16 @@ import Immutable from 'immutable'
 import io from 'socket.io-client'
 
 import { Value, Operation } from 'slate'
-import { ConnectionModel } from './model'
+import { ConnectionModel, ExtendedEditor } from './model'
 
-import { applySlateOps, toSlateOp, toJS } from '@slate-collaborative/bridge'
+import {
+  setCursor,
+  removeCursor,
+  cursorOpFilter,
+  applySlateOps,
+  toSlateOp,
+  toJS
+} from '@slate-collaborative/bridge'
 
 class Connection {
   url: string
@@ -13,8 +20,10 @@ class Connection {
   docSet: Automerge.DocSet<any>
   connection: Automerge.Connection<any>
   socket: SocketIOClient.Socket
-  editor: any
+  editor: ExtendedEditor
   connectOpts: any
+  annotationDataMixin: any
+  cursorAnnotationType: string
   onConnect?: () => void
   onDisconnect?: () => void
 
@@ -23,11 +32,16 @@ class Connection {
     url,
     connectOpts,
     onConnect,
-    onDisconnect
+    onDisconnect,
+    cursorAnnotationType,
+    annotationDataMixin
   }: ConnectionModel) {
     this.url = url
     this.editor = editor
     this.connectOpts = connectOpts
+    this.cursorAnnotationType = cursorAnnotationType
+    this.annotationDataMixin = annotationDataMixin
+
     this.onConnect = onConnect
     this.onDisconnect = onDisconnect
 
@@ -68,7 +82,9 @@ class Connection {
           })
         })
 
-        setTimeout(() => (this.editor.remote = false), 5)
+        await Promise.resolve()
+
+        this.editor.remote = false
       }
     } catch (e) {
       console.error(e)
@@ -81,8 +97,20 @@ class Connection {
 
     if (!doc) return
 
+    const {
+      value: { selection }
+    } = this.editor
+
+    const withCursor = selection.isFocused ? setCursor : removeCursor
+
     const changed = Automerge.change(doc, message, (d: any) =>
-      applySlateOps(d, operations)
+      withCursor(
+        applySlateOps(d, cursorOpFilter(operations, this.cursorAnnotationType)),
+        this.socket.id,
+        selection,
+        this.cursorAnnotationType,
+        this.annotationDataMixin
+      )
     )
 
     this.docSet.setDoc(this.docId, changed)
@@ -109,7 +137,7 @@ class Connection {
   }
 
   connect = () => {
-    this.socket = io(this.url, this.connectOpts)
+    this.socket = io(this.url, { ...this.connectOpts })
 
     this.socket.on('connect', () => {
       this.connection = new Automerge.Connection(this.docSet, this.sendData)
@@ -125,6 +153,8 @@ class Connection {
   disconnect = () => {
     this.onDisconnect()
 
+    console.log('disconnect', this.socket)
+
     this.connection && this.connection.close()
 
     delete this.connection
@@ -137,6 +167,7 @@ class Connection {
     this.onDisconnect()
 
     this.socket.close()
+    // this.socket.destroy()
   }
 }
 

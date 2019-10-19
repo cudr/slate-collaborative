@@ -1,3 +1,3 @@
-import { Doc } from 'automerge'
+export type CursorKey = string
 
-export type SyncDoc = Doc<any>
+export type SyncDoc = any

@@ -6,23 +6,25 @@ import text from './text'
 import annotation from './annotation'
 
 const setSelection = doc => doc
-const setValue = (doc, op) => doc
+const setValue = doc => doc
 
 const opType: any = {
   ...text,
   ...annotation,
   ...node,
   ...mark,
-
-  set_selection: setSelection,
-  set_value: setValue
+  set_selection: setSelection
+  // set_value: setValue
 }
 
 export const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
   try {
     const applyOp = opType[op.type]
 
-    if (!applyOp) throw new TypeError('Invalid operation type!')
+    if (!applyOp) {
+      console.log('operation', op.toJS())
+      throw new TypeError(`Unsupported operation type: ${op.type}!`)
+    }
 
     return applyOp(doc, op)
   } catch (e) {

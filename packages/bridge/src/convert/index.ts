@@ -14,7 +14,7 @@ const byAction = {
 
 const rootKey = '00000000-0000-0000-0000-000000000000'
 
-const toSlateOp = (ops: Automerge.Diff[], currentTree) => {
+const toSlateOp = (ops: Automerge.Diff[], doc) => {
   const iterate = (acc, op) => {
     const action = byAction[op.action]
 
@@ -30,7 +30,7 @@ const toSlateOp = (ops: Automerge.Diff[], currentTree) => {
     []
   ])
 
-  return defer.flatMap(op => op(tempTree, currentTree))
+  return defer.flatMap(op => op(tempTree, doc)).filter(op => op)
 }
 
 export { toSlateOp }

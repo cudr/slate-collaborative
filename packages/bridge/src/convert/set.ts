@@ -10,6 +10,32 @@ const setDataOp = ({ path, value }: Automerge.Diff) => map => ({
   }
 })
 
+const AnnotationSetOp = ({ key, value }: Automerge.Diff) => (map, doc) => {
+  if (!doc.annotations) {
+    doc.annotations = {}
+  }
+
+  let op
+
+  /**
+   * Looks like set_annotation option is broken, temporary disabled
+   */
+  // if (!doc.annotations[key]) {
+  op = {
+    type: 'add_annotation',
+    annotation: map[value]
+  }
+  // } else {
+  //   op = {
+  //     type: 'set_annotation',
+  //     properties: toJS(doc.annotations[key]),
+  //     newProperties: map[value]
+  //   }
+  // }
+
+  return op
+}
+
 const setByType = {
   data: setDataOp
 }
@@ -21,8 +47,15 @@ const opSet = (op: Automerge.Diff, [map, ops]) => {
 
     if (set && path) {
       ops.push(set(op))
-    } else {
+    } else if (map[obj]) {
       map[obj][key] = link ? map[value] : value
+    }
+
+    /**
+     * Annotation
+     */
+    if (path && path.length === 1 && path[0] === 'annotations') {
+      ops.push(AnnotationSetOp(op))
     }
 
     return [map, ops]

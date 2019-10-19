@@ -1,14 +1,17 @@
-import { Operation, SyncDoc } from '../model'
+import { Operation, SyncDoc } from '../model/index'
 
 export const addAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
+  console.log('addAnnotation!!!', op.toJS())
   return doc
 }
 
 export const removeAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
+  console.log('removeAnnotation!!!', op.toJS())
   return doc
 }
 
 export const setAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
+  console.log('setAnnotation!!!', op.toJS())
   return doc
 }
 

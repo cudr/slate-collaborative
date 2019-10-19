@@ -5,6 +5,7 @@ export interface ConnectionOptions {
   connectOpts?: SocketIO.ServerOptions
   defaultValue?: ValueJSON
   saveTreshold?: number
+  cursorAnnotationType?: string
   onAuthRequest?: (
     query: Object,
     socket?: SocketIO.Socket

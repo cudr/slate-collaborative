@@ -2,6 +2,7 @@ import io from 'socket.io'
 import { ValueJSON } from 'slate'
 import * as Automerge from 'automerge'
 import throttle from 'lodash/throttle'
+import merge from 'lodash/merge'
 
 import { toSync, toJS } from '@slate-collaborative/bridge'
 
@@ -18,7 +19,7 @@ class Connection {
     this.io = io(options.port, options.connectOpts)
     this.docSet = new Automerge.DocSet()
     this.connections = {}
-    this.options = options
+    this.options = merge(defaultOptions, options)
 
     this.configure()
   }
@@ -32,16 +33,28 @@ class Connection {
   private appendDoc = (path: string, value: ValueJSON) => {
     const sync = toSync(value)
 
+    sync.annotations = {}
+
     const doc = Automerge.from(sync)
 
     this.docSet.setDoc(path, doc)
   }
 
   private saveDoc = throttle(pathname => {
-    if (this.options.onDocumentSave) {
-      const doc = this.docSet.getDoc(pathname)
+    try {
+      if (this.options.onDocumentSave) {
+        const doc = this.docSet.getDoc(pathname)
 
-      this.options.onDocumentSave(pathname, toJS(doc))
+        if (doc) {
+          const data = toJS(doc)
+
+          delete data.annotations
+
+          this.options.onDocumentSave(pathname, data)
+        }
+      }
+    } catch (e) {
+      console.log(e)
     }
   }, (this.options && this.options.saveTreshold) || 2000)
 
@@ -96,6 +109,8 @@ class Connection {
     socket.on('operation', this.onOperation(id, name))
 
     socket.on('disconnect', this.onDisconnect(id, socket))
+
+    this.garbageCursors(name)
   }
 
   private onOperation = (id, name) => data => {
@@ -103,6 +118,8 @@ class Connection {
       this.connections[id].receiveMsg(data)
 
       this.saveDoc(name)
+
+      this.garbageCursors(name)
     } catch (e) {
       console.log(e)
     }
@@ -113,6 +130,9 @@ class Connection {
     delete this.connections[id]
 
     socket.leave(id)
+
+    this.garbageCursor(socket.nsp.name, id)
+    this.garbageCursors(socket.nsp.name)
 
     this.garbageNsp()
   }
@@ -125,6 +145,35 @@ class Connection {
           if (!clientsList.length) this.removeDoc(nsp)
         })
       })
+  }
+
+  garbageCursor = (nsp, id) => {
+    const doc = this.docSet.getDoc(nsp)
+
+    if (!doc.annotations) return
+
+    const change = Automerge.change(doc, `remove cursor ${id}`, (d: any) => {
+      delete d.annotations[id]
+    })
+
+    this.docSet.setDoc(nsp, change)
+  }
+
+  garbageCursors = nsp => {
+    const doc = this.docSet.getDoc(nsp)
+
+    if (!doc.annotations) return
+
+    const namespace = this.io.of(nsp)
+
+    Object.keys(doc.annotations).forEach(key => {
+      if (
+        !namespace.sockets[key] &&
+        doc.annotations[key].type === this.options.cursorAnnotationType
+      ) {
+        this.garbageCursor(nsp, key)
+      }
+    })
   }
 
   removeDoc = async nsp => {

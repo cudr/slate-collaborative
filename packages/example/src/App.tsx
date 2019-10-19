@@ -19,9 +19,11 @@ class App extends Component<{}, { rooms: string[] }> {
 
     return (
       <Container>
-        <AddButton type="button" onClick={this.addRoom}>
-          Add Room
-        </AddButton>
+        <Panel>
+          <AddButton type="button" onClick={this.addRoom}>
+            Add Room
+          </AddButton>
+        </Panel>
         {rooms.map(room => (
           <Room key={room} slug={room} removeRoom={this.removeRoom(room)} />
         ))}
@@ -45,6 +47,10 @@ class App extends Component<{}, { rooms: string[] }> {
 export default App
 
 const Container = styled.div``
+
+const Panel = styled.div`
+  display: flex;
+`
 
 const Button = styled.button`
   padding: 6px 14px;

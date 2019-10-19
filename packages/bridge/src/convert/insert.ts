@@ -15,18 +15,20 @@ const insertNodeOp = ({ value, obj, index, path }: Automerge.Diff) => map => {
   const inserate = ({ nodes, ...json }: any, path) => {
     const node = nodes ? { ...json, nodes: [] } : json
 
-    if (node.object === 'mark') {
-      ops.push({
-        type: 'add_mark',
-        path: path.slice(0, -1),
-        mark: node
-      })
-    } else {
-      ops.push({
-        type: 'insert_node',
-        path,
-        node
-      })
+    if (node.object) {
+      if (node.object === 'mark') {
+        ops.push({
+          type: 'add_mark',
+          path: path.slice(0, -1),
+          mark: node
+        })
+      } else {
+        ops.push({
+          type: 'insert_node',
+          path,
+          node
+        })
+      }
     }
 
     nodes && nodes.forEach((n, i) => inserate(n, [...path, i]))
@@ -50,7 +52,7 @@ const opInsert = (op: Automerge.Diff, [map, ops]) => {
 
     if (link && map[obj]) {
       map[obj].splice(index, 0, map[value] || value)
-    } else if (type === 'text' && !path) {
+    } else if ((type === 'text' || type === 'list') && !path) {
       map[obj] = map[obj]
         ? map[obj]
             .slice(0, index)

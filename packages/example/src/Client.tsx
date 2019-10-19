@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 
 import { Value, ValueJSON } from 'slate'
 import { Editor } from 'slate-react'
+import randomColor from 'randomcolor'
 
 import styled from '@emotion/styled'
 
@@ -23,12 +24,18 @@ class Client extends Component<ClienProps> {
 
   state = {
     value: Value.fromJSON(defaultValue as ValueJSON),
-    isOnline: true,
+    isOnline: false,
     plugins: []
   }
 
   componentDidMount() {
-    const plugin = ClientPlugin({
+    const color = randomColor({
+      luminosity: 'dark',
+      format: 'rgba',
+      alpha: 1
+    })
+
+    const options = {
       url: `http://localhost:9000/${this.props.slug}`,
       connectOpts: {
         query: {
@@ -37,10 +44,17 @@ class Client extends Component<ClienProps> {
           slug: this.props.slug
         }
       },
-      // preloader: () => <div>PRELOADER!!!!!!</div>,
+      annotationDataMixin: {
+        name: this.props.name,
+        color,
+        alphaColor: color.slice(0, -2) + '0.2)'
+      },
+      // renderPreloader: () => <div>PRELOADER!!!!!!</div>,
       onConnect: this.onConnect,
       onDisconnect: this.onDisconnect
-    })
+    }
+
+    const plugin = ClientPlugin(options)
 
     this.setState({
       plugins: [plugin]
