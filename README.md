@@ -30,7 +30,7 @@ const plugins = [ColaborativeClient(options)]
   cursorAnnotationType?: string // type string for cursor annotations
   annotationDataMixin?: Data // any data passed to cursor annotation
   renderPreloader?: () => ReactNode // optional preloader render
-  renderCursor?: (data: Data) => ReactNode | any // option custom cursor render
+  renderCursor?: (data: Data) => ReactNode | any // custom cursor render
   onConnect?: (connection: Connection) => void // connect callback
   onDisconnect?: (connection: Connection) => void // disconnect callback
 }
