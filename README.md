@@ -14,6 +14,8 @@ Watch the demo
 
 Use it as a simple slatejs plugin
 
+check [example](https://github.com/cudr/slate-collaborative/blob/master/packages/example/src/Client.tsx)
+
 ```
 import ColaborativeClient from '@slate-collaborative/client'
 
