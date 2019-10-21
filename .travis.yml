@@ -1,0 +1,17 @@
+language: node_js
+
+node_js:
+  - '12'
+
+env:
+  - workerCount=3 timeout=600000
+
+script:
+  - npm run test
+
+install:
+  - npm run bootstrap
+
+cache:
+  directories:
+    - node_modules

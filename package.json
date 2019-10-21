@@ -9,6 +9,7 @@
     "build": "lerna run build --stream",
     "watch": "lerna run --parallel watch",
     "prebuild": "rm -rf ./packages/**/lib/",
+    "test": "lerna run test --stream", 
     "format": "prettier --write"
   },
   "workspaces": [

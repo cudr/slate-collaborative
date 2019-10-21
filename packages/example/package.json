@@ -27,7 +27,6 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
     "dev": "concurrently \"yarn start\" \"yarn serve\"",
     "serve": "nodemon --watch ../backend/lib --inspect server.js"
   },

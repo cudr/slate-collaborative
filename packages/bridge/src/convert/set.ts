@@ -20,6 +20,7 @@ const AnnotationSetOp = ({ key, value }: Automerge.Diff) => (map, doc) => {
   /**
    * Looks like set_annotation option is broken, temporary disabled
    */
+
   // if (!doc.annotations[key]) {
   op = {
     type: 'add_annotation',

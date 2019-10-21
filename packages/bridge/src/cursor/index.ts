@@ -51,7 +51,7 @@ export const removeCursor = (doc: SyncDoc, key: CursorKey) => {
   return doc
 }
 
-export const cursorOpFilter = (ops: Immutable.List<Operation>, type: string) =>
+export const cursorOpFilter = (ops: any, type: string): any =>
   ops.filter(op => {
     if (op.type === 'set_annotation') {
       return !(

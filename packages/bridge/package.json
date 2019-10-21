@@ -21,7 +21,8 @@
     "build": "yarn run build:types && yarn run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "watch": "yarn build:js -w"
+    "watch": "yarn build:js -w",
+    "test": "jest"
   },
   "dependencies": {
     "typescript": "^3.6.3"
@@ -32,7 +33,10 @@
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-env": "^7.6.0",
-    "@babel/preset-typescript": "^7.6.0"
+    "@babel/preset-typescript": "^7.6.0",
+    "@types/jest": "^24.0.19",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.1.0"
   },
   "directories": {
     "lib": "lib"
@@ -41,5 +45,14 @@
     "slate",
     "automerge",
     "bridge"
-  ]
+  ],
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$"
+  }
 }

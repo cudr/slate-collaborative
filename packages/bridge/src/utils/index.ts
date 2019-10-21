@@ -1,6 +1,8 @@
 import toSync from './toSync'
 import hexGen from './hexGen'
 
+export * from './testUtils'
+
 const toJS = node => {
   try {
     return JSON.parse(JSON.stringify(node))
