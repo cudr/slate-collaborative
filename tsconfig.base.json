@@ -11,9 +11,6 @@
     "experimentalDecorators": true,
     "target": "es5",
     "sourceMap": true,
-    "lib": ["es6", "es5"],
-    "paths": {
-      "@slate-collaborative/*": ["packages/*/src"]
-    }
+    "lib": ["es6", "es5"]
   }
 }
