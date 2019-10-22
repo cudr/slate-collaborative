@@ -9,6 +9,7 @@
     "build": "lerna run build --stream",
     "watch": "lerna run --parallel watch",
     "prebuild": "rm -rf ./packages/**/lib/",
+    "test": "lerna run test --stream", 
     "format": "prettier --write"
   },
   "workspaces": [
@@ -22,7 +23,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,babelrc}": [
+    "*.{js,jsx,ts,tsx,babelrc}": [
       "yarn run format",
       "git add"
     ]

@@ -1,6 +1,6 @@
 {
   "name": "@slate-collaborative/client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "files": [
     "lib"
   ],
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@babel/preset-react": "^7.0.0",
-    "@slate-collaborative/bridge": "^0.0.1",
+    "@slate-collaborative/bridge": "^0.0.2",
     "automerge": "^0.12.1",
     "immutable": "^4.0.0-rc.12",
     "react": "^16.9.0",
