@@ -7,10 +7,11 @@ env:
   - workerCount=3 timeout=600000
 
 script:
-  - npm run test
+  - yarn test
 
 install:
-  - npm run bootstrap
+  - yarn
+  - yarn bootstrap
 
 cache:
   directories:
