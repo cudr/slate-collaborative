@@ -1,7 +1,8 @@
 import { ValueJSON } from 'slate'
+import { Server } from 'http'
 
 export interface ConnectionOptions {
-  port: number
+  entry: number | Server
   connectOpts?: SocketIO.ServerOptions
   defaultValue?: ValueJSON
   saveTreshold?: number

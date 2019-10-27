@@ -63,14 +63,14 @@ class Connection {
       return
     }
 
-    const currentDoc = this.docSet.getDoc(this.docId)
-    const docNew = this.connection.receiveMsg(data)
-
-    if (!docNew) {
-      return
-    }
-
     try {
+      const currentDoc = this.docSet.getDoc(this.docId)
+      const docNew = this.connection.receiveMsg(data)
+
+      if (!docNew) {
+        return
+      }
+
       const operations = Automerge.diff(currentDoc, docNew)
 
       if (operations.length !== 0) {
@@ -87,9 +87,39 @@ class Connection {
         await Promise.resolve()
 
         this.editor.remote = false
+
+        this.garbageCursors()
       }
     } catch (e) {
       console.error(e)
+    }
+  }
+
+  garbageCursors = async () => {
+    const doc = this.docSet.getDoc(this.docId)
+    const { value } = this.editor
+
+    if (value.annotations.size === Object.keys(doc.annotations).length) {
+      return
+    }
+
+    const garbage = []
+
+    value.annotations.forEach(annotation => {
+      if (
+        annotation.type === this.cursorAnnotationType &&
+        !doc.annotations[annotation.key]
+      ) {
+        garbage.push(annotation)
+      }
+    })
+
+    if (garbage.length) {
+      this.editor.withoutSaving(() => {
+        garbage.forEach(annotation => {
+          this.editor.removeAnnotation(annotation)
+        })
+      })
     }
   }
 

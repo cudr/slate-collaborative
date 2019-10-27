@@ -16,7 +16,7 @@ class Connection {
   private options: ConnectionOptions
 
   constructor(options: ConnectionOptions = defaultOptions) {
-    this.io = io(options.port, options.connectOpts)
+    this.io = io(options.entry, options.connectOpts)
     this.docSet = new Automerge.DocSet()
     this.connections = {}
     this.options = merge(defaultOptions, options)

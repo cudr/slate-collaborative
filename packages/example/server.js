@@ -1,8 +1,9 @@
 const Connection = require('@slate-collaborative/backend')
 const defaultValue = require('./src/defaultValue')
+const server = require('http').createServer()
 
 const config = {
-  port: 9000,
+  entry: server, // or specify port to start io server
   defaultValue,
   saveTreshold: 2000,
   onAuthRequest: async (query, socket) => {
@@ -19,3 +20,5 @@ const config = {
 }
 
 const connection = new Connection(config)
+
+server.listen(9000)
