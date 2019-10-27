@@ -35,8 +35,13 @@ class Client extends Component<ClienProps> {
       alpha: 1
     })
 
+    const origin =
+      process.env.NODE_ENV === 'production'
+        ? window.location.origin
+        : 'http://localhost:9000'
+
     const options = {
-      url: `http://localhost:9000/${this.props.slug}`,
+      url: `${origin}/${this.props.slug}`,
       connectOpts: {
         query: {
           name: this.props.name,
