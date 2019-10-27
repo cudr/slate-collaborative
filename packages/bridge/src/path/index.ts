@@ -1,7 +1,7 @@
 import { SyncDoc, Path } from '../model'
 import { NodeJSON } from 'slate'
 
-export const isTree = (node: NodeJSON): any => node.object !== 'text'
+export const isTree = (node: NodeJSON): any => node && node.object !== 'text'
 
 export const getTarget = (doc: SyncDoc, path: Path) => {
   const iterate = (current: any, idx: number) => {

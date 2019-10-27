@@ -7,15 +7,18 @@ export const createTextJSON = (text: string = ''): TextJSON => ({
   text
 })
 
-export const createParagraphJSON = (text: string = ''): NodeJSON => ({
+export const createBlockJSON = (
+  type: string = 'paragraph',
+  text: string = ''
+): NodeJSON => ({
   object: 'block',
-  type: 'paragraph',
+  type,
   nodes: [createTextJSON(text)]
 })
 
 export const createValueJSON = (): ValueJSON => ({
   document: {
-    nodes: [createParagraphJSON()]
+    nodes: [createBlockJSON()]
   }
 })
 
