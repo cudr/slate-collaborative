@@ -1,4 +1,4 @@
-# slate-collaborative [Demo](https://slate-collaborative.herokuapp.com/)
+# slate-collaborative. Check [Demo](https://slate-collaborative.herokuapp.com/)
 slatejs collaborative plugin &amp; microservice
 
 ![screencast2019-10-2820-06-10](https://user-images.githubusercontent.com/23132107/67700384-ebff7280-f9be-11e9-9005-6ddadcafec47.gif)
@@ -60,5 +60,15 @@ const connection = new CollaborativeBackend(options)
   ) => ValueJSON | null | false | undefined
   onDocumentSave?: (pathname: string, json: ValueJSON) => Promise<void> | void // save document callback 
 }
+```
+
+# Contribute
+
+You welcome to contribute!
+
+start it ease:
+```
+yarn
+yarn dev
 ```
 
