@@ -1,6 +1,8 @@
 # slate-collaborative [Demo](https://slate-collaborative.herokuapp.com/)
 slatejs collaborative plugin &amp; microservice
 
+![screencast2019-10-2820-06-10](https://user-images.githubusercontent.com/23132107/67700384-ebff7280-f9be-11e9-9005-6ddadcafec47.gif)
+
 A little experiment for co-editing.
 
 Based on idea of https://github.com/humandx/slate-automerge
