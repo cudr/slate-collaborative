@@ -1,12 +1,9 @@
-# slate-collaborative
+# slate-collaborative [Demo](https://slate-collaborative.herokuapp.com/)
 slatejs collaborative plugin &amp; microservice
 
 A little experiment for co-editing.
 
 Based on idea of https://github.com/humandx/slate-automerge
-
-Check the [Demo](https://slate-collaborative.herokuapp.com/)
-
 
 # API
 
@@ -46,7 +43,7 @@ const connection = new CollaborativeBackend(options)
 ### options:
 ```
 {
-  entry: number // port or Server for listen io connection
+  entry: number | Server // port or Server for listen io connection
   connectOpts?: SocketIO.ServerOptions
   defaultValue?: ValueJSON // default value
   saveTreshold?: number // theshold of onDocumentSave callback execution
