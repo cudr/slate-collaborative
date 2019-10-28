@@ -5,7 +5,7 @@ A little experiment for co-editing.
 
 Based on idea of https://github.com/humandx/slate-automerge
 
-Watch the demo
+Check the [Demo](https://slate-collaborative.herokuapp.com/)
 
 
 # API
@@ -46,7 +46,7 @@ const connection = new CollaborativeBackend(options)
 ### options:
 ```
 {
-  port: number // port to start io connection
+  entry: number // port or Server for listen io connection
   connectOpts?: SocketIO.ServerOptions
   defaultValue?: ValueJSON // default value
   saveTreshold?: number // theshold of onDocumentSave callback execution
