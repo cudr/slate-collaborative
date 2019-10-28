@@ -6,6 +6,7 @@
     "rootDir": "src",
     "baseUrl": "src",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "lib": ["dom", "dom.iterable", "esnext"]
   }
 }

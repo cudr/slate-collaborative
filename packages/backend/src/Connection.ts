@@ -9,7 +9,7 @@ import { toSync, toJS } from '@slate-collaborative/bridge'
 import { getClients, defaultValue, defaultOptions } from './utils'
 import { ConnectionOptions } from './model'
 
-class Connection {
+export default class Connection {
   private io: any
   private docSet: any
   private connections: { [key: string]: Automerge.Connection<any> }
@@ -194,5 +194,3 @@ class Connection {
     this.io.close()
   }
 }
-
-export default Connection
