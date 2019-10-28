@@ -2,11 +2,11 @@ const Connection = require('@slate-collaborative/backend')
 const defaultValue = require('./src/defaultValue')
 const express = require('express')
 
-const app = express()
-
-const server = require('http').createServer(app)
-
 const PORT = process.env.PORT || 9000
+
+const server = express()
+  .use(express.static('build'))
+  .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 const config = {
   entry: server, // or specify port to start io server
@@ -26,7 +26,3 @@ const config = {
 }
 
 const connection = new Connection(config)
-
-app.use(express.static('build'))
-
-server.listen(PORT)
