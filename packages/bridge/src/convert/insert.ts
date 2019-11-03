@@ -12,7 +12,7 @@ const insertTextOp = ({ index, path, value }: Automerge.Diff) => () => ({
 const insertNodeOp = ({ value, obj, index, path }: Automerge.Diff) => map => {
   const ops = []
 
-  const inserate = ({ nodes, ...json }: any, path) => {
+  const iterate = ({ nodes, ...json }, path) => {
     const node = nodes ? { ...json, nodes: [] } : json
 
     if (node.object) {
@@ -31,12 +31,12 @@ const insertNodeOp = ({ value, obj, index, path }: Automerge.Diff) => map => {
       }
     }
 
-    nodes && nodes.forEach((n, i) => inserate(n, [...path, i]))
+    nodes && nodes.forEach((n, i) => iterate(n, [...path, i]))
   }
 
   const source = map[value] || (map[obj] && toJS(map[obj]))
 
-  source && inserate(source, [...toSlatePath(path), index])
+  source && iterate(source, [...toSlatePath(path), index])
 
   return ops
 }
