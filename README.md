@@ -13,7 +13,7 @@ Based on idea of https://github.com/humandx/slate-automerge
 
 Use it as a simple slatejs plugin
 
-check [example](https://github.com/cudr/slate-collaborative/blob/master/packages/example/src/Client.tsx)
+check [example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example/src/Client.tsx#L43)
 
 ```
 import ColaborativeClient from '@slate-collaborative/client'
