@@ -93,9 +93,7 @@ class Client extends Component<ClienProps> {
     )
   }
 
-  onChange = ({ value }: any) => {
-    this.setState({ value })
-  }
+  onChange = ({ value }: any) => this.setState({ value })
 
   onConnect = () => this.setState({ isOnline: true })
 

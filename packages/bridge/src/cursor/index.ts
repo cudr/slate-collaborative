@@ -1,5 +1,4 @@
-import { Operation, Selection } from 'slate'
-import * as Immutable from 'immutable'
+import { Selection } from 'slate'
 import merge from 'lodash/merge'
 
 import { toJS } from '../utils'
