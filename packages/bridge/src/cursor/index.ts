@@ -1,5 +1,4 @@
-import { Operation, Selection } from 'slate'
-import * as Immutable from 'immutable'
+import { Selection } from 'slate'
 import merge from 'lodash/merge'
 
 import { toJS } from '../utils'
@@ -51,7 +50,7 @@ export const removeCursor = (doc: SyncDoc, key: CursorKey) => {
   return doc
 }
 
-export const cursorOpFilter = (ops: any, type: string): any =>
+export const cursorOpFilter = (ops, type: string) =>
   ops.filter(op => {
     if (op.type === 'set_annotation') {
       return !(

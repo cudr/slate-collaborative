@@ -1,3 +1,5 @@
+import { ValueJSON } from 'slate'
+
 export type CursorKey = string
 
-export type SyncDoc = any
+export interface SyncDoc extends ValueJSON {}

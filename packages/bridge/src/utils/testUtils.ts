@@ -1,5 +1,5 @@
 import * as Automerge from 'automerge'
-import { ValueJSON, TextJSON, NodeJSON } from 'slate'
+import { TextJSON } from 'slate'
 
 export const createTextJSON = (text: string = ''): TextJSON => ({
   object: 'text',
@@ -10,13 +10,13 @@ export const createTextJSON = (text: string = ''): TextJSON => ({
 export const createBlockJSON = (
   type: string = 'paragraph',
   text: string = ''
-): NodeJSON => ({
+) => ({
   object: 'block',
   type,
   nodes: [createTextJSON(text)]
 })
 
-export const createValueJSON = (): ValueJSON => ({
+export const createValueJSON = () => ({
   document: {
     nodes: [createBlockJSON()]
   }

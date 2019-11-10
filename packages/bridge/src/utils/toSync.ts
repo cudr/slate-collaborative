@@ -1,6 +1,6 @@
 import * as Automerge from 'automerge'
 
-const toSync = (node: any): any => {
+const toSync = node => {
   if (!node) {
     return
   }

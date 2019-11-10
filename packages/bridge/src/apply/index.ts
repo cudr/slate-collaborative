@@ -8,7 +8,7 @@ import annotation from './annotation'
 const setSelection = doc => doc
 const setValue = doc => doc
 
-const opType: any = {
+const opType = {
   ...text,
   ...annotation,
   ...node,

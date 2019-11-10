@@ -1,19 +1,55 @@
-import { Operation, SyncDoc } from '../model/index'
+import { SyncDoc } from '../model/index'
+import { toSync } from '../utils'
+import {
+  AddAnnotationOperation,
+  RemoveAnnotationOperation,
+  SetAnnotationOperation
+} from 'slate'
 
-// TODO: handle annotation ops
+export const addAnnotation = (
+  doc: SyncDoc,
+  op: AddAnnotationOperation
+): SyncDoc => {
+  if (!doc.annotations) {
+    doc['annotations'] = {}
+  }
 
-export const addAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
-  // console.log('addAnnotation!!!', op.toJS())
+  const annotation = op.annotation.toJSON()
+
+  doc.annotations[annotation.key] = toSync(annotation)
+
   return doc
 }
 
-export const removeAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
-  // console.log('removeAnnotation!!!', op.toJS())
+export const removeAnnotation = (
+  doc: SyncDoc,
+  op: RemoveAnnotationOperation
+): SyncDoc => {
+  if (doc.annotations) {
+    delete doc.annotations[op.annotation.key]
+  }
+
   return doc
 }
 
-export const setAnnotation = (doc: SyncDoc, op: Operation): SyncDoc => {
-  // console.log('setAnnotation!!!', op.toJS())
+export const setAnnotation = (
+  doc: SyncDoc,
+  op: SetAnnotationOperation
+): SyncDoc => {
+  /**
+   * Looks like set_annotation option is broken, temporary disabled
+   */
+
+  // const { newProperties }: any = op.toJSON()
+
+  // if (!doc.annotations || !newProperties) return doc
+
+  // if (!doc.annotations[newProperties.key]) {
+  //   return addAnnotation(doc, newProperties)
+  // } else {
+  //   doc.annotations[newProperties.key] = { ...doc.annotations[newProperties.key], ...newProperties }
+  // }
+
   return doc
 }
 
