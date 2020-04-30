@@ -1,29 +1,20 @@
 import * as Automerge from 'automerge'
-import { toSlatePath, toJS } from '../utils/index'
+
+import { toSlatePath, toJS } from '../utils'
 import { getTarget } from '../path'
 
 const removeTextOp = ({ index, path }: Automerge.Diff) => () => ({
   type: 'remove_text',
-  path: toSlatePath(path).slice(0, path.length),
+  path: toSlatePath(path).slice(0, path?.length),
   offset: index,
   text: '*',
   marks: []
 })
 
-const removeMarkOp = ({ path, index }: Automerge.Diff) => (map, doc) => {
-  const slatePath = toSlatePath(path)
-  const target = getTarget(doc, slatePath)
-
-  return {
-    type: 'remove_mark',
-    path: slatePath,
-    mark: {
-      type: target.marks[index].type
-    }
-  }
-}
-
-const removeNodesOp = ({ index, obj, path }: Automerge.Diff) => (map, doc) => {
+const removeNodeOp = ({ index, obj, path }: Automerge.Diff) => (
+  map: any,
+  doc: any
+) => {
   const slatePath = toSlatePath(path)
   if (!map.hasOwnProperty(obj)) {
     const target = getTarget(doc, [...slatePath, index] as any)
@@ -35,42 +26,26 @@ const removeNodesOp = ({ index, obj, path }: Automerge.Diff) => (map, doc) => {
     type: 'remove_node',
     path: slatePath.length ? slatePath.concat(index) : [index],
     node: {
-      object: 'text'
+      text: '*'
     }
   }
 }
 
-const removeAnnotationOp = ({ key }: Automerge.Diff) => (map, doc) => {
-  const annotation = toJS(doc.annotations[key])
-
-  if (annotation) {
-    return {
-      type: 'remove_annotation',
-      annotation
-    }
-  }
-}
-
-const removeByType = {
-  text: removeTextOp,
-  nodes: removeNodesOp,
-  marks: removeMarkOp,
-  annotations: removeAnnotationOp
-}
-
-const opRemove = (op: Automerge.Diff, [map, ops]) => {
+const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
   try {
-    const { index, path, obj } = op
+    const { index, path, obj, type } = op
 
-    if (map.hasOwnProperty(obj) && op.type !== 'text') {
+    if (map.hasOwnProperty(obj) && type !== 'text') {
       map[obj].splice(index, 1)
 
       return [map, ops]
     }
 
-    if (!path) return [map, ops]
+    if (!path || path?.[0] === 'cursors') return [map, ops]
 
-    const fn = removeByType[path[path.length - 1]]
+    const key = path[path.length - 1]
+
+    const fn = key === 'text' ? removeTextOp : removeNodeOp
 
     return [map, [...ops, fn(op)]]
   } catch (e) {

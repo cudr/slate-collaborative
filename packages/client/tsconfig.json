@@ -1,12 +1,16 @@
 {
-  "include": ["src/**/*"],
   "extends": "../../tsconfig.base.json",
+  "include": ["./src/**/*"],
   "compilerOptions": {
-    "outDir": "lib",
-    "rootDir": "src",
-    "baseUrl": "src",
-    "jsx": "react",
-    "lib": ["dom", "dom.iterable", "es6"],
-    "esModuleInterop": true
-  }
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "outDir": "./lib",
+    "composite": true,
+    "paths": {
+      "@slate-collaborative/bridge": ["../../bridge"]
+    }
+  },
+  "references": [
+    { "path": "../bridge" }
+  ]
 }

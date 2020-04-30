@@ -1,6 +1,6 @@
 import * as Automerge from 'automerge'
 
-const toSync = node => {
+const toSync = (node: any) => {
   if (!node) {
     return
   }
@@ -10,20 +10,10 @@ const toSync = node => {
       ...node,
       text: new Automerge.Text(node.text)
     }
-  } else if (node.nodes) {
+  } else if (node.children) {
     return {
       ...node,
-      nodes: node.nodes.map(toSync)
-    }
-  } else if (node.leaves) {
-    return {
-      ...node,
-      leaves: node.leaves.map(toSync)
-    }
-  } else if (node.document) {
-    return {
-      ...node,
-      document: toSync(node.document)
+      children: node.children.map(toSync)
     }
   }
 

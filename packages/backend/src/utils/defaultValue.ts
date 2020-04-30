@@ -1,21 +1,12 @@
-import { ValueJSON } from 'slate'
-
-const json: ValueJSON = {
-  document: {
-    nodes: [
+const json = [
+  {
+    type: 'paragraph',
+    children: [
       {
-        object: 'block',
-        type: 'paragraph',
-        nodes: [
-          {
-            object: 'text',
-            marks: [],
-            text: ''
-          }
-        ]
+        text: ''
       }
     ]
   }
-}
+]
 
 export default json

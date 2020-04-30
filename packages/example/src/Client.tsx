@@ -1,114 +1,114 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 
-import { Value, ValueJSON } from 'slate'
-import { Editor } from 'slate-react'
+import { createEditor, Node } from 'slate'
+import { Slate, Editable, withReact } from 'slate-react'
+
 import randomColor from 'randomcolor'
 
 import styled from '@emotion/styled'
 
-import ClientPlugin from '@slate-collaborative/client'
+import { withIOCollaboration, useCursor } from '@slate-collaborative/client'
 
-import defaultValue from './defaultValue'
+import { Instance, ClientFrame, Title, H4, Button } from './Elements'
 
-import { Instance, ClientFrame, Title, H4, Button } from './elements'
+const defaultValue: Node[] = [
+  {
+    type: 'paragraph',
+    children: [
+      {
+        text: 'Hello collaborator!'
+      }
+    ]
+  }
+]
 
-interface ClienProps {
+interface ClientProps {
   name: string
   id: string
   slug: string
   removeUser: (id: any) => void
 }
 
-class Client extends Component<ClienProps> {
-  editor: any
+const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
+  const [value, setValue] = useState<Node[]>(defaultValue)
+  const [isOnline, setOnlineState] = useState(false)
 
-  state = {
-    value: Value.fromJSON(defaultValue as ValueJSON),
-    isOnline: false,
-    plugins: []
-  }
+  const color = useMemo(
+    () =>
+      randomColor({
+        luminosity: 'dark',
+        format: 'rgba',
+        alpha: 1
+      }),
+    []
+  )
 
-  componentDidMount() {
-    const color = randomColor({
-      luminosity: 'dark',
-      format: 'rgba',
-      alpha: 1
-    })
+  const origin =
+    process.env.NODE_ENV === 'production'
+      ? window.location.origin
+      : 'http://localhost:9000'
 
-    const origin =
-      process.env.NODE_ENV === 'production'
-        ? window.location.origin
-        : 'http://localhost:9000'
+  const editor = useMemo(
+    () =>
+      withIOCollaboration(withReact(createEditor()), {
+        docId: '/' + slug,
+        cursorData: {
+          name,
+          color,
+          alphaColor: color.slice(0, -2) + '0.2)'
+        },
+        url: `${origin}/${slug}`,
+        connectOpts: {
+          query: {
+            name,
+            token: id,
+            slug
+          }
+        },
+        onConnect: () => setOnlineState(true),
+        onDisconnect: () => setOnlineState(false)
+      }),
+    []
+  )
 
-    const options = {
-      url: `${origin}/${this.props.slug}`,
-      connectOpts: {
-        query: {
-          name: this.props.name,
-          token: this.props.id,
-          slug: this.props.slug
-        }
-      },
-      annotationDataMixin: {
-        name: this.props.name,
-        color,
-        alphaColor: color.slice(0, -2) + '0.2)'
-      },
-      // renderPreloader: () => <div>PRELOADER!!!!!!</div>,
-      onConnect: this.onConnect,
-      onDisconnect: this.onDisconnect
-    }
+  useEffect(() => {
+    editor.connect()
 
-    const plugin = ClientPlugin(options)
+    return editor.destroy
+  }, [])
 
-    this.setState({
-      plugins: [plugin]
-    })
-  }
+  const { decorate }: any = useCursor(editor)
 
-  render() {
-    const { plugins, isOnline, value } = this.state
-    const { id, name } = this.props
-
-    return (
-      <Instance online={isOnline}>
-        <Title>
-          <Head>Editor: {name}</Head>
-          <Button type="button" onClick={this.toggleOnline}>
-            Go {isOnline ? 'offline' : 'online'}
-          </Button>
-          <Button type="button" onClick={() => this.props.removeUser(id)}>
-            Remove
-          </Button>
-        </Title>
-        <ClientFrame>
-          <Editor
-            value={value}
-            ref={this.ref}
-            plugins={plugins}
-            onChange={this.onChange}
-          />
-        </ClientFrame>
-      </Instance>
-    )
-  }
-
-  onChange = ({ value }: any) => this.setState({ value })
-
-  onConnect = () => this.setState({ isOnline: true })
-
-  onDisconnect = () => this.setState({ isOnline: false })
-
-  ref = node => {
-    this.editor = node
-  }
-
-  toggleOnline = () => {
-    const { isOnline } = this.state
-    const { connect, disconnect } = this.editor.connection
-
+  const toggleOnline = () => {
+    const { connect, disconnect } = editor
     isOnline ? disconnect() : connect()
   }
+
+  return (
+    <Instance online={isOnline}>
+      <Title>
+        <Head>Editor: {name}</Head>
+        <Button type="button" onClick={toggleOnline}>
+          Go {isOnline ? 'offline' : 'online'}
+        </Button>
+        <Button type="button" onClick={() => removeUser(id)}>
+          Remove
+        </Button>
+      </Title>
+      <ClientFrame>
+        <Slate
+          editor={editor}
+          value={value}
+          onChange={value => setValue(value)}
+        >
+          <Editable
+            decorate={decorate}
+            renderLeaf={props => <Leaf {...props} />}
+          />
+        </Slate>
+      </ClientFrame>
+    </Instance>
+  )
 }
 
 export default Client
@@ -116,3 +116,68 @@ export default Client
 const Head = styled(H4)`
   margin-right: auto;
 `
+
+const Leaf: React.FC<any> = ({ attributes, children, leaf }) => {
+  return (
+    <span
+      {...attributes}
+      style={{
+        position: 'relative',
+        backgroundColor: leaf.alphaColor
+      }}
+    >
+      {leaf.isCaret ? <Caret {...leaf} /> : null}
+      {children}
+    </span>
+  )
+}
+
+const cursorStyleBase = {
+  position: 'absolute',
+  top: -2,
+  pointerEvents: 'none',
+  userSelect: 'none',
+  transform: 'translateY(-100%)',
+  fontSize: 10,
+  color: 'white',
+  background: 'palevioletred',
+  whiteSpace: 'nowrap'
+} as any
+
+const caretStyleBase = {
+  position: 'absolute',
+  top: 0,
+  pointerEvents: 'none',
+  userSelect: 'none',
+  height: '100%',
+  width: 2,
+  background: 'palevioletred'
+} as any
+
+interface Caret {
+  color: string
+  isForward: boolean
+  name: string
+}
+
+const Caret: React.FC<Caret> = ({ color, isForward, name }) => {
+  const cursorStyles = {
+    ...cursorStyleBase,
+    background: color,
+    left: isForward ? '100%' : '0%'
+  }
+  const caretStyles = {
+    ...caretStyleBase,
+    background: color,
+    left: isForward ? '100%' : '0%'
+  }
+
+  return (
+    <>
+      <span contentEditable={false} style={cursorStyles}>
+        {name}
+      </span>
+      <span contentEditable={false} style={caretStyles} />
+    </>
+  )
+}

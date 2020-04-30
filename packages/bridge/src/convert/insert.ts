@@ -1,5 +1,6 @@
 import * as Automerge from 'automerge'
-import { toSlatePath, toJS } from '../utils/index'
+
+import { toSlatePath, toJS } from '../utils'
 
 const insertTextOp = ({ index, path, value }: Automerge.Diff) => () => ({
   type: 'insert_text',
@@ -9,29 +10,21 @@ const insertTextOp = ({ index, path, value }: Automerge.Diff) => () => ({
   marks: []
 })
 
-const insertNodeOp = ({ value, obj, index, path }: Automerge.Diff) => map => {
-  const ops = []
+const insertNodeOp = ({ value, obj, index, path }: Automerge.Diff) => (
+  map: any
+) => {
+  const ops: any = []
 
-  const iterate = ({ nodes, ...json }, path) => {
-    const node = nodes ? { ...json, nodes: [] } : json
+  const iterate = ({ children, ...json }: any, path: any) => {
+    const node = children ? { ...json, children: [] } : json
 
-    if (node.object) {
-      if (node.object === 'mark') {
-        ops.push({
-          type: 'add_mark',
-          path: path.slice(0, -1),
-          mark: node
-        })
-      } else {
-        ops.push({
-          type: 'insert_node',
-          path,
-          node
-        })
-      }
-    }
+    ops.push({
+      type: 'insert_node',
+      path,
+      node
+    })
 
-    nodes && nodes.forEach((n, i) => iterate(n, [...path, i]))
+    children && children.forEach((n: any, i: any) => iterate(n, [...path, i]))
   }
 
   const source = map[value] || (map[obj] && toJS(map[obj]))
@@ -46,7 +39,7 @@ const insertByType = {
   list: insertNodeOp
 }
 
-const opInsert = (op: Automerge.Diff, [map, ops]) => {
+const opInsert = (op: Automerge.Diff, [map, ops]: any) => {
   try {
     const { link, obj, path, index, type, value } = op
 

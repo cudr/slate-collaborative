@@ -8,8 +8,8 @@ describe('convert operations to slatejs model', () => {
     const doc2 = cloneDoc(doc1)
 
     const change = Automerge.change(doc1, 'change', d => {
-      d.document.nodes.push(createBlockJSON('paragraph', 'hello!'))
-      d.document.nodes[1].nodes[0].text = 'hello!'
+      d.children.push(createBlockJSON('paragraph', 'hello!'))
+      d.children[1].children[0].text = 'hello!'
     })
 
     const operations = Automerge.diff(doc2, change)
@@ -20,12 +20,12 @@ describe('convert operations to slatejs model', () => {
       {
         type: 'insert_node',
         path: [1],
-        node: { object: 'block', type: 'paragraph', nodes: [] }
+        node: { type: 'paragraph', children: [] }
       },
       {
         type: 'insert_node',
         path: [1, 0],
-        node: { object: 'text', marks: [], text: 'hello!' }
+        node: { text: 'hello!' }
       }
     ]
 
@@ -34,16 +34,16 @@ describe('convert operations to slatejs model', () => {
 
   it('convert remove operations', () => {
     const doc1 = Automerge.change(createDoc(), 'change', d => {
-      d.document.nodes.push(createBlockJSON('paragraph', 'hello!'))
-      d.document.nodes.push(createBlockJSON('paragraph', 'hello twice!'))
-      d.document.nodes[1].nodes[0].text = 'hello!'
+      d.children.push(createBlockJSON('paragraph', 'hello!'))
+      d.children.push(createBlockJSON('paragraph', 'hello twice!'))
+      d.children[1].children[0].text = 'hello!'
     })
 
     const doc2 = cloneDoc(doc1)
 
     const change = Automerge.change(doc1, 'change', d => {
-      delete d.document.nodes[1]
-      delete d.document.nodes[0].nodes[0]
+      delete d.children[1]
+      delete d.children[0].children[0]
     })
 
     const operations = Automerge.diff(doc2, change)
@@ -55,14 +55,14 @@ describe('convert operations to slatejs model', () => {
         type: 'remove_node',
         path: [1],
         node: {
-          object: 'text'
+          text: '*'
         }
       },
       {
         type: 'remove_node',
         path: [0, 0],
         node: {
-          object: 'text'
+          text: '*'
         }
       }
     ]

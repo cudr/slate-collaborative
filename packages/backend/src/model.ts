@@ -1,10 +1,10 @@
-import { ValueJSON } from 'slate'
+import { Node } from 'slate'
 import { Server } from 'http'
 
 export interface ConnectionOptions {
   entry: number | Server
   connectOpts?: SocketIO.ServerOptions
-  defaultValue?: ValueJSON
+  defaultValue?: Node
   saveTreshold?: number
   cursorAnnotationType?: string
   onAuthRequest?: (
@@ -14,6 +14,6 @@ export interface ConnectionOptions {
   onDocumentLoad?: (
     pathname: string,
     query?: Object
-  ) => ValueJSON | null | false | undefined
-  onDocumentSave?: (pathname: string, json: ValueJSON) => Promise<void> | void
+  ) => Node | null | false | undefined
+  onDocumentSave?: (pathname: string, json: Node) => Promise<void> | void
 }

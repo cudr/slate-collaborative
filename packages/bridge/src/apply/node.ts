@@ -1,6 +1,5 @@
-import { SyncDoc } from '../model'
-
 import {
+  Editor,
   SplitNodeOperation,
   InsertNodeOperation,
   MoveNodeOperation,
@@ -12,87 +11,95 @@ import {
 import { getTarget, getParent } from '../path'
 import { toJS, cloneNode, toSync } from '../utils'
 
-export const insertNode = (doc: SyncDoc, op: InsertNodeOperation): SyncDoc => {
+export const insertNode = (doc: Editor, op: InsertNodeOperation): Editor => {
   const [parent, index] = getParent(doc, op.path)
 
-  if (parent.object === 'text') {
+  if (parent.text) {
     throw new TypeError('cannot insert node into text node')
   }
 
-  parent.nodes.splice(index, 0, toSync(op.node.toJS()))
+  parent.children
+    ? parent.children.splice(index, 0, toSync(op.node))
+    : parent.splice(index, 0, toSync(op.node))
 
   return doc
 }
 
-export const moveNode = (doc: SyncDoc, op: MoveNodeOperation): SyncDoc => {
+export const moveNode = (doc: Editor, op: MoveNodeOperation): Editor => {
   const [from, fromIndex] = getParent(doc, op.path)
   const [to, toIndex] = getParent(doc, op.newPath)
 
-  if (from.object === 'text' || to.object === 'text') {
+  if (from.text || to.text) {
     throw new TypeError('cannot move node as child of a text node')
   }
 
-  to.nodes.splice(toIndex, 0, ...from.nodes.splice(fromIndex, 1))
+  to.children.splice(toIndex, 0, ...from.children.splice(fromIndex, 1))
 
   return doc
 }
 
-export const removeNode = (doc: SyncDoc, op: RemoveNodeOperation): SyncDoc => {
+export const removeNode = (doc: Editor, op: RemoveNodeOperation): Editor => {
   const [parent, index] = getParent(doc, op.path)
 
-  if (parent.object === 'text') {
+  if (parent.text) {
     throw new TypeError('cannot remove node from text node')
   }
 
-  parent.nodes.splice(index, 1)
+  parent.children ? parent.children.splice(index, 1) : parent.splice(index, 1)
 
   return doc
 }
 
-export const splitNode = (doc: SyncDoc, op: SplitNodeOperation): SyncDoc => {
+export const splitNode = (doc: Editor, op: SplitNodeOperation): Editor => {
   const [parent, index]: [any, number] = getParent(doc, op.path)
 
-  const target = parent.nodes[index]
+  const hasChildren = !!parent.children
+
+  const target = hasChildren ? parent.children[index] : parent[index]
   const inject = cloneNode(target)
 
-  if (target.object === 'text') {
+  if (target.text) {
     target.text.length > op.position &&
       target.text.deleteAt(op.position, target.text.length - op.position)
     op.position && inject.text.deleteAt(0, op.position)
   } else {
-    target.nodes.splice(op.position, target.nodes.length - op.position)
-    op.position && inject.nodes.splice(0, op.position)
+    target.children.splice(op.position, target.children.length - op.position)
+    op.position && inject.children.splice(0, op.position)
   }
 
-  parent.nodes.insertAt(index + 1, inject)
+  hasChildren
+    ? parent.children.insertAt(index + 1, inject)
+    : parent.insertAt(index + 1, inject)
 
   return doc
 }
 
-export const mergeNode = (doc: SyncDoc, op: MergeNodeOperation) => {
+export const mergeNode = (doc: Editor, op: MergeNodeOperation) => {
   const [parent, index]: [any, number] = getParent(doc, op.path)
 
-  const prev = parent.nodes[index - 1]
-  const next = parent.nodes[index]
+  const prev = parent[index - 1] || parent.children[index - 1]
+  const next = parent[index] || parent.children[index]
 
-  if (prev.object === 'text') {
+  if (prev.text) {
     prev.text.insertAt(prev.text.length, ...toJS(next.text).split(''))
   } else {
-    next.nodes.forEach(n => prev.nodes.push(cloneNode(n)))
+    next.children.forEach((n: any) => prev.children.push(cloneNode(n)))
   }
 
-  parent.nodes.deleteAt(index, 1)
+  parent.children
+    ? parent.children.deleteAt(index, 1)
+    : parent.deleteAt(index, 1)
 
   return doc
 }
 
-export const setNode = (doc: SyncDoc, op: SetNodeOperation) => {
+export const setNode = (doc: Editor, op: SetNodeOperation) => {
   const node = getTarget(doc, op.path)
 
   const { type, data }: any = op.newProperties
 
   if (type) node.type = type
-  if (node.object !== 'text' && data) node.data = data.toJSON()
+  if (!node.text && data) node.data = data
 
   return doc
 }

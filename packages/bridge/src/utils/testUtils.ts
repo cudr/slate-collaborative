@@ -1,9 +1,8 @@
 import * as Automerge from 'automerge'
-import { TextJSON } from 'slate'
 
-export const createTextJSON = (text: string = ''): TextJSON => ({
-  object: 'text',
-  marks: [],
+import { Node } from 'slate'
+
+export const createTextJSON = (text: string = '') => ({
   text
 })
 
@@ -11,17 +10,14 @@ export const createBlockJSON = (
   type: string = 'paragraph',
   text: string = ''
 ) => ({
-  object: 'block',
   type,
-  nodes: [createTextJSON(text)]
+  children: [createTextJSON(text)]
 })
 
-export const createValueJSON = () => ({
-  document: {
-    nodes: [createBlockJSON()]
-  }
+export const createValueJSON = (): { children: Node[] } => ({
+  children: [createBlockJSON()]
 })
 
 export const createDoc = () => Automerge.from(createValueJSON())
 
-export const cloneDoc = doc => Automerge.change(doc, '', d => d)
+export const cloneDoc = (doc: any) => Automerge.change(doc, '', d => d)

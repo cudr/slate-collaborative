@@ -1,5 +1,4 @@
 import io from 'socket.io'
-import { ValueJSON } from 'slate'
 import * as Automerge from 'automerge'
 import throttle from 'lodash/throttle'
 import merge from 'lodash/merge'
@@ -32,10 +31,8 @@ export default class Connection {
       .use(this.authMiddleware)
       .on('connect', this.onConnect)
 
-  private appendDoc = (path: string, value: ValueJSON) => {
-    const sync = toSync(value)
-
-    sync.annotations = {}
+  private appendDoc = (path: string, value: any) => {
+    const sync = toSync({ cursors: {}, children: value })
 
     const doc = Automerge.from(sync)
 
@@ -50,9 +47,7 @@ export default class Connection {
         if (doc) {
           const data = toJS(doc)
 
-          delete data.annotations
-
-          this.options.onDocumentSave(pathname, data)
+          this.options.onDocumentSave(pathname, data.children)
         }
       }
     } catch (e) {
@@ -60,7 +55,7 @@ export default class Connection {
     }
   }, (this.options && this.options.saveTreshold) || 2000)
 
-  private nspMiddleware = async (path, query, next) => {
+  private nspMiddleware = async (path: string, query: any, next: any) => {
     const { onDocumentLoad } = this.options
 
     if (!this.docSet.getDoc(path)) {
@@ -76,7 +71,7 @@ export default class Connection {
     return next(null, true)
   }
 
-  private authMiddleware = async (socket, next) => {
+  private authMiddleware = async (socket: any, next: any) => {
     const { query } = socket.handshake
     const { onAuthRequest } = this.options
 
@@ -90,44 +85,48 @@ export default class Connection {
     return next()
   }
 
-  private onConnect = socket => {
+  private onConnect = (socket: any) => {
     const { id, conn } = socket
     const { name } = socket.nsp
 
-    const doc = this.docSet.getDoc(name)
-
-    const data = Automerge.save(doc)
-
-    this.connections[id] = new Automerge.Connection(this.docSet, data => {
-      socket.emit('operation', { id: conn.id, ...data })
+    this.connections[id] = new Automerge.Connection(this.docSet, payload => {
+      socket.emit('msg', {
+        type: 'operation',
+        payload: { id: conn.id, ...payload }
+      })
     })
 
     socket.join(id, () => {
-      this.connections[id].open()
+      const doc = this.docSet.getDoc(name)
 
-      socket.emit('document', data)
+      socket.emit('msg', { type: 'document', payload: Automerge.save(doc) })
+
+      this.connections[id].open()
     })
 
-    socket.on('operation', this.onOperation(id, name))
+    socket.on('msg', this.onMessage(id, name))
 
     socket.on('disconnect', this.onDisconnect(id, socket))
 
     this.garbageCursors(name)
   }
 
-  private onOperation = (id, name) => data => {
-    try {
-      this.connections[id].receiveMsg(data)
+  private onMessage = (id: any, name: any) => (data: any) => {
+    switch (data.type) {
+      case 'operation':
+        try {
+          this.connections[id].receiveMsg(data.payload)
 
-      this.saveDoc(name)
+          this.saveDoc(name)
 
-      this.garbageCursors(name)
-    } catch (e) {
-      console.log(e)
+          this.garbageCursors(name)
+        } catch (e) {
+          console.log(e)
+        }
     }
   }
 
-  private onDisconnect = (id, socket) => () => {
+  private onDisconnect = (id: any, socket: any) => () => {
     this.connections[id].close()
     delete this.connections[id]
 
@@ -143,42 +142,39 @@ export default class Connection {
     Object.keys(this.io.nsps)
       .filter(n => n !== '/')
       .forEach(nsp => {
-        getClients(this.io, nsp).then((clientsList: any[]) => {
+        getClients(this.io, nsp).then((clientsList: any) => {
           if (!clientsList.length) this.removeDoc(nsp)
         })
       })
   }
 
-  garbageCursor = (nsp, id) => {
+  garbageCursor = (nsp: string, id: string) => {
     const doc = this.docSet.getDoc(nsp)
 
-    if (!doc.annotations) return
+    if (!doc.cursors) return
 
-    const change = Automerge.change(doc, `remove cursor ${id}`, (d: any) => {
-      delete d.annotations[id]
+    const change = Automerge.change(doc, (d: any) => {
+      delete d.cursors[id]
     })
 
     this.docSet.setDoc(nsp, change)
   }
 
-  garbageCursors = nsp => {
+  garbageCursors = (nsp: string) => {
     const doc = this.docSet.getDoc(nsp)
 
-    if (!doc.annotations) return
+    if (!doc.cursors) return
 
     const namespace = this.io.of(nsp)
 
-    Object.keys(doc.annotations).forEach(key => {
-      if (
-        !namespace.sockets[key] &&
-        doc.annotations[key].type === this.options.cursorAnnotationType
-      ) {
+    Object.keys(doc.cursors).forEach(key => {
+      if (!namespace.sockets[key]) {
         this.garbageCursor(nsp, key)
       }
     })
   }
 
-  removeDoc = async nsp => {
+  removeDoc = async (nsp: string) => {
     const doc = this.docSet.getDoc(nsp)
 
     if (this.options.onDocumentSave) {

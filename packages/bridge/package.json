@@ -1,6 +1,6 @@
 {
   "name": "@slate-collaborative/bridge",
-  "version": "0.0.3",
+  "version": "0.5.0",
   "files": [
     "lib"
   ],
@@ -25,20 +25,21 @@
     "test": "jest"
   },
   "dependencies": {
-    "automerge": "^0.12.1",
-    "slate": "^0.47.8",
-    "typescript": "^3.6.3"
+    "automerge": "^0.14.0",
+    "slate": "^0.57.2",
+    "typescript": "^3.8.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.6.0",
-    "@types/jest": "^24.0.19",
+    "@types/jest": "^24.9.0",
     "jest": "^24.9.0",
-    "ts-jest": "^24.1.0"
+    "ts-jest": "^25.4.0"
   },
   "directories": {
     "lib": "lib"
@@ -49,6 +50,12 @@
     "bridge"
   ],
   "jest": {
+    "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "babelConfig": ".babelrc"
+      }
+    },
     "roots": [
       "<rootDir>/src"
     ],

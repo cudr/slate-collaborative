@@ -1,8 +1,8 @@
-import { SyncDoc } from '../model'
-import { InsertTextOperation, RemoveTextOperation } from 'slate'
+import { Editor, InsertTextOperation, RemoveTextOperation } from 'slate'
+
 import { getTarget } from '../path'
 
-export const insertText = (doc: SyncDoc, op: InsertTextOperation): SyncDoc => {
+export const insertText = (doc: Editor, op: InsertTextOperation): Editor => {
   const node = getTarget(doc, op.path)
 
   node.text.insertAt(op.offset, op.text)
@@ -10,7 +10,7 @@ export const insertText = (doc: SyncDoc, op: InsertTextOperation): SyncDoc => {
   return doc
 }
 
-export const removeText = (doc: SyncDoc, op: RemoveTextOperation): SyncDoc => {
+export const removeText = (doc: Editor, op: RemoveTextOperation): Editor => {
   const node = getTarget(doc, op.path)
 
   node.text.deleteAt(op.offset, op.text.length)

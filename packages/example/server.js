@@ -1,6 +1,16 @@
 const Connection = require('@slate-collaborative/backend')
-const defaultValue = require('./src/defaultValue')
 const express = require('express')
+
+const defaultValue = [
+  {
+    type: 'paragraph',
+    children: [
+      {
+        text: 'Hello collaborator!'
+      }
+    ]
+  }
+]
 
 const PORT = process.env.PORT || 9000
 
