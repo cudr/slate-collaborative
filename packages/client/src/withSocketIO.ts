@@ -9,8 +9,8 @@ export interface SocketIOPluginOptions {
   connectOpts: SocketIOClient.ConnectOpts
   autoConnect?: boolean
 
-  onConnect?: (e?: any) => void
-  onDisconnect?: (e?: any) => void
+  onConnect?: () => void
+  onDisconnect?: () => void
 }
 
 export interface WithSocketIOEditor {
@@ -74,7 +74,7 @@ const withSocketIO = <T extends CollabEditor>(
       case 'operation':
         return e.receiveOperation(msg.payload)
       case 'document':
-        e.receiveDocument(msg.payload)
+        return e.receiveDocument(msg.payload)
     }
   }
 

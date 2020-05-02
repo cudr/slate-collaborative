@@ -1,13 +1,17 @@
-import { Operation } from 'slate'
+import { Operation, Range } from 'slate'
 
-import merge from 'lodash/merge'
+import { CursorData } from '../model'
+
+export interface Cursor extends Range, CursorData {
+  isForward: boolean
+}
 
 export const setCursor = (
   id: string,
-  selection: any = {},
+  selection: Range | null,
   doc: any,
   operations: Operation[],
-  cursorData: any = {}
+  cursorData: CursorData
 ) => {
   const cursorOps = operations.filter(op => op.type === 'set_selection')
 
@@ -16,10 +20,15 @@ export const setCursor = (
   const newCursor = cursorOps[cursorOps.length - 1]?.newProperties || {}
 
   if (selection) {
-    doc.cursors[id] = merge(doc.cursors[id] || {}, newCursor, selection, {
-      ...cursorData,
-      isForward: Boolean(newCursor.focus)
-    })
+    doc.cursors[id] = Object.assign(
+      doc.cursors[id] || {},
+      newCursor,
+      selection,
+      {
+        ...cursorData,
+        isForward: Boolean(newCursor.focus)
+      }
+    )
   } else {
     delete doc.cursors[id]
   }

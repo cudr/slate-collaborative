@@ -16,7 +16,7 @@ const defaultValue: Node[] = [
     type: 'paragraph',
     children: [
       {
-        text: 'Hello collaborator!'
+        text: ''
       }
     ]
   }
@@ -43,33 +43,35 @@ const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
     []
   )
 
-  const origin =
-    process.env.NODE_ENV === 'production'
-      ? window.location.origin
-      : 'http://localhost:9000'
+  const editor = useMemo(() => {
+    const slateEditor = withReact(createEditor())
 
-  const editor = useMemo(
-    () =>
-      withIOCollaboration(withReact(createEditor()), {
-        docId: '/' + slug,
-        cursorData: {
+    const origin =
+      process.env.NODE_ENV === 'production'
+        ? window.location.origin
+        : 'http://localhost:9000'
+
+    const options = {
+      docId: '/' + slug,
+      cursorData: {
+        name,
+        color,
+        alphaColor: color.slice(0, -2) + '0.2)'
+      },
+      url: `${origin}/${slug}`,
+      connectOpts: {
+        query: {
           name,
-          color,
-          alphaColor: color.slice(0, -2) + '0.2)'
-        },
-        url: `${origin}/${slug}`,
-        connectOpts: {
-          query: {
-            name,
-            token: id,
-            slug
-          }
-        },
-        onConnect: () => setOnlineState(true),
-        onDisconnect: () => setOnlineState(false)
-      }),
-    []
-  )
+          token: id,
+          slug
+        }
+      },
+      onConnect: () => setOnlineState(true),
+      onDisconnect: () => setOnlineState(false)
+    }
+
+    return withIOCollaboration(slateEditor, options)
+  }, [])
 
   useEffect(() => {
     editor.connect()

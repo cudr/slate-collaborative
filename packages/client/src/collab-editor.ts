@@ -8,7 +8,7 @@ import {
   toCollabAction,
   setCursor,
   toSlateOp,
-  hexGen
+  CursorData
 } from '@slate-collaborative/bridge'
 
 export interface CollabEditor extends Editor {
@@ -50,7 +50,7 @@ export const CollabEditor = {
     e: CollabEditor,
     docId: string,
     operations: Operation[],
-    cursorData: any
+    cursorData?: CursorData
   ) => {
     try {
       const doc = e.docSet.getDoc(docId)
@@ -59,12 +59,12 @@ export const CollabEditor = {
         throw new TypeError(`Unknown docId: ${docId}!`)
       }
 
-      const changed = Automerge.change(doc, hexGen(), (d: any) => {
+      const changed = Automerge.change(doc, (d: any) => {
         applySlateOps(d.children, operations)
 
         const cursorOps = operations.filter(op => op.type === 'set_selection')
 
-        setCursor(e.clientId, e.selection, d, cursorOps, cursorData)
+        setCursor(e.clientId, e.selection, d, cursorOps, cursorData || {})
       })
 
       e.docSet.setDoc(docId, changed)
@@ -77,7 +77,7 @@ export const CollabEditor = {
    * Receive and apply document to Autmerge docSet
    */
 
-  receiveDocument: (e: CollabEditor, docId: string, data: any) => {
+  receiveDocument: (e: CollabEditor, docId: string, data: string) => {
     const currentDoc = e.docSet.getDoc(docId)
 
     const externalDoc = Automerge.load(data)
@@ -98,7 +98,7 @@ export const CollabEditor = {
    * Generate automerge diff, convert and apply operations to Editor
    */
 
-  applyOperation: (e: CollabEditor, docId: string, data: any) => {
+  applyOperation: (e: CollabEditor, docId: string, data: Automerge.Message) => {
     try {
       const current: any = e.docSet.getDoc(docId)
 
