@@ -6,6 +6,7 @@ import {
   toJS,
   SyncDoc,
   applySlateOps,
+  CollabAction,
   toCollabAction,
   setCursor,
   toSlateOp,
@@ -25,8 +26,8 @@ export interface CollabEditor extends Editor {
   openConnection: () => void
   closeConnection: () => void
 
-  receiveDocument: (data: any) => void
-  receiveOperation: (data: any) => void
+  receiveDocument: (data: string) => void
+  receiveOperation: (data: Automerge.Message) => void
 
   onCursor: (data: any) => void
 }
@@ -40,7 +41,7 @@ export const CollabEditor = {
    * Create Automerge connection
    */
 
-  createConnection: (e: CollabEditor, emit: (data: any) => void) =>
+  createConnection: (e: CollabEditor, emit: (data: CollabAction) => void) =>
     new Automerge.Connection(e.docSet, toCollabAction('operation', emit)),
 
   /**

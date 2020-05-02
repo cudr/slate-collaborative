@@ -2,10 +2,6 @@ import { Operation, Range } from 'slate'
 
 import { CursorData } from '../model'
 
-export interface Cursor extends Range, CursorData {
-  isForward: boolean
-}
-
 export const setCursor = (
   id: string,
   selection: Range | null,

@@ -1,23 +1,25 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 
-import { Text, Range, Path } from 'slate'
+import { Text, Range, Path, NodeEntry } from 'slate'
 
-import { toJS } from '@slate-collaborative/bridge'
+import { toJS, Cursor, Cursors } from '@slate-collaborative/bridge'
 
 import { CollabEditor } from './collab-editor'
 
-const useCursor = (e: CollabEditor): { decorate: any; cursors: any } => {
-  const [cursorData, setSursorData] = useState<any>(null)
+const useCursor = (
+  e: CollabEditor
+): { decorate: (entry: NodeEntry) => Range[]; cursors: Cursor[] } => {
+  const [cursorData, setSursorData] = useState<Cursor[]>([])
 
   useEffect(() => {
-    e.onCursor = (data: any) => {
-      const ranges = []
+    e.onCursor = (data: Cursors) => {
+      const ranges: Cursor[] = []
 
-      const cursorData = toJS(data)
+      const cursors = toJS(data)
 
-      for (let cursor in cursorData) {
-        if (cursor !== e.clientId && cursorData[cursor]) {
-          ranges.push(cursorData[cursor])
+      for (let cursor in cursors) {
+        if (cursor !== e.clientId && cursors[cursor]) {
+          ranges.push(cursors[cursor])
         }
       }
 
@@ -25,14 +27,14 @@ const useCursor = (e: CollabEditor): { decorate: any; cursors: any } => {
     }
   }, [])
 
-  const cursors = useMemo(() => cursorData, [cursorData])
+  const cursors = useMemo<Cursor[]>(() => cursorData, [cursorData])
 
   const decorate = useCallback(
-    ([node, path]) => {
+    ([node, path]: NodeEntry) => {
       const ranges: Range[] = []
 
       if (Text.isText(node) && cursors?.length) {
-        cursors.forEach((cursor: Range) => {
+        cursors.forEach(cursor => {
           if (Range.includes(cursor, path)) {
             const { focus, anchor, isForward } = cursor
 
