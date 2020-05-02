@@ -48,7 +48,7 @@ const connection = new CollaborativeBackend(options)
   entry: number | Server // port or Server for listen io connection
   connectOpts?: SocketIO.ServerOptions
   defaultValue?: ValueJSON // default value
-  saveTreshold?: number // theshold of onDocumentSave callback execution
+  saveFrequency?: number // frequency of onDocumentSave callback execution
   cursorAnnotationType?: string // type string for cursor annotations
   onAuthRequest?: ( // auth callback
     query: Object,

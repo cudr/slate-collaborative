@@ -4,6 +4,7 @@ import { Editor, Operation } from 'slate'
 
 import {
   toJS,
+  SyncDoc,
   applySlateOps,
   toCollabAction,
   setCursor,
@@ -16,8 +17,8 @@ export interface CollabEditor extends Editor {
 
   isRemote: boolean
 
-  docSet: Automerge.DocSet<any>
-  connection: Automerge.Connection<any>
+  docSet: Automerge.DocSet<SyncDoc>
+  connection: Automerge.Connection<SyncDoc>
 
   onConnectionMsg: (msg: Automerge.Message) => void
 
@@ -59,7 +60,7 @@ export const CollabEditor = {
         throw new TypeError(`Unknown docId: ${docId}!`)
       }
 
-      const changed = Automerge.change(doc, (d: any) => {
+      const changed = Automerge.change(doc, d => {
         applySlateOps(d.children, operations)
 
         const cursorOps = operations.filter(op => op.type === 'set_selection')
@@ -80,9 +81,9 @@ export const CollabEditor = {
   receiveDocument: (e: CollabEditor, docId: string, data: string) => {
     const currentDoc = e.docSet.getDoc(docId)
 
-    const externalDoc = Automerge.load(data)
+    const externalDoc = Automerge.load<SyncDoc>(data)
 
-    const mergedDoc = Automerge.merge(
+    const mergedDoc = Automerge.merge<SyncDoc>(
       currentDoc || Automerge.init(),
       externalDoc
     )

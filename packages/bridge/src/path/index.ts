@@ -1,8 +1,10 @@
-import { Node, Path, Editor } from 'slate'
+import { Node, Path } from 'slate'
 
-export const isTree = (node: Node): boolean => Boolean(node && node.children)
+import { SyncDoc } from '../model'
 
-export const getTarget = (doc: Editor, path: Path) => {
+export const isTree = (node: Node): boolean => Boolean(node?.children)
+
+export const getTarget = (doc: SyncDoc, path: Path) => {
   const iterate = (current: any, idx: number) => {
     if (!(isTree(current) || current[idx])) {
       throw new TypeError(
@@ -28,7 +30,7 @@ export const getParentPath = (
 }
 
 export const getParent = (
-  doc: Editor,
+  doc: SyncDoc,
   path: Path,
   level = 1
 ): [any, number] => {

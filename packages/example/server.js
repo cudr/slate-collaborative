@@ -21,13 +21,13 @@ const server = express()
 const config = {
   entry: server, // or specify port to start io server
   defaultValue,
-  saveTreshold: 2000,
+  saveFrequency: 2000,
   onAuthRequest: async (query, socket) => {
     // some query validation
     return true
   },
   onDocumentLoad: async pathname => {
-    // return initial document ValueJSON by pathnme
+    // request initial document ValueJSON by pathnme
     return defaultValue
   },
   onDocumentSave: async (pathname, document) => {

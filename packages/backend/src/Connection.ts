@@ -3,15 +3,17 @@ import * as Automerge from 'automerge'
 import throttle from 'lodash/throttle'
 import merge from 'lodash/merge'
 
-import { toSync, toJS } from '@slate-collaborative/bridge'
+import { Element } from 'slate'
+
+import { toSync, toJS, SyncDoc } from '@slate-collaborative/bridge'
 
 import { getClients, defaultValue, defaultOptions } from './utils'
 import { ConnectionOptions } from './model'
 
 export default class Connection {
-  private io: any
-  private docSet: any
-  private connections: { [key: string]: Automerge.Connection<any> }
+  private io: SocketIO.Server
+  private docSet: Automerge.DocSet<SyncDoc>
+  private connections: { [key: string]: Automerge.Connection<SyncDoc> }
   private options: ConnectionOptions
 
   constructor(options: ConnectionOptions = defaultOptions) {
@@ -31,12 +33,12 @@ export default class Connection {
       .use(this.authMiddleware)
       .on('connect', this.onConnect)
 
-  private appendDoc = (path: string, value: any) => {
+  private appendDoc = (docId: string, value: Element[]) => {
     const sync = toSync({ cursors: {}, children: value })
 
-    const doc = Automerge.from(sync)
+    const doc = Automerge.from<SyncDoc>(sync)
 
-    this.docSet.setDoc(path, doc)
+    this.docSet.setDoc(docId, doc)
   }
 
   private saveDoc = throttle(pathname => {
@@ -53,7 +55,7 @@ export default class Connection {
     } catch (e) {
       console.log(e)
     }
-  }, (this.options && this.options.saveTreshold) || 2000)
+  }, this.options?.saveFrequency || 2000)
 
   private nspMiddleware = async (path: string, query: any, next: any) => {
     const { onDocumentLoad } = this.options
@@ -71,7 +73,10 @@ export default class Connection {
     return next(null, true)
   }
 
-  private authMiddleware = async (socket: any, next: any) => {
+  private authMiddleware = async (
+    socket: SocketIO.Socket,
+    next: (e?: any) => void
+  ) => {
     const { query } = socket.handshake
     const { onAuthRequest } = this.options
 
@@ -85,7 +90,7 @@ export default class Connection {
     return next()
   }
 
-  private onConnect = (socket: any) => {
+  private onConnect = (socket: SocketIO.Socket) => {
     const { id, conn } = socket
     const { name } = socket.nsp
 
@@ -99,7 +104,10 @@ export default class Connection {
     socket.join(id, () => {
       const doc = this.docSet.getDoc(name)
 
-      socket.emit('msg', { type: 'document', payload: Automerge.save(doc) })
+      socket.emit('msg', {
+        type: 'document',
+        payload: Automerge.save<SyncDoc>(doc)
+      })
 
       this.connections[id].open()
     })
@@ -111,7 +119,7 @@ export default class Connection {
     this.garbageCursors(name)
   }
 
-  private onMessage = (id: any, name: any) => (data: any) => {
+  private onMessage = (id: string, name: string) => (data: any) => {
     switch (data.type) {
       case 'operation':
         try {
@@ -126,7 +134,7 @@ export default class Connection {
     }
   }
 
-  private onDisconnect = (id: any, socket: any) => () => {
+  private onDisconnect = (id: string, socket: SocketIO.Socket) => () => {
     this.connections[id].close()
     delete this.connections[id]
 

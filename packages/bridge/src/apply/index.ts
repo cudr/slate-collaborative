@@ -1,7 +1,9 @@
-import { Operation, Editor } from 'slate'
+import { Operation } from 'slate'
 
 import node from './node'
 import text from './text'
+
+import { SyncDoc } from '../model'
 
 const setSelection = (doc: any) => doc
 
@@ -11,12 +13,11 @@ const opType = {
   set_selection: setSelection
 }
 
-const applyOperation = (doc: Editor, op: Operation): Editor => {
+const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
   try {
     const applyOp = opType[op.type]
 
     if (!applyOp) {
-      console.log('operation', op)
       throw new TypeError(`Unsupported operation type: ${op.type}!`)
     }
 
@@ -28,7 +29,7 @@ const applyOperation = (doc: Editor, op: Operation): Editor => {
   }
 }
 
-const applySlateOps = (doc: Editor, operations: Operation[]) =>
+const applySlateOps = (doc: SyncDoc, operations: Operation[]): SyncDoc =>
   operations.reduce(applyOperation, doc)
 
 export { applyOperation, applySlateOps }

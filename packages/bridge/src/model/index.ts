@@ -1,3 +1,8 @@
+import Automerge from 'automerge'
+import { Node } from 'slate'
+
+export type SyncDoc = Automerge.Doc<Node>
+
 export type CollabActionType = 'operation' | 'document'
 
 export interface CollabAction {

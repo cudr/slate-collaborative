@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 
 import { createEditor, Node } from 'slate'
-import { Slate, Editable, withReact } from 'slate-react'
+import { Slate, Editable, withReact, RenderLeafProps } from 'slate-react'
 
 import randomColor from 'randomcolor'
 
@@ -31,7 +31,7 @@ interface ClientProps {
 
 const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
   const [value, setValue] = useState<Node[]>(defaultValue)
-  const [isOnline, setOnlineState] = useState(false)
+  const [isOnline, setOnlineState] = useState<boolean>(false)
 
   const color = useMemo(
     () =>
@@ -79,7 +79,7 @@ const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
     return editor.destroy
   }, [])
 
-  const { decorate }: any = useCursor(editor)
+  const { decorate } = useCursor(editor)
 
   const toggleOnline = () => {
     const { connect, disconnect } = editor
@@ -119,7 +119,7 @@ const Head = styled(H4)`
   margin-right: auto;
 `
 
-const Leaf: React.FC<any> = ({ attributes, children, leaf }) => {
+const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
   return (
     <span
       {...attributes}
@@ -128,7 +128,7 @@ const Leaf: React.FC<any> = ({ attributes, children, leaf }) => {
         backgroundColor: leaf.alphaColor
       }}
     >
-      {leaf.isCaret ? <Caret {...leaf} /> : null}
+      {leaf.isCaret ? <Caret {...(leaf as any)} /> : null}
       {children}
     </span>
   )
