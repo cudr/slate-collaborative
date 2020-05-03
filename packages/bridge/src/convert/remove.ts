@@ -41,9 +41,11 @@ const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
       return [map, ops]
     }
 
-    if (!path || path?.[0] === 'cursors') return [map, ops]
+    if (!path) return [map, ops]
 
     const key = path[path.length - 1]
+
+    if (key === 'cursors') return [map, ops]
 
     const fn = key === 'text' ? removeTextOp : removeNodeOp
 

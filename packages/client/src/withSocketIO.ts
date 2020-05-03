@@ -26,7 +26,7 @@ export interface WithSocketIOEditor {
 }
 
 /**
- * The `withSocketIO` plugin contains socketIO layer logic.
+ * The `withSocketIO` plugin contains SocketIO layer logic.
  */
 
 const withSocketIO = <T extends CollabEditor>(
@@ -37,27 +37,37 @@ const withSocketIO = <T extends CollabEditor>(
 
   const { onConnect, onDisconnect, connectOpts, url, autoConnect } = options
 
+  /**
+   * Connect to Socket.
+   */
+
   e.connect = () => {
-    e.socket = io(url, { ...connectOpts })
+    if (!e.socket) {
+      e.socket = io(url, { ...connectOpts })
+
+      e.socket.on('connect', () => {
+        e.clientId = e.socket.id
+
+        e.openConnection()
+
+        onConnect && onConnect()
+      })
+
+      e.socket.on('disconnect', () => onDisconnect && onDisconnect())
+    }
 
     e.socket.on('msg', (data: CollabAction) => {
       e.receive(data)
     })
 
-    e.socket.on('connect', () => {
-      e.clientId = e.socket.id
-
-      e.openConnection()
-
-      onConnect && onConnect()
-    })
-
-    e.socket.on('disconnect', () => onDisconnect && onDisconnect())
-
     e.socket.connect()
 
     return e
   }
+
+  /**
+   * Disconnect from Socket.
+   */
 
   e.disconnect = () => {
     e.socket.removeListener('msg')
@@ -69,6 +79,10 @@ const withSocketIO = <T extends CollabEditor>(
     return e
   }
 
+  /**
+   * Receive transport msg.
+   */
+
   e.receive = (msg: CollabAction) => {
     switch (msg.type) {
       case 'operation':
@@ -78,9 +92,17 @@ const withSocketIO = <T extends CollabEditor>(
     }
   }
 
+  /**
+   * Send message to socket.
+   */
+
   e.send = (msg: CollabAction) => {
     e.socket.emit('msg', msg)
   }
+
+  /**
+   * Close socket and connection.
+   */
 
   e.destroy = () => {
     e.socket.close()

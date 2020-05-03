@@ -1,4 +1,4 @@
-const Connection = require('@slate-collaborative/backend')
+const { SocketIOCollaboration } = require('@slate-collaborative/backend')
 const express = require('express')
 
 const defaultValue = [
@@ -30,9 +30,10 @@ const config = {
     // request initial document ValueJSON by pathnme
     return defaultValue
   },
-  onDocumentSave: async (pathname, document) => {
+  onDocumentSave: async (pathname, doc) => {
     // save document
+    console.log('onDocumentSave', pathname, doc)
   }
 }
 
-const connection = new Connection(config)
+const connection = new SocketIOCollaboration(config)

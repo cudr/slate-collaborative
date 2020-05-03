@@ -76,7 +76,7 @@ export const CollabEditor = {
   },
 
   /**
-   * Receive and apply document to Autmerge docSet
+   * Receive and apply document to Automerge docSet
    */
 
   receiveDocument: (e: CollabEditor, docId: string, data: string) => {

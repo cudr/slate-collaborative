@@ -7,6 +7,10 @@ import withSocketIO, {
   SocketIOPluginOptions
 } from './withSocketIO'
 
+/**
+ * The `withIOCollaboration` plugin contains collaboration with SocketIO.
+ */
+
 const withIOCollaboration = <T extends Editor>(
   editor: T,
   options: CollabCoreOptions & SocketIOPluginOptions

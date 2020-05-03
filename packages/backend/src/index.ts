@@ -1,3 +1,4 @@
-import Connection from './Connection'
+import CollaborationBackend from './CollaborationBackend'
+import SocketIOCollaboration from './SocketIOCollaboration'
 
-module.exports = Connection
+export { CollaborationBackend, SocketIOCollaboration }

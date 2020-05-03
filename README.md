@@ -15,12 +15,6 @@ Use it as a simple slatejs plugin
 
 check [example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example/src/Client.tsx#L43)
 
-```ts
-import ColaborativeClient from '@slate-collaborative/client'
-
-const plugins = [ColaborativeClient(options)]
-```
-
 ### options:
 ```ts
 {

@@ -4,11 +4,11 @@ import { Editor } from 'slate'
 
 import { CollabEditor } from './collab-editor'
 
+import { CursorData, CollabAction } from '@slate-collaborative/bridge'
+
 export interface CollabCoreOptions {
   docId: string
-  cursorData?: {
-    [key: string]: any
-  }
+  cursorData?: CursorData
 }
 
 /**
@@ -32,7 +32,9 @@ const withCollabCore = <T extends Editor>(
    */
 
   e.openConnection = () => {
-    e.connection = CollabEditor.createConnection(e, (data: any) => e.send(data))
+    e.connection = CollabEditor.createConnection(e, (data: CollabAction) =>
+      e.send(data)
+    )
 
     e.connection.open()
   }
