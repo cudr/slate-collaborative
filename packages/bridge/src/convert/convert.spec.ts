@@ -1,6 +1,6 @@
 import * as Automerge from 'automerge'
 import { toSlateOp } from './index'
-import { createDoc, cloneDoc, createBlockJSON } from '../utils'
+import { createDoc, cloneDoc, createNode } from '../utils'
 
 describe('convert operations to slatejs model', () => {
   it('convert insert operations', () => {
@@ -8,7 +8,7 @@ describe('convert operations to slatejs model', () => {
     const doc2 = cloneDoc(doc1)
 
     const change = Automerge.change(doc1, 'change', d => {
-      d.children.push(createBlockJSON('paragraph', 'hello!'))
+      d.children.push(createNode('paragraph', 'hello!'))
       d.children[1].children[0].text = 'hello!'
     })
 
@@ -34,8 +34,8 @@ describe('convert operations to slatejs model', () => {
 
   it('convert remove operations', () => {
     const doc1 = Automerge.change(createDoc(), 'change', d => {
-      d.children.push(createBlockJSON('paragraph', 'hello!'))
-      d.children.push(createBlockJSON('paragraph', 'hello twice!'))
+      d.children.push(createNode('paragraph', 'hello!'))
+      d.children.push(createNode('paragraph', 'hello twice!'))
       d.children[1].children[0].text = 'hello!'
     })
 

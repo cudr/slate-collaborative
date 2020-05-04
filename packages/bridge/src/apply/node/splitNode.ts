@@ -1,15 +1,13 @@
 import { SplitNodeOperation } from 'slate'
 
 import { SyncDoc } from '../../model'
-import { getParent } from '../../path'
+import { getParent, getChildren } from '../../path'
 import { cloneNode } from '../../utils'
 
 const splitNode = (doc: SyncDoc, op: SplitNodeOperation): SyncDoc => {
   const [parent, index]: [any, number] = getParent(doc, op.path)
 
-  const hasChildren = !!parent.children
-
-  const target = hasChildren ? parent.children[index] : parent[index]
+  const target = getChildren(parent)[index]
   const inject = cloneNode(target)
 
   if (target.text) {
@@ -21,9 +19,7 @@ const splitNode = (doc: SyncDoc, op: SplitNodeOperation): SyncDoc => {
     op.position && inject.children.splice(0, op.position)
   }
 
-  hasChildren
-    ? parent.children.insertAt(index + 1, inject)
-    : parent.insertAt(index + 1, inject)
+  getChildren(parent).insertAt(index + 1, inject)
 
   return doc
 }

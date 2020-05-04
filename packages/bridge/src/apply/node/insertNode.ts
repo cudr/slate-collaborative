@@ -1,7 +1,7 @@
 import { InsertNodeOperation } from 'slate'
 
 import { SyncDoc } from '../../model'
-import { getParent } from '../../path'
+import { getParent, getChildren } from '../../path'
 import { toSync } from '../../utils'
 
 const insertNode = (doc: SyncDoc, op: InsertNodeOperation): SyncDoc => {
@@ -11,9 +11,7 @@ const insertNode = (doc: SyncDoc, op: InsertNodeOperation): SyncDoc => {
     throw new TypeError("Can't insert node into text node")
   }
 
-  parent.children
-    ? parent.children.splice(index, 0, toSync(op.node))
-    : parent.splice(index, 0, toSync(op.node))
+  getChildren(parent).splice(index, 0, toSync(op.node))
 
   return doc
 }

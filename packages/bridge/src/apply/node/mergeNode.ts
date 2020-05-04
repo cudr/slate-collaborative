@@ -1,7 +1,7 @@
-import { MergeNodeOperation } from 'slate'
+import { MergeNodeOperation, Node } from 'slate'
 
 import { SyncDoc } from '../../model'
-import { getParent } from '../../path'
+import { getParent, getChildren } from '../../path'
 import { toJS, cloneNode } from '../../utils'
 
 const mergeNode = (doc: SyncDoc, op: MergeNodeOperation): SyncDoc => {
@@ -13,12 +13,10 @@ const mergeNode = (doc: SyncDoc, op: MergeNodeOperation): SyncDoc => {
   if (prev.text) {
     prev.text.insertAt(prev.text.length, ...toJS(next.text).split(''))
   } else {
-    next.children.forEach((n: any) => prev.children.push(cloneNode(n)))
+    getChildren(next).forEach((n: Node) => getChildren(prev).push(cloneNode(n)))
   }
 
-  parent.children
-    ? parent.children.deleteAt(index, 1)
-    : parent.deleteAt(index, 1)
+  getChildren(parent).deleteAt(index, 1)
 
   return doc
 }

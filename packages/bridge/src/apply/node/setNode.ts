@@ -6,11 +6,11 @@ import { getTarget } from '../../path'
 const setNode = (doc: SyncDoc, op: SetNodeOperation): SyncDoc => {
   const node = getTarget(doc, op.path)
 
-  const { type, data }: any = op.newProperties
+  const { newProperties } = op
 
-  if (type) node.type = type
-
-  if (!node.text && data) node.data = data
+  for (let key in newProperties) {
+    node[key] = newProperties[key]
+  }
 
   return doc
 }

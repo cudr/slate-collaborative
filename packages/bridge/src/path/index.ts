@@ -38,3 +38,5 @@ export const getParent = (
 
   return [getTarget(doc, parentPath), idx]
 }
+
+export const getChildren = (node: Node) => node.children || node
