@@ -19,7 +19,7 @@ const toSlateOp = (ops: Automerge.Diff[], doc: Automerge.Doc<Node>) => {
   const iterate = (acc: [any, any[]], op: Automerge.Diff): any => {
     const action = byAction[op.action]
 
-    const result = action ? action(op, acc) : acc
+    const result = action ? action(op, acc, doc) : acc
 
     return result
   }

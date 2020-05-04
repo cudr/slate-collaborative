@@ -2,6 +2,8 @@ import * as Automerge from 'automerge'
 
 import { toSlatePath, toJS } from '../utils'
 
+import { SyncDoc } from '../model'
+
 const insertTextOp = ({ index, path, value }: Automerge.Diff) => () => ({
   type: 'insert_text',
   path: toSlatePath(path),
@@ -10,9 +12,10 @@ const insertTextOp = ({ index, path, value }: Automerge.Diff) => () => ({
   marks: []
 })
 
-const insertNodeOp = ({ value, obj, index, path }: Automerge.Diff) => (
-  map: any
-) => {
+const insertNodeOp = (
+  { value, obj, index, path }: Automerge.Diff,
+  doc: any
+) => (map: any) => {
   const ops: any = []
 
   const iterate = ({ children, ...json }: any, path: any) => {
@@ -27,7 +30,8 @@ const insertNodeOp = ({ value, obj, index, path }: Automerge.Diff) => (
     children && children.forEach((n: any, i: any) => iterate(n, [...path, i]))
   }
 
-  const source = map[value] || (map[obj] && toJS(map[obj]))
+  const source =
+    map[value] || toJS(map[obj] || Automerge.getObjectById(doc, value))
 
   source && iterate(source, [...toSlatePath(path), index])
 
@@ -39,11 +43,11 @@ const insertByType = {
   list: insertNodeOp
 }
 
-const opInsert = (op: Automerge.Diff, [map, ops]: any) => {
+const opInsert = (op: Automerge.Diff, [map, ops]: any, doc: SyncDoc) => {
   try {
     const { link, obj, path, index, type, value } = op
 
-    if (link && map[obj]) {
+    if (link && map.hasOwnProperty(obj)) {
       map[obj].splice(index, 0, map[value] || value)
     } else if ((type === 'text' || type === 'list') && !path) {
       map[obj] = map[obj]
@@ -55,7 +59,7 @@ const opInsert = (op: Automerge.Diff, [map, ops]: any) => {
     } else {
       const insert = insertByType[type]
 
-      const operation = insert && insert(op, map)
+      const operation = insert && insert(op, doc)
 
       ops.push(operation)
     }

@@ -15,7 +15,7 @@ const setByType = {
   data: setDataOp
 }
 
-const opSet = (op: Automerge.Diff, [map, ops]: any) => {
+const opSet = (op: Automerge.Diff, [map, ops]: any, doc: any) => {
   const { link, value, path, obj, key } = op
   try {
     const set = setByType[key as any]
