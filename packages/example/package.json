@@ -23,6 +23,7 @@
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.2",
     "slate": "^0.57.2",
+    "slate-history": "^0.57.2",
     "slate-react": "^0.57.2",
     "typescript": "^3.8.3"
   },

@@ -1,6 +1,6 @@
 import io from 'socket.io-client'
 
-import { CollabEditor } from './collab-editor'
+import { AutomergeEditor } from './automerge-editor'
 
 import { CollabAction } from '@slate-collaborative/bridge'
 
@@ -29,7 +29,7 @@ export interface WithSocketIOEditor {
  * The `withSocketIO` plugin contains SocketIO layer logic.
  */
 
-const withSocketIO = <T extends CollabEditor>(
+const withSocketIO = <T extends AutomergeEditor>(
   editor: T,
   options: SocketIOPluginOptions
 ) => {

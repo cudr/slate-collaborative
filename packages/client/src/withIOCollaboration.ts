@@ -1,7 +1,7 @@
 import { Editor } from 'slate'
-import { CollabEditor } from './collab-editor'
+import { AutomergeEditor } from './automerge-editor'
 
-import withCollabCore, { CollabCoreOptions } from './withCollabCore'
+import withAutomerge, { AutomergeOptions } from './withAutomerge'
 import withSocketIO, {
   WithSocketIOEditor,
   SocketIOPluginOptions
@@ -13,8 +13,8 @@ import withSocketIO, {
 
 const withIOCollaboration = <T extends Editor>(
   editor: T,
-  options: CollabCoreOptions & SocketIOPluginOptions
-): T & WithSocketIOEditor & CollabEditor =>
-  withSocketIO(withCollabCore(editor, options), options)
+  options: AutomergeOptions & SocketIOPluginOptions
+): T & WithSocketIOEditor & AutomergeEditor =>
+  withSocketIO(withAutomerge(editor, options), options)
 
 export default withIOCollaboration

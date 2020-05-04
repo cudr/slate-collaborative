@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 
 import { createEditor, Node } from 'slate'
+import { withHistory } from 'slate-history'
 import { Slate, Editable, withReact, RenderLeafProps } from 'slate-react'
 
 import randomColor from 'randomcolor'
@@ -44,7 +45,7 @@ const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
   )
 
   const editor = useMemo(() => {
-    const slateEditor = withReact(createEditor())
+    const slateEditor = withReact(withHistory(createEditor()))
 
     const origin =
       process.env.NODE_ENV === 'production'

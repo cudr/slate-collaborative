@@ -1,6 +1,6 @@
 import useCursor from './useCursor'
-import withCollabCore from './withCollabCore'
+import withAutomerge from './withAutomerge'
 import withSocketIO from './withSocketIO'
 import withIOCollaboration from './withIOCollaboration'
 
-export { withCollabCore, withSocketIO, withIOCollaboration, useCursor }
+export { withAutomerge, withSocketIO, withIOCollaboration, useCursor }

@@ -29,7 +29,8 @@ const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
   }
 }
 
-const applySlateOps = (doc: SyncDoc, operations: Operation[]): SyncDoc =>
-  operations.reduce(applyOperation, doc)
+const applySlateOps = (doc: SyncDoc, operations: Operation[]): SyncDoc => {
+  return operations.reduce(applyOperation, doc)
+}
 
 export { applyOperation, applySlateOps }

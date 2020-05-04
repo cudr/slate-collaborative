@@ -5,15 +5,15 @@ import { Editor, Operation } from 'slate'
 import {
   toJS,
   SyncDoc,
-  applySlateOps,
   CollabAction,
   toCollabAction,
+  applyOperation,
   setCursor,
   toSlateOp,
   CursorData
 } from '@slate-collaborative/bridge'
 
-export interface CollabEditor extends Editor {
+export interface AutomergeEditor extends Editor {
   clientId: string
 
   isRemote: boolean
@@ -33,23 +33,23 @@ export interface CollabEditor extends Editor {
 }
 
 /**
- * `CollabEditor` contains methods for collaboration-enabled editors.
+ * `AutomergeEditor` contains methods for collaboration-enabled editors.
  */
 
-export const CollabEditor = {
+export const AutomergeEditor = {
   /**
    * Create Automerge connection
    */
 
-  createConnection: (e: CollabEditor, emit: (data: CollabAction) => void) =>
+  createConnection: (e: AutomergeEditor, emit: (data: CollabAction) => void) =>
     new Automerge.Connection(e.docSet, toCollabAction('operation', emit)),
 
   /**
    * Apply Slate operations to Automerge
    */
 
-  applySlateOps: (
-    e: CollabEditor,
+  applySlateOps: async (
+    e: AutomergeEditor,
     docId: string,
     operations: Operation[],
     cursorData?: CursorData
@@ -61,15 +61,19 @@ export const CollabEditor = {
         throw new TypeError(`Unknown docId: ${docId}!`)
       }
 
-      const changed = Automerge.change(doc, d => {
-        applySlateOps(d.children, operations)
+      let changed
 
-        const cursorOps = operations.filter(op => op.type === 'set_selection')
+      for await (let op of operations) {
+        changed = Automerge.change(changed || doc, d =>
+          applyOperation(d.children, op)
+        )
+      }
 
-        setCursor(e.clientId, e.selection, d, cursorOps, cursorData || {})
+      changed = Automerge.change(changed || doc, d => {
+        setCursor(e.clientId, e.selection, d, operations, cursorData || {})
       })
 
-      e.docSet.setDoc(docId, changed)
+      changed && e.docSet.setDoc(docId, changed as any)
     } catch (e) {
       console.error(e)
     }
@@ -79,7 +83,7 @@ export const CollabEditor = {
    * Receive and apply document to Automerge docSet
    */
 
-  receiveDocument: (e: CollabEditor, docId: string, data: string) => {
+  receiveDocument: (e: AutomergeEditor, docId: string, data: string) => {
     const currentDoc = e.docSet.getDoc(docId)
 
     const externalDoc = Automerge.load<SyncDoc>(data)
@@ -100,7 +104,11 @@ export const CollabEditor = {
    * Generate automerge diff, convert and apply operations to Editor
    */
 
-  applyOperation: (e: CollabEditor, docId: string, data: Automerge.Message) => {
+  applyOperation: (
+    e: AutomergeEditor,
+    docId: string,
+    data: Automerge.Message
+  ) => {
     try {
       const current: any = e.docSet.getDoc(docId)
 

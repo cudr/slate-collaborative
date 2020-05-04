@@ -4,10 +4,10 @@ import { Text, Range, Path, NodeEntry } from 'slate'
 
 import { toJS, Cursor, Cursors } from '@slate-collaborative/bridge'
 
-import { CollabEditor } from './collab-editor'
+import { AutomergeEditor } from './automerge-editor'
 
 const useCursor = (
-  e: CollabEditor
+  e: AutomergeEditor
 ): { decorate: (entry: NodeEntry) => Range[]; cursors: Cursor[] } => {
   const [cursorData, setSursorData] = useState<Cursor[]>([])
 
