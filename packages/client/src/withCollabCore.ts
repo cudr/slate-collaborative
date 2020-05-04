@@ -27,15 +27,17 @@ const withCollabCore = <T extends Editor>(
 
   e.docSet = new Automerge.DocSet()
 
+  e.connection = CollabEditor.createConnection(e, (data: CollabAction) => {
+    console.log('send data', data?.payload?.changes)
+
+    e.send(data)
+  })
+
   /**
    * Open Automerge Connection
    */
 
   e.openConnection = () => {
-    e.connection = CollabEditor.createConnection(e, (data: CollabAction) =>
-      e.send(data)
-    )
-
     e.connection.open()
   }
 

@@ -32,7 +32,7 @@ const config = {
   },
   onDocumentSave: async (pathname, doc) => {
     // save document
-    console.log('onDocumentSave', pathname, doc)
+    // console.log('onDocumentSave', pathname, doc)
   }
 }
 

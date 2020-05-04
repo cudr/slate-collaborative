@@ -19,7 +19,7 @@ const useCursor = (
 
       for (let cursor in cursors) {
         if (cursor !== e.clientId && cursors[cursor]) {
-          ranges.push(cursors[cursor])
+          ranges.push(JSON.parse(cursors[cursor]))
         }
       }
 
