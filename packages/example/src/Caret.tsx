@@ -47,7 +47,7 @@ const caretStyleBase = {
   top: 0,
   pointerEvents: 'none',
   userSelect: 'none',
-  height: '100%',
+  height: '1.2em',
   width: 2,
   background: 'palevioletred'
 } as any
