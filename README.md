@@ -1,4 +1,4 @@
-# slate-collaborative. Check [Demo](https://slate-collaborative.herokuapp.com/)
+# slate-collaborative. Check [demo](https://slate-collaborative.herokuapp.com/)
 slatejs collaborative plugin &amp; microservice
 
 ![screencast2019-10-2820-06-10](https://user-images.githubusercontent.com/23132107/67700384-ebff7280-f9be-11e9-9005-6ddadcafec47.gif)
@@ -14,12 +14,12 @@ Based on idea of https://github.com/humandx/slate-automerge
 Use it as a simple slatejs plugin
 
 ```ts
-import { withIOCollaboration, useCursor } from '@slate-collaborative/client'
+import { withIOCollaboration } from '@slate-collaborative/client'
 
-const editor = withIOCollaboration(slateEditor, options)
+const collaborationEditor = withIOCollaboration(editor, options)
 ```
 
-check [example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example)
+Check [detail example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example)
 
 ### Options:
 ```ts
@@ -27,11 +27,21 @@ check [example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49c
   docId?: // document id
   url?: string // url to open connection
   connectOpts?: SocketIOClient.ConnectOpts // socket.io-client options
-  cursorData?: any // any data passed to cursor annotation
+  cursorData?: any // any data passed to cursor
   onConnect?: () => void // connect callback
   onDisconnect?: () => void // disconnect callback
 }
 ```
+
+You need to attach useCursor decorator to provide user cursors data in renderLeaf func
+
+```ts
+import { useCursor } from '@slate-collaborative/client'
+
+const decorator = useCursor(editor)
+```
+
+
 
 ## Backend
 ```ts
@@ -54,7 +64,7 @@ const connection = new SocketIOConnection(options)
     pathname: string,
     query?: Object
   ) => Node[]
-  onDocumentSave: (pathname: string, doc: Node[]) => Promise<void> | void // save document 
+  onDocumentSave: (pathname: string, doc: Node[]) => Promise<void> | void // save document callback
 }
 ```
 

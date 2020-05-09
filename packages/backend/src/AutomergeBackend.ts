@@ -29,7 +29,7 @@ class AutomergeBackend {
   createConnection = (id: string, send: any) => {
     if (this.connections[id]) {
       console.warn(
-        `Already has connection with id: ${id}. It will be terminated before create new connection`
+        `Already has connection with id: ${id}. It will be terminated before creating new connection`
       )
 
       this.closeConnection(id)
