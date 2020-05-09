@@ -37,7 +37,16 @@ const EditorFrame: React.FC<EditorFrame> = ({
   return (
     <ClientFrame>
       <Slate editor={editor} value={value} onChange={onChange}>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            position: 'sticky',
+            top: 0,
+            backgroundColor: 'white',
+            zIndex: 1
+          }}
+        >
           <MarkButton format="bold" icon="format_bold" />
           <MarkButton format="italic" icon="format_italic" />
           <MarkButton format="underline" icon="format_underlined" />

@@ -27,6 +27,14 @@ class AutomergeBackend {
    */
 
   createConnection = (id: string, send: any) => {
+    if (this.connections[id]) {
+      console.warn(
+        `Already has connection with id: ${id}. It will be terminated before create new connection`
+      )
+
+      this.closeConnection(id)
+    }
+
     this.connections[id] = new Automerge.Connection(
       this.docSet,
       toCollabAction('operation', send)
@@ -44,7 +52,7 @@ class AutomergeBackend {
    */
 
   closeConnection(id: string) {
-    this.connections[id].close()
+    this.connections[id]?.close()
 
     delete this.connections[id]
   }
@@ -53,8 +61,13 @@ class AutomergeBackend {
    * Receive and apply operation to Automerge Connection
    */
 
-  receiveOperation = (id: string, data: CollabAction) =>
-    this.connections[id].receiveMsg(data.payload)
+  receiveOperation = (id: string, data: CollabAction) => {
+    try {
+      this.connections[id].receiveMsg(data.payload)
+    } catch (e) {
+      console.error('Unexpected error in receiveOperation', e)
+    }
+  }
 
   /**
    * Get document from Automerge DocSet
@@ -67,11 +80,19 @@ class AutomergeBackend {
    */
 
   appendDocument = (docId: string, data: Element[]) => {
-    const sync = toSync({ cursors: {}, children: data })
+    try {
+      if (this.getDocument(docId)) {
+        throw new Error(`Already has document with id: ${docId}`)
+      }
 
-    const doc = Automerge.from<SyncDoc>(sync)
+      const sync = toSync({ cursors: {}, children: data })
 
-    this.docSet.setDoc(docId, doc)
+      const doc = Automerge.from<SyncDoc>(sync)
+
+      this.docSet.setDoc(docId, doc)
+    } catch (e) {
+      console.error(e, docId)
+    }
   }
 
   /**
@@ -85,15 +106,19 @@ class AutomergeBackend {
    */
 
   garbageCursor = (docId: string, id: string) => {
-    const doc = this.getDocument(docId)
+    try {
+      const doc = this.getDocument(docId)
 
-    if (!doc.cursors) return
+      if (!doc.cursors) return
 
-    const change = Automerge.change(doc, d => {
-      delete d.cursors[id]
-    })
+      const change = Automerge.change(doc, d => {
+        delete d.cursors[id]
+      })
 
-    this.docSet.setDoc(docId, change)
+      this.docSet.setDoc(docId, change)
+    } catch (e) {
+      console.error('Unexpected error in garbageCursor', e)
+    }
   }
 }
 

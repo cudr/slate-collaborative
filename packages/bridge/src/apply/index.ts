@@ -4,6 +4,7 @@ import node from './node'
 import text from './text'
 
 import { SyncDoc } from '../model'
+import { toJS } from '../utils'
 
 const setSelection = (doc: any) => doc
 
@@ -23,7 +24,7 @@ const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
 
     return applyOp(doc, op as any)
   } catch (e) {
-    console.error(e)
+    console.error(e, op, toJS(doc))
 
     return doc
   }
