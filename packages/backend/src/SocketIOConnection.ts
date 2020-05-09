@@ -108,6 +108,10 @@ export default class SocketIOCollaboration {
       socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
     })
 
+    socket.on('msg', this.onMessage(id, name))
+
+    socket.on('disconnect', this.onDisconnect(id, socket))
+
     socket.join(id, () => {
       const doc = this.backend.getDocument(name)
 
@@ -118,10 +122,6 @@ export default class SocketIOCollaboration {
 
       this.backend.openConnection(id)
     })
-
-    socket.on('msg', this.onMessage(id, name))
-
-    socket.on('disconnect', this.onDisconnect(id, socket))
 
     this.garbageCursors(name)
   }

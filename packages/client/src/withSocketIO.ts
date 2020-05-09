@@ -52,12 +52,16 @@ const withSocketIO = <T extends AutomergeEditor>(
 
         onConnect && onConnect()
       })
-
-      e.socket.on('disconnect', () => onDisconnect && onDisconnect())
     }
 
     e.socket.on('msg', (data: CollabAction) => {
       e.receive(data)
+    })
+
+    e.socket.on('disconnect', () => {
+      e.gabageCursor()
+
+      onDisconnect && onDisconnect()
     })
 
     e.socket.connect()

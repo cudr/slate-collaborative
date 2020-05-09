@@ -29,6 +29,8 @@ export interface AutomergeEditor extends Editor {
   receiveDocument: (data: string) => void
   receiveOperation: (data: Automerge.Message) => void
 
+  gabageCursor: () => void
+
   onCursor: (data: any) => void
 }
 
@@ -89,15 +91,17 @@ export const AutomergeEditor = {
     const externalDoc = Automerge.load<SyncDoc>(data)
 
     const mergedDoc = Automerge.merge<SyncDoc>(
-      currentDoc || Automerge.init(),
-      externalDoc
+      externalDoc,
+      currentDoc || Automerge.init()
     )
-
-    e.children = toJS(mergedDoc).children
 
     e.docSet.setDoc(docId, mergedDoc)
 
-    e.onChange()
+    Editor.withoutNormalizing(e, () => {
+      e.children = toJS(mergedDoc).children
+
+      e.onChange()
+    })
   },
 
   /**
@@ -134,5 +138,19 @@ export const AutomergeEditor = {
     } catch (e) {
       console.error(e)
     }
+  },
+
+  garbageCursor: (e: AutomergeEditor, docId: string) => {
+    const doc = e.docSet.getDoc(docId)
+
+    const changed = Automerge.change<SyncDoc>(doc, d => {
+      delete d.cusors
+    })
+
+    e.onCursor && e.onCursor(null)
+
+    e.docSet.setDoc(docId, changed)
+
+    e.onChange()
   }
 }

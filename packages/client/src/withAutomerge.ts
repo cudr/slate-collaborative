@@ -27,9 +27,17 @@ const withAutomerge = <T extends Editor>(
 
   e.docSet = new Automerge.DocSet()
 
-  e.connection = AutomergeEditor.createConnection(e, (data: CollabAction) =>
-    e.send(data)
-  )
+  const createConnection = () => {
+    if (e.connection) e.connection.close()
+
+    e.connection = AutomergeEditor.createConnection(e, (data: CollabAction) =>
+      e.send(data)
+    )
+
+    e.connection.open()
+  }
+
+  createConnection()
 
   /**
    * Open Automerge Connection
@@ -45,6 +53,14 @@ const withAutomerge = <T extends Editor>(
 
   e.closeConnection = () => {
     e.connection.close()
+  }
+
+  /**
+   * Clear cursor data
+   */
+
+  e.gabageCursor = () => {
+    AutomergeEditor.garbageCursor(e, docId)
   }
 
   /**
@@ -69,6 +85,8 @@ const withAutomerge = <T extends Editor>(
 
   e.receiveDocument = data => {
     AutomergeEditor.receiveDocument(e, docId, data)
+
+    createConnection()
   }
 
   /**

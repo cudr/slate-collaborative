@@ -19,7 +19,7 @@ import { withIOCollaboration } from '@slate-collaborative/client'
 const collaborationEditor = withIOCollaboration(editor, options)
 ```
 
-Check [detail example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example)
+Check [detailed example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example)
 
 ### Options:
 ```ts
@@ -33,7 +33,7 @@ Check [detail example](https://github.com/cudr/slate-collaborative/blob/221d8929
 }
 ```
 
-You need to attach useCursor decorator to provide user cursors data in renderLeaf func
+You need to attach the useCursor decorator to provide custom cursor data in renderLeaf function
 
 ```ts
 import { useCursor } from '@slate-collaborative/client'
