@@ -59,6 +59,8 @@ const withAutomerge = <T extends Editor>(
     }
 
     onChange()
+
+    // console.log('e', e.children)
   }
 
   /**

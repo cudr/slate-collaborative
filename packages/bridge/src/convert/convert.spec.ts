@@ -7,7 +7,7 @@ describe('convert operations to slatejs model', () => {
     const doc1 = createDoc()
     const doc2 = cloneDoc(doc1)
 
-    const change = Automerge.change(doc1, 'change', d => {
+    const change = Automerge.change(doc1, d => {
       d.children.push(createNode('paragraph', 'hello!'))
       d.children[1].children[0].text = 'hello!'
     })
@@ -33,7 +33,7 @@ describe('convert operations to slatejs model', () => {
   })
 
   it('convert remove operations', () => {
-    const doc1 = Automerge.change(createDoc(), 'change', d => {
+    const doc1 = Automerge.change(createDoc(), d => {
       d.children.push(createNode('paragraph', 'hello!'))
       d.children.push(createNode('paragraph', 'hello twice!'))
       d.children[1].children[0].text = 'hello!'
@@ -41,7 +41,7 @@ describe('convert operations to slatejs model', () => {
 
     const doc2 = cloneDoc(doc1)
 
-    const change = Automerge.change(doc1, 'change', d => {
+    const change = Automerge.change(doc1, d => {
       delete d.children[1]
       delete d.children[0].children[0]
     })

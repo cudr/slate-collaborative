@@ -73,7 +73,7 @@ export const AutomergeEditor = {
         setCursor(e.clientId, e.selection, d, operations, cursorData || {})
       })
 
-      changed && e.docSet.setDoc(docId, changed as any)
+      e.docSet.setDoc(docId, changed as any)
     } catch (e) {
       console.error(e)
     }

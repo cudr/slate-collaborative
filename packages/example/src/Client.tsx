@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 
 import { createEditor, Node } from 'slate'
 import { withHistory } from 'slate-history'
-import { Slate, Editable, withReact, RenderLeafProps } from 'slate-react'
+import { withReact } from 'slate-react'
 
 import randomColor from 'randomcolor'
 
@@ -10,7 +10,9 @@ import styled from '@emotion/styled'
 
 import { withIOCollaboration, useCursor } from '@slate-collaborative/client'
 
-import { Instance, ClientFrame, Title, H4, Button } from './Elements'
+import { Instance, Title, H4, Button } from './Elements'
+
+import EditorFrame from './EditorFrame'
 
 const defaultValue: Node[] = [
   {
@@ -98,18 +100,13 @@ const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
           Remove
         </Button>
       </Title>
-      <ClientFrame>
-        <Slate
-          editor={editor}
-          value={value}
-          onChange={value => setValue(value)}
-        >
-          <Editable
-            decorate={decorate}
-            renderLeaf={props => <Leaf {...props} />}
-          />
-        </Slate>
-      </ClientFrame>
+
+      <EditorFrame
+        editor={editor}
+        value={value}
+        decorate={decorate}
+        onChange={(value: Node[]) => setValue(value)}
+      />
     </Instance>
   )
 }
@@ -119,68 +116,3 @@ export default Client
 const Head = styled(H4)`
   margin-right: auto;
 `
-
-const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
-  return (
-    <span
-      {...attributes}
-      style={{
-        position: 'relative',
-        backgroundColor: leaf.alphaColor
-      }}
-    >
-      {leaf.isCaret ? <Caret {...(leaf as any)} /> : null}
-      {children}
-    </span>
-  )
-}
-
-const cursorStyleBase = {
-  position: 'absolute',
-  top: -2,
-  pointerEvents: 'none',
-  userSelect: 'none',
-  transform: 'translateY(-100%)',
-  fontSize: 10,
-  color: 'white',
-  background: 'palevioletred',
-  whiteSpace: 'nowrap'
-} as any
-
-const caretStyleBase = {
-  position: 'absolute',
-  top: 0,
-  pointerEvents: 'none',
-  userSelect: 'none',
-  height: '100%',
-  width: 2,
-  background: 'palevioletred'
-} as any
-
-interface Caret {
-  color: string
-  isForward: boolean
-  name: string
-}
-
-const Caret: React.FC<Caret> = ({ color, isForward, name }) => {
-  const cursorStyles = {
-    ...cursorStyleBase,
-    background: color,
-    left: isForward ? '100%' : '0%'
-  }
-  const caretStyles = {
-    ...caretStyleBase,
-    background: color,
-    left: isForward ? '100%' : '0%'
-  }
-
-  return (
-    <>
-      <span contentEditable={false} style={cursorStyles}>
-        {name}
-      </span>
-      <span contentEditable={false} style={caretStyles} />
-    </>
-  )
-}

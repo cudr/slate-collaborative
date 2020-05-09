@@ -1,4 +1,3 @@
-import CollaborationBackend from './CollaborationBackend'
-import SocketIOCollaboration from './SocketIOCollaboration'
+import SocketIOConnection from './SocketIOConnection'
 
-export { CollaborationBackend, SocketIOCollaboration }
+export { SocketIOConnection }

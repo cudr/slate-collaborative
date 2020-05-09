@@ -9,7 +9,7 @@ import { SyncDoc, CollabAction, toJS } from '@slate-collaborative/bridge'
 
 import { getClients } from './utils'
 
-import CollaborationBackend from './CollaborationBackend'
+import AutomergeBackend from './AutomergeBackend'
 
 export interface SocketIOCollaborationOptions {
   entry: number | Server
@@ -27,7 +27,7 @@ export interface SocketIOCollaborationOptions {
 export default class SocketIOCollaboration {
   private io: SocketIO.Server
   private options: SocketIOCollaborationOptions
-  private collab: CollaborationBackend
+  private backend: AutomergeBackend
 
   /**
    * Constructor
@@ -36,7 +36,7 @@ export default class SocketIOCollaboration {
   constructor(options: SocketIOCollaborationOptions) {
     this.io = io(options.entry, options.connectOpts)
 
-    this.collab = new CollaborationBackend()
+    this.backend = new AutomergeBackend()
 
     this.options = options
 
@@ -62,14 +62,14 @@ export default class SocketIOCollaboration {
   private nspMiddleware = async (path: string, query: any, next: any) => {
     const { onDocumentLoad } = this.options
 
-    if (!this.collab.getDocument(path)) {
+    if (!this.backend.getDocument(path)) {
       const doc = onDocumentLoad
         ? await onDocumentLoad(path)
         : this.options.defaultValue
 
       if (!doc) return next(null, false)
 
-      this.collab.appendDocument(path, doc)
+      this.backend.appendDocument(path, doc)
     }
 
     return next(null, true)
@@ -104,19 +104,19 @@ export default class SocketIOCollaboration {
     const { id, conn } = socket
     const { name } = socket.nsp
 
-    this.collab.createConnection(id, ({ type, payload }: CollabAction) => {
+    this.backend.createConnection(id, ({ type, payload }: CollabAction) => {
       socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
     })
 
     socket.join(id, () => {
-      const doc = this.collab.getDocument(name)
+      const doc = this.backend.getDocument(name)
 
       socket.emit('msg', {
         type: 'document',
         payload: Automerge.save<SyncDoc>(doc)
       })
 
-      this.collab.openConnection(id)
+      this.backend.openConnection(id)
     })
 
     socket.on('msg', this.onMessage(id, name))
@@ -134,7 +134,7 @@ export default class SocketIOCollaboration {
     switch (data.type) {
       case 'operation':
         try {
-          this.collab.receiveOperation(id, data)
+          this.backend.receiveOperation(id, data)
 
           this.autoSaveDoc(name)
 
@@ -161,7 +161,7 @@ export default class SocketIOCollaboration {
   private saveDocument = async (docId: string) => {
     const { onDocumentSave } = this.options
 
-    const doc = this.collab.getDocument(docId)
+    const doc = this.backend.getDocument(docId)
 
     onDocumentSave && (await onDocumentSave(docId, toJS(doc.children)))
   }
@@ -171,7 +171,7 @@ export default class SocketIOCollaboration {
    */
 
   private onDisconnect = (id: string, socket: SocketIO.Socket) => async () => {
-    this.collab.closeConnection(id)
+    this.backend.closeConnection(id)
 
     socket.leave(id)
 
@@ -192,7 +192,7 @@ export default class SocketIOCollaboration {
       .forEach(nsp => {
         getClients(this.io, nsp).then((clientsList: any) => {
           if (!clientsList.length) {
-            this.collab.removeDocument(nsp)
+            this.backend.removeDocument(nsp)
 
             delete this.io.nsps[nsp]
           }
@@ -205,7 +205,7 @@ export default class SocketIOCollaboration {
    */
 
   garbageCursors = (nsp: string) => {
-    const doc = this.collab.getDocument(nsp)
+    const doc = this.backend.getDocument(nsp)
 
     if (!doc.cursors) return
 
@@ -213,7 +213,7 @@ export default class SocketIOCollaboration {
 
     Object.keys(doc?.cursors)?.forEach(key => {
       if (!namespace.sockets[key]) {
-        this.collab.garbageCursor(nsp, key)
+        this.backend.garbageCursor(nsp, key)
       }
     })
   }

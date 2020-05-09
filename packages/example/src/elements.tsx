@@ -36,6 +36,14 @@ export const Button = styled.button`
   }
 `
 
+export const IconButton = styled(Button)((props: any) => ({
+  color: props.active ? 'mediumvioletred' : 'lightpink',
+  border: 'none',
+  padding: 0
+}))
+
+export const Icon = styled.div``
+
 export const Grid = styled.div`
   display: grid;
   grid-gap: 2vw;

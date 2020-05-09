@@ -14,10 +14,10 @@ export interface Connections {
 }
 
 /**
- * Collaboration contains core methods for collaboration backend
+ * AutomergeBackend contains collaboration with Automerge
  */
 
-class CollaborationBackend {
+class AutomergeBackend {
   connections: Connections = {}
 
   docSet: Automerge.DocSet<SyncDoc> = new Automerge.DocSet()
@@ -97,4 +97,4 @@ class CollaborationBackend {
   }
 }
 
-export default CollaborationBackend
+export default AutomergeBackend

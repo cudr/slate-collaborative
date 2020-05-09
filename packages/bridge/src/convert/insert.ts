@@ -27,7 +27,12 @@ const insertNodeOp = (
       node
     })
 
-    children && children.forEach((n: any, i: any) => iterate(n, [...path, i]))
+    children &&
+      children.forEach((n: any, i: any) => {
+        const node = map[n] || Automerge.getObjectById(doc, n)
+
+        iterate((node && toJS(node)) || n, [...path, i])
+      })
   }
 
   const source =

@@ -1,4 +1,4 @@
-const { SocketIOCollaboration } = require('@slate-collaborative/backend')
+const { SocketIOConnection } = require('@slate-collaborative/backend')
 const express = require('express')
 
 const defaultValue = [
@@ -36,4 +36,4 @@ const config = {
   }
 }
 
-const connection = new SocketIOCollaboration(config)
+const connection = new SocketIOConnection(config)
