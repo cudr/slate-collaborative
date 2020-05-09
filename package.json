@@ -7,7 +7,7 @@
     "clean": "rimraf ./packages/**/lib/ && rimraf ./packages/**/tsconfig.tsbuildinfo && lerna clean --yes",
     "release": "yarn prebuild && yarn build && lerna publish from-package",
     "dev": "lerna run --stream build:js && concurrently \"yarn watch\" \"lerna run dev --stream\"",
-    "build": "lerna run build --stream",
+    "build": "lerna run build --stream && lerna run build:example --stream",
     "watch": "lerna run --parallel watch",
     "clean:module": "lerna clean --yes",
     "prebuild": "yarn clean",

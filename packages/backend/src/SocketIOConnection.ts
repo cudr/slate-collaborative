@@ -150,7 +150,8 @@ export default class SocketIOCollaboration {
    */
 
   private autoSaveDoc = throttle(
-    async (docId: string) => this.saveDocument(docId),
+    async (docId: string) =>
+      this.backend.getDocument(docId) && this.saveDocument(docId),
     this.options?.saveFrequency || 2000
   )
 
@@ -181,11 +182,11 @@ export default class SocketIOCollaboration {
   private onDisconnect = (id: string, socket: SocketIO.Socket) => async () => {
     this.backend.closeConnection(id)
 
-    socket.leave(id)
+    await this.saveDocument(socket.nsp.name)
 
     this.garbageCursors(socket.nsp.name)
 
-    await this.saveDocument(socket.nsp.name)
+    socket.leave(id)
 
     this.garbageNsp()
   }

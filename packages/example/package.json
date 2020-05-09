@@ -30,7 +30,7 @@
   "scripts": {
     "start": "node server.js",
     "start:cra": "react-scripts start",
-    "build:site": "cross-env NODE_ENV=production && react-scripts build",
+    "build:example": "cross-env NODE_ENV=production && react-scripts build",
     "dev": "concurrently \"yarn start:cra\" \"yarn serve\"",
     "serve": "nodemon --watch ../backend/lib --inspect server.js"
   },

@@ -13,46 +13,48 @@ Based on idea of https://github.com/humandx/slate-automerge
 
 Use it as a simple slatejs plugin
 
-check [example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example/src/Client.tsx#L43)
+```ts
+import { withIOCollaboration, useCursor } from '@slate-collaborative/client'
 
-### options:
+const editor = withIOCollaboration(slateEditor, options)
+```
+
+check [example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example)
+
+### Options:
 ```ts
 {
+  docId?: // document id
   url?: string // url to open connection
   connectOpts?: SocketIOClient.ConnectOpts // socket.io-client options
-  cursorAnnotationType?: string // type string for cursor annotations
-  annotationDataMixin?: Data // any data passed to cursor annotation
-  renderPreloader?: () => ReactNode // optional preloader render
-  renderCursor?: (data: Data) => ReactNode | any // custom cursor render
-  onConnect?: (connection: Connection) => void // connect callback
-  onDisconnect?: (connection: Connection) => void // disconnect callback
+  cursorData?: any // any data passed to cursor annotation
+  onConnect?: () => void // connect callback
+  onDisconnect?: () => void // disconnect callback
 }
 ```
 
 ## Backend
 ```ts
-const CollaborativeBackend = require('@slate-collaborative/backend')
+const { SocketIOConnection } = require('@slate-collaborative/backend')
 
-const connection = new CollaborativeBackend(options)
+const connection = new SocketIOConnection(options)
 ```
 
 ### options:
 ```ts
 {
-  entry: number | Server // port or Server for listen io connection
-  connectOpts?: SocketIO.ServerOptions
-  defaultValue?: ValueJSON // default value
-  saveFrequency?: number // frequency of onDocumentSave callback execution
-  cursorAnnotationType?: string // type string for cursor annotations
-  onAuthRequest?: ( // auth callback
+  entry: Server // or specify port to start io server
+  defaultValue: Node[] // default value
+  saveFrequency: number // frequency of onDocumentSave callback execution in ms
+  onAuthRequest: ( // auth callback
     query: Object,
     socket?: SocketIO.Socket
   ) => Promise<boolean> | boolean
-  onDocumentLoad?: ( // request slatejs document callback
+  onDocumentLoad: ( // request slate document callback
     pathname: string,
     query?: Object
-  ) => ValueJSON | null | false | undefined
-  onDocumentSave?: (pathname: string, json: ValueJSON) => Promise<void> | void // save document callback 
+  ) => Node[]
+  onDocumentSave: (pathname: string, doc: Node[]) => Promise<void> | void // save document 
 }
 ```
 
