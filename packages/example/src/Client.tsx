@@ -1,39 +1,53 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 
-import { Value, ValueJSON } from 'slate'
-import { Editor } from 'slate-react'
+import { createEditor, Node } from 'slate'
+import { withHistory } from 'slate-history'
+import { withReact } from 'slate-react'
+
 import randomColor from 'randomcolor'
 
 import styled from '@emotion/styled'
 
-import ClientPlugin from '@slate-collaborative/client'
+import { withIOCollaboration, useCursor } from '@slate-collaborative/client'
 
-import defaultValue from './defaultValue'
+import { Instance, Title, H4, Button } from './Elements'
 
-import { Instance, ClientFrame, Title, H4, Button } from './elements'
+import EditorFrame from './EditorFrame'
 
-interface ClienProps {
+const defaultValue: Node[] = [
+  {
+    type: 'paragraph',
+    children: [
+      {
+        text: ''
+      }
+    ]
+  }
+]
+
+interface ClientProps {
   name: string
   id: string
   slug: string
   removeUser: (id: any) => void
 }
 
-class Client extends Component<ClienProps> {
-  editor: any
+const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
+  const [value, setValue] = useState<Node[]>(defaultValue)
+  const [isOnline, setOnlineState] = useState<boolean>(false)
 
-  state = {
-    value: Value.fromJSON(defaultValue as ValueJSON),
-    isOnline: false,
-    plugins: []
-  }
+  const color = useMemo(
+    () =>
+      randomColor({
+        luminosity: 'dark',
+        format: 'rgba',
+        alpha: 1
+      }),
+    []
+  )
 
-  componentDidMount() {
-    const color = randomColor({
-      luminosity: 'dark',
-      format: 'rgba',
-      alpha: 1
-    })
+  const editor = useMemo(() => {
+    const slateEditor = withReact(withHistory(createEditor()))
 
     const origin =
       process.env.NODE_ENV === 'production'
@@ -41,74 +55,60 @@ class Client extends Component<ClienProps> {
         : 'http://localhost:9000'
 
     const options = {
-      url: `${origin}/${this.props.slug}`,
-      connectOpts: {
-        query: {
-          name: this.props.name,
-          token: this.props.id,
-          slug: this.props.slug
-        }
-      },
-      annotationDataMixin: {
-        name: this.props.name,
+      docId: '/' + slug,
+      cursorData: {
+        name,
         color,
         alphaColor: color.slice(0, -2) + '0.2)'
       },
-      // renderPreloader: () => <div>PRELOADER!!!!!!</div>,
-      onConnect: this.onConnect,
-      onDisconnect: this.onDisconnect
+      url: `${origin}/${slug}`,
+      connectOpts: {
+        query: {
+          name,
+          token: id,
+          slug
+        }
+      },
+      onConnect: () => setOnlineState(true),
+      onDisconnect: () => setOnlineState(false)
     }
 
-    const plugin = ClientPlugin(options)
+    return withIOCollaboration(slateEditor, options)
+  }, [])
 
-    this.setState({
-      plugins: [plugin]
-    })
-  }
+  useEffect(() => {
+    editor.connect()
 
-  render() {
-    const { plugins, isOnline, value } = this.state
-    const { id, name } = this.props
+    return editor.destroy
+  }, [])
 
-    return (
-      <Instance online={isOnline}>
-        <Title>
-          <Head>Editor: {name}</Head>
-          <Button type="button" onClick={this.toggleOnline}>
-            Go {isOnline ? 'offline' : 'online'}
-          </Button>
-          <Button type="button" onClick={() => this.props.removeUser(id)}>
-            Remove
-          </Button>
-        </Title>
-        <ClientFrame>
-          <Editor
-            value={value}
-            ref={this.ref}
-            plugins={plugins}
-            onChange={this.onChange}
-          />
-        </ClientFrame>
-      </Instance>
-    )
-  }
+  const { decorate } = useCursor(editor)
 
-  onChange = ({ value }: any) => this.setState({ value })
-
-  onConnect = () => this.setState({ isOnline: true })
-
-  onDisconnect = () => this.setState({ isOnline: false })
-
-  ref = node => {
-    this.editor = node
-  }
-
-  toggleOnline = () => {
-    const { isOnline } = this.state
-    const { connect, disconnect } = this.editor.connection
-
+  const toggleOnline = () => {
+    const { connect, disconnect } = editor
     isOnline ? disconnect() : connect()
   }
+
+  return (
+    <Instance online={isOnline}>
+      <Title>
+        <Head>Editor: {name}</Head>
+        <Button type="button" onClick={toggleOnline}>
+          Go {isOnline ? 'offline' : 'online'}
+        </Button>
+        <Button type="button" onClick={() => removeUser(id)}>
+          Remove
+        </Button>
+      </Title>
+
+      <EditorFrame
+        editor={editor}
+        value={value}
+        decorate={decorate}
+        onChange={(value: Node[]) => setValue(value)}
+      />
+    </Instance>
+  )
 }
 
 export default Client

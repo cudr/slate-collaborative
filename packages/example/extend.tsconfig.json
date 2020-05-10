@@ -1,0 +1,10 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@slate-collaborative/bridge": ["../../bridge"],
+        "@slate-collaborative/client": ["../../client"]
+      }
+    }
+  }

@@ -1,9 +1,11 @@
 import toSync from './toSync'
 import hexGen from './hexGen'
 
+import { CollabAction } from '../model'
+
 export * from './testUtils'
 
-const toJS = node => {
+const toJS = (node: any) => {
   try {
     return JSON.parse(JSON.stringify(node))
   } catch (e) {
@@ -12,8 +14,13 @@ const toJS = node => {
   }
 }
 
-const cloneNode = node => toSync(toJS(node))
+const cloneNode = (node: any) => toSync(toJS(node))
 
-const toSlatePath = path => (path ? path.filter(d => Number.isInteger(d)) : [])
+const toSlatePath = (path: any) =>
+  path ? path.filter((d: any) => Number.isInteger(d)) : []
 
-export { toSync, toJS, toSlatePath, hexGen, cloneNode }
+const toCollabAction = (type: any, fn: (action: CollabAction) => void) => (
+  payload: any
+) => fn({ type, payload })
+
+export { toSync, toJS, toSlatePath, hexGen, cloneNode, toCollabAction }

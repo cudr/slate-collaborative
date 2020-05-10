@@ -1,3 +1,3 @@
-import Connection from './Connection'
+import SocketIOConnection from './SocketIOConnection'
 
-module.exports = Connection
+export { SocketIOConnection }

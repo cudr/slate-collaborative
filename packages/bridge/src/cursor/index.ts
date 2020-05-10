@@ -1,68 +1,35 @@
-import { Selection } from 'slate'
-import merge from 'lodash/merge'
+import { Operation, Range } from 'slate'
 
-import { toJS } from '../utils'
-import { SyncDoc, CursorKey } from '../model'
+import { CursorData } from '../model'
 
 export const setCursor = (
-  doc: SyncDoc,
-  key: CursorKey,
-  selection: Selection,
-  type,
-  data
+  id: string,
+  selection: Range | null,
+  doc: any,
+  operations: Operation[],
+  cursorData: CursorData
 ) => {
-  if (!doc) return
+  const cursorOps = operations.filter(op => op.type === 'set_selection')
 
-  if (!doc.annotations) {
-    doc.annotations = {}
-  }
+  if (!doc.cursors) doc.cursors = {}
 
-  if (!doc.annotations[key]) {
-    doc.annotations[key] = {
-      key,
-      type,
-      data: {}
-    }
-  }
+  const newCursor = cursorOps[cursorOps.length - 1]?.newProperties || {}
 
-  const annotation = toJS(doc.annotations[key])
-
-  annotation.focus = selection.end.toJSON()
-  annotation.anchor = selection.start.toJSON()
-
-  annotation.data = merge(annotation.data, data, {
-    isBackward: selection.isBackward,
-    targetPath: selection.isBackward
-      ? annotation.anchor.path
-      : annotation.focus.path
-  })
-
-  doc.annotations[key] = annotation
-
-  return doc
-}
-
-export const removeCursor = (doc: SyncDoc, key: CursorKey) => {
-  if (doc.annotations && doc.annotations[key]) {
-    delete doc.annotations[key]
-  }
-
-  return doc
-}
-
-export const cursorOpFilter = (ops, type: string) =>
-  ops.filter(op => {
-    if (op.type === 'set_annotation') {
-      return !(
-        (op.properties && op.properties.type === type) ||
-        (op.newProperties && op.newProperties.type === type)
+  if (selection) {
+    doc.cursors[id] = JSON.stringify(
+      Object.assign(
+        (doc.cursors[id] && JSON.parse(doc.cursors[id])) || {},
+        newCursor,
+        selection,
+        {
+          ...cursorData,
+          isForward: Boolean(newCursor.focus)
+        }
       )
-    } else if (
-      op.type === 'add_annotation' ||
-      op.type === 'remove_annotation'
-    ) {
-      return op.annotation.type !== type
-    }
+    )
+  } else {
+    delete doc.cursors[id]
+  }
 
-    return true
-  })
+  return doc
+}

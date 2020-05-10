@@ -1,52 +1,37 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import faker from 'faker'
 
 import styled from '@emotion/styled'
 
 import Room from './Room'
 
-class App extends Component<{}, { rooms: string[] }> {
-  state = {
-    rooms: []
-  }
+const App = () => {
+  const [rooms, setRooms] = useState<string[]>([])
 
-  componentDidMount() {
-    this.addRoom()
-  }
+  const addRoom = () => setRooms(rooms.concat(faker.lorem.slug(4)))
 
-  render() {
-    const { rooms } = this.state
+  const removeRoom = (room: string) => () =>
+    setRooms(rooms.filter(r => r !== room))
 
-    return (
-      <Container>
-        <Panel>
-          <AddButton type="button" onClick={this.addRoom}>
-            Add Room
-          </AddButton>
-        </Panel>
-        {rooms.map(room => (
-          <Room key={room} slug={room} removeRoom={this.removeRoom(room)} />
-        ))}
-      </Container>
-    )
-  }
+  useEffect(() => {
+    addRoom()
+  }, [])
 
-  addRoom = () => {
-    const room = faker.lorem.slug(4)
-
-    this.setState({ rooms: [...this.state.rooms, room] })
-  }
-
-  removeRoom = (room: string) => () => {
-    this.setState({
-      rooms: this.state.rooms.filter(r => r !== room)
-    })
-  }
+  return (
+    <div>
+      <Panel>
+        <AddButton type="button" onClick={addRoom}>
+          Add Room
+        </AddButton>
+      </Panel>
+      {rooms.map(room => (
+        <Room key={room} slug={room} removeRoom={removeRoom(room)} />
+      ))}
+    </div>
+  )
 }
 
 export default App
-
-const Container = styled.div``
 
 const Panel = styled.div`
   display: flex;

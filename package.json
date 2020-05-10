@@ -1,28 +1,28 @@
 {
   "private": true,
-  "version": "0.0.1",
+  "version": "0.5.0",
   "description": "Slate collaborative plugin & microservice",
   "scripts": {
     "bootstrap": "lerna bootstrap",
+    "clean": "rimraf ./packages/**/lib/ && rimraf ./packages/**/tsconfig.tsbuildinfo && lerna clean --yes",
     "release": "yarn prebuild && yarn build && lerna publish from-package",
-    "dev": "concurrently \"yarn watch\" \"lerna run dev --stream\"",
-    "build": "lerna run build --stream",
+    "dev": "lerna run --stream build:js && concurrently \"yarn watch\" \"lerna run dev --stream\"",
+    "build": "lerna run build --stream && lerna run build:example --stream",
     "watch": "lerna run --parallel watch",
     "clean:module": "lerna clean --yes",
-    "prebuild": "rm -rf ./packages/**/lib/",
+    "prebuild": "yarn clean",
     "test": "lerna run test --stream",
     "format": "prettier --write"
   },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ],
-    "nohoist": [
-      "**/jest"
-    ]
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "author": "cudr",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cudr/slate-collaborative.git"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -37,8 +37,9 @@
   "devDependencies": {
     "concurrently": "^4.1.2",
     "husky": "^3.0.5",
-    "lerna": "^3.16.4",
+    "lerna": "^3.20.2",
     "lint-staged": "^9.2.5",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "rimraf": "^3.0.2"
   }
 }

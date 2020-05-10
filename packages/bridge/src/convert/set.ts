@@ -1,62 +1,31 @@
 import * as Automerge from 'automerge'
-import { toSlatePath, toJS } from '../utils/index'
 
-const setDataOp = ({ path, value }: Automerge.Diff) => map => ({
-  type: 'set_node',
-  path: toSlatePath(path),
-  properties: {},
-  newProperties: {
-    data: map[value]
-  }
-})
+import { toSlatePath, toJS } from '../utils'
 
-const AnnotationSetOp = ({ key, value }: Automerge.Diff) => (map, doc) => {
-  if (!doc.annotations) {
-    doc.annotations = {}
-  }
-
-  let op
-
-  /**
-   * Looks like set_annotation option is broken, temporary disabled
-   */
-
-  // if (!doc.annotations[key]) {
-  op = {
-    type: 'add_annotation',
-    annotation: map[value]
-  }
-  // } else {
-  //   op = {
-  //     type: 'set_annotation',
-  //     properties: toJS(doc.annotations[key]),
-  //     newProperties: map[value]
-  //   }
-  // }
-
-  return op
-}
-
-const setByType = {
-  data: setDataOp
-}
-
-const opSet = (op: Automerge.Diff, [map, ops]) => {
-  const { link, value, path, obj, key } = op
-  try {
-    const set = setByType[key]
-
-    if (set && path) {
-      ops.push(set(op))
-    } else if (map[obj]) {
-      map[obj][key] = link ? map[value] : value
+const setDataOp = (
+  { key = '', obj, path, value }: Automerge.Diff,
+  doc: any
+) => (map: any) => {
+  return {
+    type: 'set_node',
+    path: toSlatePath(path),
+    properties: {
+      [key]: Automerge.getObjectById(doc, obj)?.[key]
+    },
+    newProperties: {
+      [key]: value
     }
+  }
+}
 
-    /**
-     * Annotation
-     */
-    if (path && path.length === 1 && path[0] === 'annotations') {
-      ops.push(AnnotationSetOp(op))
+const opSet = (op: Automerge.Diff, [map, ops]: any, doc: any) => {
+  const { link, value, path, obj, key } = op
+
+  try {
+    if (path && path[0] !== 'cursors') {
+      ops.push(setDataOp(op, doc))
+    } else if (map[obj]) {
+      map[obj][key as any] = link ? map[value] : value
     }
 
     return [map, ops]

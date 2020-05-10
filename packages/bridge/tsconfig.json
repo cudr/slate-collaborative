@@ -1,11 +1,9 @@
 {
-  "include": ["src/**/*"],
   "extends": "../../tsconfig.base.json",
+  "include": ["./src/**/*"],
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "outDir": "lib",
-    "rootDir": "src",
-    "baseUrl": "src",
+    "rootDir": "./src",
+    "outDir": "./lib",
     "composite": true
   }
 }

@@ -2,32 +2,25 @@
   "include": [
     "src/**/*"
   ],
+  "extends": "./extend.tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "baseUrl": "src",
-    "jsx": "react",
+    "rootDir": "../",
+    "baseUrl": "./src",
     "allowJs": true,
-    "declaration": false,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "noEmit": true,
-    "isolatedModules": true,
     "skipLibCheck": true,
-    "noImplicitAny": false,
-    "removeComments": true,
-    "noLib": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "sourceMap": true
-  }
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "declarationMap": false,
+    "noEmit": true
+  },
+  "references": [
+    {
+      "path": "../client"
+    },
+    {
+      "path": "../backend"
+    }
+  ]
 }

@@ -1,16 +1,21 @@
 {
-  "include": ["packages/*/src"],
   "compilerOptions": {
-    "module": "esnext",
+    "rootDir": ".",
+    "baseUrl": "./packages",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "noImplicitAny": false,
-    "removeComments": true,
-    "noLib": false,
+    "skipLibCheck": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "module": "esnext",
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es5",
     "sourceMap": true,
-    "lib": ["es6", "es5"]
-  }
+    "strict": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "esnext"
+  },
+  "exclude": ["node_modules"],
+  "include": ["**/*.ts", "**/*.tsx"]
 }

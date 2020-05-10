@@ -1,8 +1,9 @@
-import React, { Component, ChangeEvent } from 'react'
+import React, { useState, ChangeEvent } from 'react'
+
 import faker from 'faker'
 import debounce from 'lodash/debounce'
 
-import { RoomWrapper, H4, Title, Button, Grid, Input } from './elements'
+import { RoomWrapper, H4, Title, Button, Grid, Input } from './Elements'
 
 import Client from './Client'
 
@@ -16,78 +17,57 @@ interface RoomProps {
   removeRoom: () => void
 }
 
-interface RoomState {
-  users: User[]
-  slug: string
-  rebuild: boolean
-}
+const createUser = (): User => ({
+  id: faker.random.uuid(),
+  name: `${faker.name.firstName()} ${faker.name.lastName()}`
+})
 
-class Room extends Component<RoomProps, RoomState> {
-  state = {
-    users: [],
-    slug: this.props.slug,
-    rebuild: false
-  }
+const Room: React.FC<RoomProps> = ({ slug, removeRoom }) => {
+  const [users, setUsers] = useState<User[]>([createUser(), createUser()])
+  const [roomSlug, setRoomSlug] = useState<string>(slug)
+  const [isRemounted, setRemountState] = useState(false)
 
-  componentDidMount() {
-    this.addUser()
-    setTimeout(this.addUser, 10)
-  }
-
-  render() {
-    const { users, slug, rebuild } = this.state
-
-    return (
-      <RoomWrapper>
-        <Title>
-          <H4>Document slug:</H4>
-          <Input type="text" value={slug} onChange={this.changeSlug} />
-          <Button type="button" onClick={this.addUser}>
-            Add random user
-          </Button>
-          <Button type="button" onClick={this.props.removeRoom}>
-            Remove Room
-          </Button>
-        </Title>
-        <Grid>
-          {users.map(
-            (user: User) =>
-              !rebuild && (
-                <Client
-                  {...user}
-                  slug={slug}
-                  key={user.id}
-                  removeUser={this.removeUser}
-                />
-              )
-          )}
-        </Grid>
-      </RoomWrapper>
-    )
-  }
-
-  addUser = () => {
-    const user = {
-      id: faker.random.uuid(),
-      name: `${faker.name.firstName()} ${faker.name.lastName()}`
-    }
-
-    this.setState({ users: [...this.state.users, user] })
-  }
-
-  removeUser = (userId: string) => {
-    this.setState({
-      users: this.state.users.filter((u: User) => u.id !== userId)
-    })
-  }
-
-  changeSlug = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ slug: e.target.value }, this.rebuildClient)
-  }
-
-  rebuildClient = debounce(() => {
-    this.setState({ rebuild: true }, () => this.setState({ rebuild: false }))
+  const remount = debounce(() => {
+    setRemountState(true)
+    setTimeout(setRemountState, 50, false)
   }, 300)
+
+  const changeSlug = (e: ChangeEvent<HTMLInputElement>) => {
+    setRoomSlug(e.target.value)
+    remount()
+  }
+
+  const addUser = () => setUsers(users => users.concat(createUser()))
+
+  const removeUser = (userId: string) =>
+    setUsers(users => users.filter((u: User) => u.id !== userId))
+
+  return (
+    <RoomWrapper>
+      <Title>
+        <H4>Document slug:</H4>
+        <Input type="text" value={roomSlug} onChange={changeSlug} />
+        <Button type="button" onClick={addUser}>
+          Add random user
+        </Button>
+        <Button type="button" onClick={removeRoom}>
+          Remove Room
+        </Button>
+      </Title>
+      <Grid>
+        {users.map((user: User) =>
+          isRemounted ? null : (
+            <Client
+              {...user}
+              slug={roomSlug}
+              key={user.id}
+              removeUser={removeUser}
+            />
+          )
+        )}
+      </Grid>
+    </RoomWrapper>
+  )
 }
 
 export default Room

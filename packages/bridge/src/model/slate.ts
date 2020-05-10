@@ -1,8 +1,5 @@
-import { Operation, NodeJSON } from 'slate'
-import { List } from 'immutable'
+import { Operation, Path, NodeEntry } from 'slate'
 
-export type Operations = List<Operation>
-export type SyncNode = NodeJSON
-export type Path = List<number>
+export type SyncNode = NodeEntry
 
-export { Operation }
+export { Operation, Path }
