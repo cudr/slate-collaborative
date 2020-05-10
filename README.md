@@ -19,7 +19,7 @@ import { withIOCollaboration } from '@slate-collaborative/client'
 const collaborationEditor = withIOCollaboration(editor, options)
 ```
 
-Check [detailed example](https://github.com/cudr/slate-collaborative/blob/221d8929915c49cbe30a2f92550c9a604b9a527e/packages/example)
+Check [detailed example](https://github.com/cudr/slate-collaborative/blob/master/packages/example/src/Client.tsx)
 
 ### Options:
 ```ts
