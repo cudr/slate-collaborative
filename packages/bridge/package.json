@@ -1,6 +1,6 @@
 {
   "name": "@slate-collaborative/bridge",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "files": [
     "lib"
   ],
@@ -17,16 +17,16 @@
   "author": "cudr",
   "license": "MIT",
   "scripts": {
-    "prepublishOnly": "yarn run build",
-    "build": "yarn run build:types && yarn run build:js",
+    "prepublishOnly": "yarn run build:module",
+    "build:module": "yarn run build:types && yarn run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
     "watch": "yarn build:js -w",
     "test": "jest"
   },
   "dependencies": {
-    "automerge": "^0.14.0",
-    "slate": "^0.57.2",
+    "automerge": "0.14.0",
+    "slate": "0.58.0",
     "typescript": "^3.8.3"
   },
   "devDependencies": {
@@ -63,5 +63,6 @@
       "^.+\\.ts?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$"
-  }
+  },
+  "gitHead": "1a29cf0da2dc171c1fadd5c8e6eac2327b5b0241"
 }

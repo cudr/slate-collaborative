@@ -1,6 +1,6 @@
 {
   "name": "@slate-collaborative/client",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "files": [
     "lib"
   ],
@@ -17,8 +17,8 @@
   "author": "cudr",
   "license": "MIT",
   "scripts": {
-    "prepublishOnly": "npm run build",
-    "build": "npm run build:types && npm run build:js",
+    "prepublishOnly": "npm run build:module",
+    "build:module": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
     "watch": "yarn build:js -w"
@@ -26,9 +26,9 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-react": "^7.0.0",
-    "@slate-collaborative/bridge": "^0.5.0",
-    "automerge": "^0.14.0",
-    "slate": "^0.57.2",
+    "@slate-collaborative/bridge": "0.6.0",
+    "automerge": "0.14.0",
+    "slate": "0.58.0",
     "socket.io-client": "^2.3.0",
     "typescript": "^3.8.3"
   },
@@ -44,5 +44,6 @@
   },
   "directories": {
     "lib": "lib"
-  }
+  },
+  "gitHead": "1a29cf0da2dc171c1fadd5c8e6eac2327b5b0241"
 }

@@ -1,7 +1,9 @@
 import Automerge from 'automerge'
 import { Node, Range } from 'slate'
 
-export type SyncDoc = Automerge.Doc<Node & Cursors>
+export type SyncValue = Automerge.List<Node[]>
+
+export type SyncDoc = Automerge.Doc<{ children: SyncValue; cursors: Cursors }>
 
 export type CollabActionType = 'operation' | 'document'
 
@@ -18,6 +20,6 @@ export interface Cursor extends Range, CursorData {
   isForward: boolean
 }
 
-export interface Cursors {
+export type Cursors = {
   [key: string]: Cursor
 }

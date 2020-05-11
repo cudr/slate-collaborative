@@ -38,17 +38,28 @@ const useCursor = (
           if (Range.includes(cursor, path)) {
             const { focus, anchor, isForward } = cursor
 
+            const isFocusNode = Path.equals(focus.path, path)
+            const isAnchorNode = Path.equals(anchor.path, path)
+
             ranges.push({
               ...cursor,
-              isCaret: isForward
-                ? Path.equals(focus.path, path)
-                : Path.equals(anchor.path, path),
-              anchor: Path.isBefore(anchor.path, path)
-                ? { ...anchor, offset: 0 }
-                : anchor,
-              focus: Path.isAfter(focus.path, path)
-                ? { ...focus, offset: node.text.length }
-                : focus
+              isCaret: isFocusNode,
+              anchor: {
+                path,
+                offset: isAnchorNode
+                  ? anchor.offset
+                  : isForward
+                  ? 0
+                  : node.text.length
+              },
+              focus: {
+                path,
+                offset: isFocusNode
+                  ? focus.offset
+                  : isForward
+                  ? node.text.length
+                  : 0
+              }
             })
           }
         })

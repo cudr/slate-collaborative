@@ -31,6 +31,7 @@ const withAutomerge = <T extends Editor>(
     if (e.connection) e.connection.close()
 
     e.connection = AutomergeEditor.createConnection(e, (data: CollabAction) =>
+      //@ts-ignore
       e.send(data)
     )
 

@@ -1,10 +1,10 @@
 import { Node, Path } from 'slate'
 
-import { SyncDoc } from '../model'
+import { SyncValue } from '../model'
 
 export const isTree = (node: Node): boolean => Boolean(node?.children)
 
-export const getTarget = (doc: SyncDoc, path: Path) => {
+export const getTarget = (doc: SyncValue, path: Path) => {
   const iterate = (current: any, idx: number) => {
     if (!(isTree(current) || current[idx])) {
       throw new TypeError(
@@ -30,7 +30,7 @@ export const getParentPath = (
 }
 
 export const getParent = (
-  doc: SyncDoc,
+  doc: SyncValue,
   path: Path,
   level = 1
 ): [any, number] => {
@@ -39,4 +39,4 @@ export const getParent = (
   return [getTarget(doc, parentPath), idx]
 }
 
-export const getChildren = (node: Node) => node.children || node
+export const getChildren = (node: any) => node.children || node

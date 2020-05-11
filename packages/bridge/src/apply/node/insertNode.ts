@@ -1,10 +1,10 @@
 import { InsertNodeOperation } from 'slate'
 
-import { SyncDoc } from '../../model'
+import { SyncValue } from '../../model'
 import { getParent, getChildren } from '../../path'
 import { toSync } from '../../utils'
 
-const insertNode = (doc: SyncDoc, op: InsertNodeOperation): SyncDoc => {
+const insertNode = (doc: SyncValue, op: InsertNodeOperation): SyncValue => {
   const [parent, index] = getParent(doc, op.path)
 
   if (parent.text) {

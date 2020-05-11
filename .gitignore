@@ -4,6 +4,7 @@ node_modules/
 .DS_Store
 lerna-debug.log
 /.npmrc
+.vscode/
 yarn.lock
 yarn-error.log
 package-lock.json

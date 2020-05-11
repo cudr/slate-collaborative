@@ -1,10 +1,10 @@
 import { SplitNodeOperation } from 'slate'
 
-import { SyncDoc } from '../../model'
+import { SyncValue } from '../../model'
 import { getParent, getChildren } from '../../path'
 import { cloneNode } from '../../utils'
 
-const splitNode = (doc: SyncDoc, op: SplitNodeOperation): SyncDoc => {
+const splitNode = (doc: SyncValue, op: SplitNodeOperation): SyncValue => {
   const [parent, index]: [any, number] = getParent(doc, op.path)
 
   const target = getChildren(parent)[index]

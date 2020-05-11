@@ -1,9 +1,12 @@
 import { RemoveNodeOperation } from 'slate'
 
-import { SyncDoc } from '../../model'
+import { SyncValue } from '../../model'
 import { getParent, getChildren } from '../../path'
 
-export const removeNode = (doc: SyncDoc, op: RemoveNodeOperation): SyncDoc => {
+export const removeNode = (
+  doc: SyncValue,
+  op: RemoveNodeOperation
+): SyncValue => {
   const [parent, index] = getParent(doc, op.path)
 
   if (parent.text) {

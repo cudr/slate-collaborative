@@ -16,17 +16,17 @@ export const setCursor = (
   const newCursor = cursorOps[cursorOps.length - 1]?.newProperties || {}
 
   if (selection) {
-    doc.cursors[id] = JSON.stringify(
-      Object.assign(
-        (doc.cursors[id] && JSON.parse(doc.cursors[id])) || {},
-        newCursor,
-        selection,
-        {
-          ...cursorData,
-          isForward: Boolean(newCursor.focus)
-        }
-      )
+    const newCursorData = Object.assign(
+      (doc.cursors[id] && JSON.parse(doc.cursors[id])) || {},
+      newCursor,
+      selection,
+      {
+        ...cursorData,
+        isForward: Range.isForward(selection)
+      }
     )
+
+    doc.cursors[id] = JSON.stringify(newCursorData)
   } else {
     delete doc.cursors[id]
   }

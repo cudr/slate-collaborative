@@ -1,13 +1,14 @@
 {
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Slate collaborative plugin & microservice",
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "clean": "rimraf ./packages/**/lib/ && rimraf ./packages/**/tsconfig.tsbuildinfo && lerna clean --yes",
     "release": "yarn prebuild && yarn build && lerna publish from-package",
+    "deploy:site": "git subtree push --prefix packages/example heroku master",
     "dev": "lerna run --stream build:js && concurrently \"yarn watch\" \"lerna run dev --stream\"",
-    "build": "lerna run build --stream && lerna run build:example --stream",
+    "build": "lerna run build:module --stream",
     "watch": "lerna run --parallel watch",
     "clean:module": "lerna clean --yes",
     "prebuild": "yarn clean",

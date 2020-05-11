@@ -3,7 +3,7 @@ import React, { useState, ChangeEvent } from 'react'
 import faker from 'faker'
 import debounce from 'lodash/debounce'
 
-import { RoomWrapper, H4, Title, Button, Grid, Input } from './Elements'
+import { RoomWrapper, H4, Title, Button, Grid, Input } from './Components'
 
 import Client from './Client'
 

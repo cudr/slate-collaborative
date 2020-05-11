@@ -111,7 +111,7 @@ class AutomergeBackend {
 
       if (!doc.cursors) return
 
-      const change = Automerge.change(doc, d => {
+      const change = Automerge.change(doc, (d: any) => {
         delete d.cursors[id]
       })
 

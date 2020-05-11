@@ -1,9 +1,12 @@
 import { InsertTextOperation, RemoveTextOperation } from 'slate'
 
 import { getTarget } from '../path'
-import { SyncDoc } from '../model'
+import { SyncValue } from '../model'
 
-export const insertText = (doc: SyncDoc, op: InsertTextOperation): SyncDoc => {
+export const insertText = (
+  doc: SyncValue,
+  op: InsertTextOperation
+): SyncValue => {
   const node = getTarget(doc, op.path)
 
   node.text.insertAt(op.offset, ...op.text.split(''))
@@ -11,7 +14,10 @@ export const insertText = (doc: SyncDoc, op: InsertTextOperation): SyncDoc => {
   return doc
 }
 
-export const removeText = (doc: SyncDoc, op: RemoveTextOperation): SyncDoc => {
+export const removeText = (
+  doc: SyncValue,
+  op: RemoveTextOperation
+): SyncValue => {
   const node = getTarget(doc, op.path)
 
   node.text.deleteAt(op.offset, op.text.length)

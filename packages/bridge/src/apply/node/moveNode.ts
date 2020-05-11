@@ -1,10 +1,10 @@
 import { MoveNodeOperation } from 'slate'
 
 import { cloneNode } from '../../utils'
-import { SyncDoc } from '../../model'
+import { SyncValue } from '../../model'
 import { getParent, getChildren } from '../../path'
 
-const moveNode = (doc: SyncDoc, op: MoveNodeOperation): SyncDoc => {
+const moveNode = (doc: SyncValue, op: MoveNodeOperation): SyncValue => {
   const [from, fromIndex] = getParent(doc, op.path)
   const [to, toIndex] = getParent(doc, op.newPath)
 

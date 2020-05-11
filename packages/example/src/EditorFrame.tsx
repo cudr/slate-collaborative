@@ -9,11 +9,11 @@ import {
   useSlate
 } from 'slate-react'
 
-import { ClientFrame, IconButton, Icon } from './Elements'
+import { ClientFrame, IconButton, Icon } from './Components'
 
 import Caret from './Caret'
 
-const LIST_TYPES = ['numbered-list', 'bulleted-list']
+const LIST_TYPES: string[] = ['numbered-list', 'bulleted-list']
 
 export interface EditorFrame {
   editor: ReactEditor
@@ -75,7 +75,7 @@ const toggleBlock = (editor: any, format: any) => {
   const isList = LIST_TYPES.includes(format)
 
   Transforms.unwrapNodes(editor, {
-    match: n => LIST_TYPES.includes(n.type),
+    match: n => LIST_TYPES.includes(n.type as any),
     split: true
   })
 
@@ -151,10 +151,12 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
   return (
     <span
       {...attributes}
-      style={{
-        position: 'relative',
-        backgroundColor: leaf.alphaColor
-      }}
+      style={
+        {
+          position: 'relative',
+          backgroundColor: leaf.alphaColor
+        } as any
+      }
     >
       {leaf.isCaret ? <Caret {...(leaf as any)} /> : null}
       {children}

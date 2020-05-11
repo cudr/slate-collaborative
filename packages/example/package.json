@@ -1,12 +1,12 @@
 {
   "name": "@slate-collaborative/example",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "dependencies": {
     "@emotion/core": "^10.0.17",
     "@emotion/styled": "^10.0.17",
-    "@slate-collaborative/backend": "^0.5.0",
-    "@slate-collaborative/client": "^0.5.0",
+    "@slate-collaborative/backend": "^0.6.0",
+    "@slate-collaborative/client": "^0.6.0",
     "@types/faker": "^4.1.5",
     "@types/jest": "24.0.18",
     "@types/node": "12.7.5",
@@ -22,15 +22,16 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.2",
-    "slate": "^0.57.2",
-    "slate-history": "^0.57.2",
-    "slate-react": "^0.57.2",
+    "slate": "0.58.0",
+    "slate-history": "0.58.0",
+    "slate-react": "0.58.0",
     "typescript": "^3.8.3"
   },
   "scripts": {
     "start": "node server.js",
     "start:cra": "react-scripts start",
-    "build:example": "cross-env NODE_ENV=production && react-scripts build",
+    "prebuild": "cp -f ./tsconfig.production.json ./tsconfig.json",
+    "build": "cross-env NODE_ENV=production && react-scripts build",
     "dev": "concurrently \"yarn start:cra\" \"yarn serve\"",
     "serve": "nodemon --watch ../backend/lib --inspect server.js"
   },
@@ -48,5 +49,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "engines": {
+    "node": "12.x"
   }
 }

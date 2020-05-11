@@ -3,7 +3,7 @@ import { Operation } from 'slate'
 import node from './node'
 import text from './text'
 
-import { SyncDoc } from '../model'
+import { SyncValue } from '../model'
 import { toJS } from '../utils'
 
 const setSelection = (doc: any) => doc
@@ -14,7 +14,7 @@ const opType = {
   set_selection: setSelection
 }
 
-const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
+const applyOperation = (doc: SyncValue, op: Operation): SyncValue => {
   try {
     const applyOp = opType[op.type]
 
@@ -30,7 +30,7 @@ const applyOperation = (doc: SyncDoc, op: Operation): SyncDoc => {
   }
 }
 
-const applySlateOps = (doc: SyncDoc, operations: Operation[]): SyncDoc => {
+const applySlateOps = (doc: SyncValue, operations: Operation[]): SyncValue => {
   return operations.reduce(applyOperation, doc)
 }
 

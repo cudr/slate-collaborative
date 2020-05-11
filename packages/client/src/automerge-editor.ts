@@ -66,7 +66,7 @@ export const AutomergeEditor = {
       let changed
 
       for await (let op of operations) {
-        changed = Automerge.change(changed || doc, d =>
+        changed = Automerge.change<SyncDoc>(changed || doc, d =>
           applyOperation(d.children, op)
         )
       }
@@ -143,7 +143,7 @@ export const AutomergeEditor = {
   garbageCursor: (e: AutomergeEditor, docId: string) => {
     const doc = e.docSet.getDoc(docId)
 
-    const changed = Automerge.change<SyncDoc>(doc, d => {
+    const changed = Automerge.change<SyncDoc>(doc, (d: any) => {
       delete d.cusors
     })
 
