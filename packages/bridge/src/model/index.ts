@@ -1,7 +1,7 @@
 import Automerge from 'automerge'
 import { Node, Range } from 'slate'
 
-export type SyncValue = Automerge.List<Node[]>
+export type SyncValue = Automerge.List<Node>
 
 export type SyncDoc = Automerge.Doc<{ children: SyncValue; cursors: Cursors }>
 
