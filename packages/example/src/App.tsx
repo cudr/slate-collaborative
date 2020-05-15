@@ -49,7 +49,8 @@ const Button = styled.button`
 `
 
 const AddButton = styled(Button)`
-  margin-left: 30px;
+  margin-left: 0px;
   color: violet;
+  margin-bottom: 10px;
   border: 2px solid violet;
 `

@@ -93,12 +93,14 @@ const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
     <Instance online={isOnline}>
       <Title>
         <Head>Editor: {name}</Head>
-        <Button type="button" onClick={toggleOnline}>
-          Go {isOnline ? 'offline' : 'online'}
-        </Button>
-        <Button type="button" onClick={() => removeUser(id)}>
-          Remove
-        </Button>
+        <div style={{ display: 'flex', marginTop: 10, marginBottom: 10 }}>
+          <Button type="button" onClick={toggleOnline}>
+            Go {isOnline ? 'offline' : 'online'}
+          </Button>
+          <Button type="button" onClick={() => removeUser(id)}>
+            Remove
+          </Button>
+        </div>
       </Title>
 
       <EditorFrame
