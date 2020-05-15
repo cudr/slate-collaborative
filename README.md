@@ -63,7 +63,7 @@ const connection = new SocketIOConnection(options)
   onDocumentLoad: ( // request slate document callback
     pathname: string,
     query?: Object
-  ) => Node[]
+  ) => Promise<Node[]> | Node[]
   onDocumentSave: (pathname: string, doc: Node[]) => Promise<void> | void // save document callback
 }
 ```

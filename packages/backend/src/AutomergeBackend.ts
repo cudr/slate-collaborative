@@ -1,6 +1,6 @@
 import * as Automerge from 'automerge'
 
-import { Element } from 'slate'
+import { Node } from 'slate'
 
 import {
   toCollabAction,
@@ -79,7 +79,7 @@ class AutomergeBackend {
    * Append document to Automerge DocSet
    */
 
-  appendDocument = (docId: string, data: Element[]) => {
+  appendDocument = (docId: string, data: Node[]) => {
     try {
       if (this.getDocument(docId)) {
         throw new Error(`Already has document with id: ${docId}`)

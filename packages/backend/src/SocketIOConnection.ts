@@ -1,6 +1,6 @@
 import io from 'socket.io'
 import * as Automerge from 'automerge'
-import { Element } from 'slate'
+import { Node } from 'slate'
 import { Server } from 'http'
 
 import throttle from 'lodash/throttle'
@@ -14,14 +14,17 @@ import AutomergeBackend from './AutomergeBackend'
 export interface SocketIOCollaborationOptions {
   entry: number | Server
   connectOpts?: SocketIO.ServerOptions
-  defaultValue?: Element[]
+  defaultValue?: Node[]
   saveFrequency?: number
   onAuthRequest?: (
     query: Object,
     socket?: SocketIO.Socket
   ) => Promise<boolean> | boolean
-  onDocumentLoad?: (pathname: string, query?: Object) => Element[]
-  onDocumentSave?: (pathname: string, doc: Element[]) => Promise<void> | void
+  onDocumentLoad?: (
+    pathname: string,
+    query?: Object
+  ) => Promise<Node[]> | Node[]
+  onDocumentSave?: (pathname: string, doc: Node[]) => Promise<void> | void
 }
 
 export default class SocketIOCollaboration {
