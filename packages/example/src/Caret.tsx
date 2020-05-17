@@ -18,12 +18,17 @@ const Caret: React.FC<Caret> = ({ color, isForward, name }) => {
     left: isForward ? '100%' : '0%'
   }
 
+  caretStyles[isForward ? 'bottom' : 'top'] = 0
+
   return (
     <>
-      <span contentEditable={false} style={cursorStyles}>
-        {name}
+      <span contentEditable={false} style={caretStyles}>
+        <span style={{ position: 'relative' }}>
+          <span contentEditable={false} style={cursorStyles}>
+            {name}
+          </span>
+        </span>
       </span>
-      <span contentEditable={false} style={caretStyles} />
     </>
   )
 }
@@ -44,7 +49,6 @@ const cursorStyleBase = {
 
 const caretStyleBase = {
   position: 'absolute',
-  top: 0,
   pointerEvents: 'none',
   userSelect: 'none',
   height: '1.2em',
