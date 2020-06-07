@@ -11,6 +11,8 @@ export interface SocketIOPluginOptions {
 
   onConnect?: () => void
   onDisconnect?: () => void
+
+  onError?: (msg: string) => void
 }
 
 export interface WithSocketIOEditor {
@@ -35,7 +37,14 @@ const withSocketIO = <T extends AutomergeEditor>(
 ) => {
   const e = editor as T & WithSocketIOEditor
 
-  const { onConnect, onDisconnect, connectOpts, url, autoConnect } = options
+  const {
+    onConnect,
+    onDisconnect,
+    onError,
+    connectOpts,
+    url,
+    autoConnect
+  } = options
 
   /**
    * Connect to Socket.
@@ -53,6 +62,10 @@ const withSocketIO = <T extends AutomergeEditor>(
         onConnect && onConnect()
       })
     }
+
+    e.socket.on('error', (msg: string) => {
+      onError && onError(msg)
+    })
 
     e.socket.on('msg', (data: CollabAction) => {
       e.receive(data)
