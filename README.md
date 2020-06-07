@@ -30,6 +30,7 @@ Check [detailed example](https://github.com/cudr/slate-collaborative/blob/master
   cursorData?: any // any data passed to cursor
   onConnect?: () => void // connect callback
   onDisconnect?: () => void // disconnect callback
+  onError?: (reason: string) => void // error callback
 }
 ```
 
