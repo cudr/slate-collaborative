@@ -67,7 +67,7 @@ export default class SocketIOCollaboration {
 
     if (!this.backend.getDocument(path)) {
       const doc = onDocumentLoad
-        ? await onDocumentLoad(path)
+        ? await onDocumentLoad(path, query)
         : this.options.defaultValue
 
       if (!doc) return next(null, false)
