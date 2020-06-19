@@ -31,7 +31,7 @@
     "@types/socket.io": "^2.1.4",
     "automerge": "0.14.0",
     "lodash": "^4.17.15",
-    "slate": "0.58.0",
+    "slate": "0.58.3",
     "socket.io": "^2.3.0",
     "typescript": "^3.8.3"
   },
