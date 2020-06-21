@@ -1,6 +1,6 @@
 {
   "name": "@slate-collaborative/client",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "files": [
     "lib"
   ],
@@ -26,7 +26,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-react": "^7.0.0",
-    "@slate-collaborative/bridge": "^0.6.6",
+    "@slate-collaborative/bridge": "^0.6.7",
     "automerge": "0.14.0",
     "slate": "0.58.3",
     "socket.io-client": "^2.3.0",
