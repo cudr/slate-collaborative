@@ -1,12 +1,12 @@
 {
   "name": "@slate-collaborative/example",
-  "version": "0.6.0",
+  "version": "0.6.3",
   "private": true,
   "dependencies": {
     "@emotion/core": "^10.0.17",
     "@emotion/styled": "^10.0.17",
-    "@slate-collaborative/backend": "^0.6.2",
-    "@slate-collaborative/client": "^0.6.2",
+    "@slate-collaborative/backend": "^0.6.3",
+    "@slate-collaborative/client": "^0.6.3",
     "@types/faker": "^4.1.5",
     "@types/is-url": "^1.2.28",
     "@types/jest": "24.0.18",
