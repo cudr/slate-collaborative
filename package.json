@@ -46,5 +46,6 @@
     "lint-staged": "^9.2.5",
     "prettier": "^1.18.2",
     "rimraf": "^3.0.2"
-  }
+  },
+  "version": "0.6.3"
 }
