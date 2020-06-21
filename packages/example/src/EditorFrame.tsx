@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 
-import { Transforms, Editor, Node } from 'slate'
+import { Node } from 'slate'
+
 import {
   Slate,
   ReactEditor,
@@ -13,7 +14,9 @@ import { ClientFrame, IconButton, Icon } from './Components'
 
 import Caret from './Caret'
 
-const LIST_TYPES: string[] = ['numbered-list', 'bulleted-list']
+import { isBlockActive, toggleBlock } from './plugins/block'
+import { isMarkActive, toggleMark } from './plugins/mark'
+import { isLinkActive, insertLink, unwrapLink } from './plugins/link'
 
 export interface EditorFrame {
   editor: ReactEditor
@@ -51,11 +54,15 @@ const EditorFrame: React.FC<EditorFrame> = ({
           <MarkButton format="italic" icon="format_italic" />
           <MarkButton format="underline" icon="format_underlined" />
           <MarkButton format="code" icon="code" />
+
           <BlockButton format="heading-one" icon="looks_one" />
           <BlockButton format="heading-two" icon="looks_two" />
           <BlockButton format="block-quote" icon="format_quote" />
+
           <BlockButton format="numbered-list" icon="format_list_numbered" />
           <BlockButton format="bulleted-list" icon="format_list_bulleted" />
+
+          <LinkButton />
         </div>
 
         <Editable
@@ -70,50 +77,14 @@ const EditorFrame: React.FC<EditorFrame> = ({
 
 export default EditorFrame
 
-const toggleBlock = (editor: any, format: any) => {
-  const isActive = isBlockActive(editor, format)
-  const isList = LIST_TYPES.includes(format)
-
-  Transforms.unwrapNodes(editor, {
-    match: n => LIST_TYPES.includes(n.type as any),
-    split: true
-  })
-
-  Transforms.setNodes(editor, {
-    type: isActive ? 'paragraph' : isList ? 'list-item' : format
-  })
-
-  if (!isActive && isList) {
-    const block = { type: format, children: [] }
-    Transforms.wrapNodes(editor, block)
-  }
-}
-
-const toggleMark = (editor: any, format: any) => {
-  const isActive = isMarkActive(editor, format)
-
-  if (isActive) {
-    Editor.removeMark(editor, format)
-  } else {
-    Editor.addMark(editor, format, true)
-  }
-}
-
-const isBlockActive = (editor: any, format: any) => {
-  const [match] = Editor.nodes(editor, {
-    match: n => n.type === format
-  })
-
-  return !!match
-}
-
-const isMarkActive = (editor: any, format: any) => {
-  const marks = Editor.marks(editor)
-  return marks ? marks[format] === true : false
-}
-
 const Element: React.FC<any> = ({ attributes, children, element }) => {
   switch (element.type) {
+    case 'link':
+      return (
+        <a {...attributes} href={element.href}>
+          {children}
+        </a>
+      )
     case 'block-quote':
       return <blockquote {...attributes}>{children}</blockquote>
     case 'bulleted-list':
@@ -190,6 +161,29 @@ const MarkButton: React.FC<any> = ({ format, icon }) => {
       }}
     >
       <Icon className="material-icons">{icon}</Icon>
+    </IconButton>
+  )
+}
+
+const LinkButton = () => {
+  const editor = useSlate()
+
+  const isActive = isLinkActive(editor)
+
+  return (
+    <IconButton
+      active={isActive}
+      onMouseDown={event => {
+        event.preventDefault()
+
+        if (isActive) return unwrapLink(editor)
+
+        const url = window.prompt('Enter the URL of the link:')
+
+        url && insertLink(editor, url)
+      }}
+    >
+      <Icon className="material-icons">link</Icon>
     </IconButton>
   )
 }

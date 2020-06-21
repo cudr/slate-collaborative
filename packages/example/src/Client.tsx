@@ -14,6 +14,8 @@ import { Instance, Title, H4, Button } from './Components'
 
 import EditorFrame from './EditorFrame'
 
+import { withLinks } from './plugins/link'
+
 const defaultValue: Node[] = [
   {
     type: 'paragraph',
@@ -47,7 +49,7 @@ const Client: React.FC<ClientProps> = ({ id, name, slug, removeUser }) => {
   )
 
   const editor = useMemo(() => {
-    const slateEditor = withReact(withHistory(createEditor()))
+    const slateEditor = withLinks(withReact(withHistory(createEditor())))
 
     const origin =
       process.env.NODE_ENV === 'production'

@@ -83,4 +83,11 @@ export const ClientFrame = styled.div`
     color: #aaa;
     font-style: italic;
   }
+  a {
+    color: purple;
+    text-decoration: none;
+  }
+  a:visited {
+    color: darkmagenta;
+  }
 `
