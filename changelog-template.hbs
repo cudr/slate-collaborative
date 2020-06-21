@@ -1,0 +1,11 @@
+### Changelog
+
+{{#each releases}}
+  Released {{title}} {{href}} at {{niceDate}}
+  {{#each merges}}
+    - Merge {{message}} {{id}} {{href}}
+  {{/each}}
+  {{#each fixes}}
+    - Fix {{commit}} {{commit.subject}} {{id}} linked to {{href}}.
+  {{/each}}
+{{/each}}
