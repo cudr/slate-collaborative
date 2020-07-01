@@ -1,6 +1,6 @@
 {
   "name": "@slate-collaborative/backend",
-  "version": "0.6.7",
+  "version": "0.7.0",
   "files": [
     "lib"
   ],
@@ -26,7 +26,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/runtime": "^7.6.3",
-    "@slate-collaborative/bridge": "^0.6.7",
+    "@slate-collaborative/bridge": "^0.7.0",
     "@types/lodash": "^4.14.150",
     "@types/socket.io": "^2.1.4",
     "automerge": "0.14.0",
