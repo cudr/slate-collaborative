@@ -1,6 +1,6 @@
 import * as Automerge from 'automerge'
 
-const createByType = (type: any) =>
+const createByType = (type: Automerge.CollectionType) =>
   type === 'map' ? {} : type === 'list' ? [] : ''
 
 const opCreate = ({ obj, type }: Automerge.Diff, [map, ops]: any) => {

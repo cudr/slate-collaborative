@@ -66,8 +66,6 @@ export const AutomergeEditor = {
 
       let changed
 
-      console.log('apply ops', operations)
-
       for await (let op of operations) {
         changed = Automerge.change<SyncDoc>(changed || doc, d =>
           applyOperation(d.children, op)
@@ -114,7 +112,8 @@ export const AutomergeEditor = {
   applyOperation: (
     e: AutomergeEditor,
     docId: string,
-    data: Automerge.Message
+    data: Automerge.Message,
+    preserveExternalHistory?: boolean
   ) => {
     try {
       const current: any = e.docSet.getDoc(docId)
@@ -126,18 +125,18 @@ export const AutomergeEditor = {
       if (operations.length) {
         const slateOps = toSlateOp(operations, current)
 
-        console.log('slateOps', slateOps, operations)
-
         e.isRemote = true
 
         Editor.withoutNormalizing(e, () => {
-          // HistoryEditor.withoutSaving(e as any, () => {
-          slateOps.forEach((o: Operation) => {
-            e.apply(o)
-          })
+          if (HistoryEditor.isHistoryEditor(e) && !preserveExternalHistory) {
+            HistoryEditor.withoutSaving(e, () => {
+              slateOps.forEach((o: Operation) => e.apply(o))
+            })
+          } else {
+            slateOps.forEach((o: Operation) => e.apply(o))
+          }
 
-          // e.onCursor && e.onCursor(updated.cursors)
-          // })
+          e.onCursor && e.onCursor(updated.cursors)
         })
 
         Promise.resolve().then(_ => (e.isRemote = false))

@@ -9,7 +9,9 @@ export const insertText = (
 ): SyncValue => {
   const node = getTarget(doc, op.path)
 
-  node.text.insertAt(op.offset, ...op.text.split(''))
+  const offset = Math.min(node.text.length, op.offset)
+
+  node.text.insertAt(offset, ...op.text.split(''))
 
   return doc
 }
@@ -20,7 +22,9 @@ export const removeText = (
 ): SyncValue => {
   const node = getTarget(doc, op.path)
 
-  node.text.deleteAt(op.offset, op.text.length)
+  const offset = Math.min(node.text.length, op.offset)
+
+  node.text.deleteAt(offset, op.text.length)
 
   return doc
 }
