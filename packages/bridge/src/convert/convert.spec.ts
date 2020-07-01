@@ -54,15 +54,13 @@ describe('convert operations to slatejs model', () => {
       {
         type: 'remove_node',
         path: [1],
-        node: {
-          text: '*'
-        }
+        node: createNode('paragraph', 'hello twice!')
       },
       {
         type: 'remove_node',
         path: [0, 0],
         node: {
-          text: '*'
+          children: []
         }
       }
     ]
