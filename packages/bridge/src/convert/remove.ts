@@ -1,33 +1,56 @@
 import * as Automerge from 'automerge'
+import { Element } from 'slate'
 
 import { toSlatePath, toJS } from '../utils'
 import { getTarget } from '../path'
 
-const removeTextOp = ({ index, path }: Automerge.Diff) => () => ({
-  type: 'remove_text',
-  path: toSlatePath(path).slice(0, path?.length),
-  offset: index,
-  text: '*',
-  marks: []
-})
+const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
+  const { index, path, obj } = op
+
+  const slatePath = toSlatePath(path).slice(0, path?.length)
+
+  let node
+
+  try {
+    node = getTarget(doc, slatePath) || map[obj]
+  } catch (e) {
+    console.error(e, op, doc)
+  }
+
+  if (typeof index !== 'number') return
+
+  const text = node?.text[index] || '*'
+
+  if (node) {
+    node.text = node.text?.slice(0, index) + node.text?.slice(index + 1)
+  }
+
+  return {
+    type: 'remove_text',
+    path: slatePath,
+    offset: index,
+    text,
+    marks: []
+  }
+}
 
 const removeNodeOp = ({ index, obj, path }: Automerge.Diff) => (
   map: any,
-  doc: any
+  doc: Element
 ) => {
   const slatePath = toSlatePath(path)
-  if (!map.hasOwnProperty(obj)) {
-    const target = getTarget(doc, [...slatePath, index] as any)
 
+  const parent = getTarget(doc, slatePath)
+  const target = parent?.children[index as number] || { children: [] }
+
+  if (!map.hasOwnProperty(obj)) {
     map[obj] = target
   }
 
   return {
     type: 'remove_node',
     path: slatePath.length ? slatePath.concat(index) : [index],
-    node: {
-      text: '*'
-    }
+    node: target
   }
 }
 

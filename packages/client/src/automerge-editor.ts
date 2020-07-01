@@ -1,6 +1,7 @@
 import Automerge from 'automerge'
 
 import { Editor, Operation } from 'slate'
+import { HistoryEditor } from 'slate-history'
 
 import {
   toJS,
@@ -111,7 +112,8 @@ export const AutomergeEditor = {
   applyOperation: (
     e: AutomergeEditor,
     docId: string,
-    data: Automerge.Message
+    data: Automerge.Message,
+    preserveExternalHistory?: boolean
   ) => {
     try {
       const current: any = e.docSet.getDoc(docId)
@@ -126,12 +128,16 @@ export const AutomergeEditor = {
         e.isRemote = true
 
         Editor.withoutNormalizing(e, () => {
-          slateOps.forEach((o: Operation) => {
-            e.apply(o)
-          })
-        })
+          if (HistoryEditor.isHistoryEditor(e) && !preserveExternalHistory) {
+            HistoryEditor.withoutSaving(e, () => {
+              slateOps.forEach((o: Operation) => e.apply(o))
+            })
+          } else {
+            slateOps.forEach((o: Operation) => e.apply(o))
+          }
 
-        e.onCursor && e.onCursor(updated.cursors)
+          e.onCursor && e.onCursor(updated.cursors)
+        })
 
         Promise.resolve().then(_ => (e.isRemote = false))
       }

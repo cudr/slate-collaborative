@@ -9,6 +9,7 @@ import { CursorData, CollabAction } from '@slate-collaborative/bridge'
 export interface AutomergeOptions {
   docId: string
   cursorData?: CursorData
+  preserveExternalHistory?: boolean
 }
 
 /**
@@ -23,7 +24,7 @@ const withAutomerge = <T extends Editor>(
 
   const { onChange } = e
 
-  const { docId, cursorData } = options || {}
+  const { docId, cursorData, preserveExternalHistory } = options || {}
 
   e.docSet = new Automerge.DocSet()
 
@@ -73,11 +74,9 @@ const withAutomerge = <T extends Editor>(
 
     if (!e.isRemote) {
       AutomergeEditor.applySlateOps(e, docId, operations, cursorData)
+
+      onChange()
     }
-
-    onChange()
-
-    // console.log('e', e.children)
   }
 
   /**
@@ -97,7 +96,7 @@ const withAutomerge = <T extends Editor>(
   e.receiveOperation = data => {
     if (docId !== data.docId) return
 
-    AutomergeEditor.applyOperation(e, docId, data)
+    AutomergeEditor.applyOperation(e, docId, data, preserveExternalHistory)
   }
 
   return e
