@@ -154,7 +154,7 @@ export default class SocketIOCollaboration {
 
   private autoSaveDoc = throttle(
     async (docId: string) =>
-      this.backend.getDocument(docId) && this.saveDocument(docId),
+      this.saveDocument(docId),
     this.getSaveFrequency()
   )
 
