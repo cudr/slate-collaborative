@@ -12,7 +12,7 @@ import { getClients } from './utils'
 import AutomergeBackend from './AutomergeBackend'
 
 export interface SocketIOCollaborationOptions {
-  entry: number | Server
+  entry: Server
   connectOpts?: SocketIO.ServerOptions
   defaultValue?: Node[]
   saveFrequency?: number
@@ -152,8 +152,8 @@ export default class SocketIOCollaboration {
    * Save document with throttle
    */
 
-  private autoSaveDoc = throttle(
-    async (docId: string) =>
+  private autoSaveDoc = (docId: string) => throttle(
+    async () =>
       this.backend.getDocument(docId) && this.saveDocument(docId),
     this.options?.saveFrequency || 2000
   )
