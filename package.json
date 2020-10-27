@@ -22,7 +22,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/docket-hq/collaborslate.git"
+    "url": "git+https://github.com/docket-hq/slate-sheikah.git"
   },
   "husky": {
     "hooks": {

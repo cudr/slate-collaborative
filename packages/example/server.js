@@ -1,4 +1,4 @@
-const { SocketIOConnection } = require('@collaborslate/backend')
+const { SocketIOConnection } = require('@slate-sheikah/backend')
 const express = require('express')
 
 const defaultValue = [

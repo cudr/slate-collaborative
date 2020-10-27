@@ -7,7 +7,7 @@
     "outDir": "./lib",
     "composite": true,
     "paths": {
-      "@collaborslate/bridge": ["../../bridge"]
+      "@slate-sheikah/bridge": ["../../bridge"]
     }
   },
   "references": [

@@ -7,7 +7,7 @@ import {
   toSync,
   SyncDoc,
   CollabAction
-} from '@collaborslate/bridge'
+} from '@slate-sheikah/bridge'
 
 export interface Connections {
   [key: string]: Automerge.Connection<SyncDoc>

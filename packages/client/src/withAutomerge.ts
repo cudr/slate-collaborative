@@ -4,7 +4,7 @@ import { Editor } from 'slate'
 
 import { AutomergeEditor } from './automerge-editor'
 
-import { CursorData, CollabAction } from '@collaborslate/bridge'
+import { CursorData, CollabAction } from '@slate-sheikah/bridge'
 
 export interface AutomergeOptions {
   docId: string

@@ -1,15 +1,15 @@
 {
-  "name": "@collaborslate/backend",
+  "name": "@slate-sheikah/backend",
   "version": "0.7.0",
   "files": [
     "lib"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "description": "collaborslate bridge",
+  "description": "slate-sheikah bridge",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/docket-hq/collaborslate.git"
+    "url": "git+https://github.com/docket-hq/slate-sheikah.git"
   },
   "publishConfig": {
     "access": "public"
@@ -26,7 +26,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/runtime": "^7.6.3",
-    "@collaborslate/bridge": "^0.7.0",
+    "@slate-sheikah/bridge": "^0.7.0",
     "@types/lodash": "^4.14.150",
     "@types/socket.io": "^2.1.4",
     "automerge": "0.14.0",

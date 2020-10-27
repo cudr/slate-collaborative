@@ -12,7 +12,7 @@ import {
   setCursor,
   toSlateOp,
   CursorData
-} from '@collaborslate/bridge'
+} from '@slate-sheikah/bridge'
 
 export interface AutomergeEditor extends Editor {
   clientId: string
