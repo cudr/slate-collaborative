@@ -31,6 +31,7 @@ export default class SocketIOCollaboration {
   private io: SocketIO.Server
   private options: SocketIOCollaborationOptions
   private backend: AutomergeBackend
+  private autoSaveDoc: (docId: string) => void
 
   /**
    * Constructor
@@ -44,6 +45,15 @@ export default class SocketIOCollaboration {
     this.options = options
 
     this.configure()
+
+    /**
+     * Save document with throttle
+     */
+    this.autoSaveDoc = throttle(
+      async (docId: string) =>
+        this.backend.getDocument(docId) && this.saveDocument(docId),
+      this.options?.saveFrequency || 2000
+    )
 
     return this
   }
@@ -108,23 +118,23 @@ export default class SocketIOCollaboration {
     const { name } = socket.nsp
 
     this.backend.createConnection(id, ({ type, payload }: CollabAction) => {
-      socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
+      if (payload.docId === name) {
+        socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
+      }
     })
 
     socket.on('msg', this.onMessage(id, name))
 
     socket.on('disconnect', this.onDisconnect(id, socket))
 
-    socket.join(id, () => {
-      const doc = this.backend.getDocument(name)
+    const doc = this.backend.getDocument(name)
 
-      socket.emit('msg', {
-        type: 'document',
-        payload: Automerge.save<SyncDoc>(doc)
-      })
-
-      this.backend.openConnection(id)
+    socket.emit('msg', {
+      type: 'document',
+      payload: Automerge.save<SyncDoc>(doc)
     })
+
+    this.backend.openConnection(id)
 
     this.garbageCursors(name)
   }
@@ -147,16 +157,6 @@ export default class SocketIOCollaboration {
         }
     }
   }
-
-  /**
-   * Save document with throttle
-   */
-
-  private autoSaveDoc = throttle(
-    async (docId: string) =>
-      this.backend.getDocument(docId) && this.saveDocument(docId),
-    this.options?.saveFrequency || 2000
-  )
 
   /**
    * Save document
@@ -183,6 +183,8 @@ export default class SocketIOCollaboration {
    */
 
   private onDisconnect = (id: string, socket: SocketIO.Socket) => async () => {
+    socket.leave(socket.nsp.name)
+
     this.backend.closeConnection(id)
 
     await this.saveDocument(socket.nsp.name)
@@ -219,8 +221,7 @@ export default class SocketIOCollaboration {
   garbageCursors = (nsp: string) => {
     const doc = this.backend.getDocument(nsp)
 
-    if (doc == null || doc == undefined) return;
-    if (!doc.cursors) return
+    if (!doc || !doc.cursors) return
 
     const namespace = this.io.of(nsp)
 
