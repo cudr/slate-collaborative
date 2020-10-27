@@ -12,7 +12,7 @@ import { getClients } from './utils'
 import AutomergeBackend from './AutomergeBackend'
 
 export interface SocketIOCollaborationOptions {
-  entry: number | Server
+  entry: Server
   connectOpts?: SocketIO.ServerOptions
   defaultValue?: Node[]
   saveFrequency?: number

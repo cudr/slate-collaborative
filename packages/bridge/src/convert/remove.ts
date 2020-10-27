@@ -19,7 +19,7 @@ const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
 
   if (typeof index !== 'number') return
 
-  const text = node?.text[index] || '*'
+  const text = node?.text?.[index] || '*'
 
   if (node) {
     node.text = node.text?.slice(0, index) + node.text?.slice(index + 1)
