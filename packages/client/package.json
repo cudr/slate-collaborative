@@ -6,7 +6,7 @@
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "description": "slate-sheikah client: Client components for slate-sheikah",
+  "description": "slate-sheikah client: Client components for slate-sheikah. Slate + Automerge + Sockets",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/docket-hq/slate-sheikah.git"
