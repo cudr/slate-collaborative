@@ -5,14 +5,17 @@ import { Text, Range, Path, NodeEntry } from 'slate'
 import { toJS, Cursor, Cursors } from '@hiveteams/collab-bridge'
 
 import { AutomergeEditor } from './automerge-editor'
+import useMounted from 'useMounted'
 
 const useCursor = (
   e: AutomergeEditor
 ): { decorate: (entry: NodeEntry) => Range[]; cursors: Cursor[] } => {
-  const [cursorData, setSursorData] = useState<Cursor[]>([])
+  const [cursorData, setCursorData] = useState<Cursor[]>([])
+  const mountedRef = useMounted()
 
   useEffect(() => {
     e.onCursor = (data: Cursors) => {
+      if (!mountedRef.current) return
       const ranges: Cursor[] = []
 
       const cursors = toJS(data)
@@ -23,7 +26,10 @@ const useCursor = (
         }
       }
 
-      setSursorData(ranges)
+      // only update state if this component is still mounted
+      if (mountedRef.current) {
+        setCursorData(ranges)
+      }
     }
   }, [])
 
