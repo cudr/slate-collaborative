@@ -219,6 +219,7 @@ export default class SocketIOCollaboration {
   garbageCursors = (nsp: string) => {
     const doc = this.backend.getDocument(nsp)
 
+    if (doc == null || doc == undefined) return;
     if (!doc.cursors) return
 
     const namespace = this.io.of(nsp)
