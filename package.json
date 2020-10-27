@@ -5,7 +5,7 @@
     "bootstrap": "lerna bootstrap",
     "version": "auto-changelog -p ./packages/bridge/package.json --template changelog-template.hbs && git add CHANGELOG.md",
     "clean": "rimraf ./packages/**/lib/ && rimraf ./packages/**/tsconfig.tsbuildinfo && lerna clean --yes",
-    "release": "yarn build && lerna version",
+    "release": "yarn prebuild && yarn build && lerna version && lerna publish from-package",
     "deploy:site": "git subtree push --prefix packages/example heroku master",
     "dev": "lerna run --stream build:js && concurrently \"yarn watch\" \"lerna run dev --stream\"",
     "build": "lerna run build:module --stream",
