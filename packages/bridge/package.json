@@ -64,5 +64,5 @@
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$"
   },
-  "gitHead": "1a29cf0da2dc171c1fadd5c8e6eac2327b5b0241"
+  "gitHead": "6c157f43ced89a57bd982dd11f17d11eb7b18f20"
 }
