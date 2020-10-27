@@ -6,11 +6,19 @@
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "description": "slate-sheikah bridge",
+  "description": "slate-sheikah backend: Backend components for slate-sheikah",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/docket-hq/slate-sheikah.git"
   },
+  "keywords": [
+    "slate",
+    "automerge",
+    "server",
+    "collab",
+    "collaboration",
+    "socket"
+  ],
   "publishConfig": {
     "access": "public"
   },

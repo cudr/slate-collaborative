@@ -6,7 +6,7 @@
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "description": "slate-sheikah bridge",
+  "description": "slate-sheikah bridge: Bridge components for slate-sheikah.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/docket-hq/slate-sheikah.git"
@@ -47,7 +47,10 @@
   "keywords": [
     "slate",
     "automerge",
-    "bridge"
+    "bridge",
+    "collab",
+    "collaboration",
+    "socket"
   ],
   "jest": {
     "preset": "ts-jest",
