@@ -2,7 +2,7 @@ import io from 'socket.io-client'
 
 import { AutomergeEditor } from './automerge-editor'
 
-import { CollabAction } from '"@hiveteams/collab-bridge'
+import { CollabAction } from '@hiveteams/collab-bridge'
 
 export interface SocketIOPluginOptions {
   url: string

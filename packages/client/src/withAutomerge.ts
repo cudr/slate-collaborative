@@ -4,7 +4,7 @@ import { Editor } from 'slate'
 
 import { AutomergeEditor } from './automerge-editor'
 
-import { CursorData, CollabAction } from '"@hiveteams/collab-bridge'
+import { CursorData, CollabAction } from '@hiveteams/collab-bridge'
 
 export interface AutomergeOptions {
   docId: string
