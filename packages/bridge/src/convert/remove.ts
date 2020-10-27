@@ -41,7 +41,7 @@ const removeNodeOp = ({ index, obj, path }: Automerge.Diff) => (
   const slatePath = toSlatePath(path)
 
   const parent = getTarget(doc, slatePath)
-  const target = parent?.children[index as number] || { children: [] }
+  const target = parent?.children?.[index as number] || { children: [] }
 
   if (!map.hasOwnProperty(obj)) {
     map[obj] = target
