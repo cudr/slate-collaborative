@@ -2,7 +2,7 @@ import io from 'socket.io-client'
 
 import { AutomergeEditor } from './automerge-editor'
 
-import { CollabAction } from '@slate-collaborative/bridge'
+import { CollabAction } from '@collaborslate/bridge'
 
 export interface SocketIOPluginOptions {
   url: string

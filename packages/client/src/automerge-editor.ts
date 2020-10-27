@@ -12,7 +12,7 @@ import {
   setCursor,
   toSlateOp,
   CursorData
-} from '@slate-collaborative/bridge'
+} from '@collaborslate/bridge'
 
 export interface AutomergeEditor extends Editor {
   clientId: string

@@ -4,7 +4,7 @@ import { Editor } from 'slate'
 
 import { AutomergeEditor } from './automerge-editor'
 
-import { CursorData, CollabAction } from '@slate-collaborative/bridge'
+import { CursorData, CollabAction } from '@collaborslate/bridge'
 
 export interface AutomergeOptions {
   docId: string

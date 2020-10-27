@@ -1,11 +1,8 @@
-# slate-collaborative. Check [demo](https://slate-collaborative.herokuapp.com/)
+# collaborslate. Check [demo](https://collaborslate.herokuapp.com/)
 slatejs collaborative plugin &amp; microservice
+Based on ([slate-collaborative](https://github.com/cudr/slate-collaborative) and modified for speed and stability.
 
 ![screencast2019-10-2820-06-10](https://user-images.githubusercontent.com/23132107/67700384-ebff7280-f9be-11e9-9005-6ddadcafec47.gif)
-
-A little experiment for co-editing.
-
-Based on idea of https://github.com/humandx/slate-automerge
 
 # API
 
@@ -14,12 +11,12 @@ Based on idea of https://github.com/humandx/slate-automerge
 Use it as a simple slatejs plugin
 
 ```ts
-import { withIOCollaboration } from '@slate-collaborative/client'
+import { withIOCollaboration } from '@collaborslate/client'
 
 const collaborationEditor = withIOCollaboration(editor, options)
 ```
 
-Check [detailed example](https://github.com/cudr/slate-collaborative/blob/master/packages/example/src/Client.tsx)
+Check [detailed example](https://github.com/cudr/collaborslate/blob/master/packages/example/src/Client.tsx)
 
 ### Options:
 ```ts
@@ -38,7 +35,7 @@ Check [detailed example](https://github.com/cudr/slate-collaborative/blob/master
 You need to attach the useCursor decorator to provide custom cursor data in renderLeaf function
 
 ```ts
-import { useCursor } from '@slate-collaborative/client'
+import { useCursor } from '@collaborslate/client'
 
 const decorator = useCursor(editor)
 ```
@@ -47,7 +44,7 @@ const decorator = useCursor(editor)
 
 ## Backend
 ```ts
-const { SocketIOConnection } = require('@slate-collaborative/backend')
+const { SocketIOConnection } = require('@collaborslate/backend')
 
 const connection = new SocketIOConnection(options)
 ```
@@ -79,4 +76,7 @@ start it ease:
 yarn
 yarn dev
 ```
-
+# Credits
+  [cudr](https://github.com/cudr)
+  [slate-collaborative](https://github.com/cudr/slate-collaborative)
+  [slate-automerge](https://github.com/humandx/slate-automerge)

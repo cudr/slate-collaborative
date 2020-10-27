@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react'
 
 import { Text, Range, Path, NodeEntry } from 'slate'
 
-import { toJS, Cursor, Cursors } from '@slate-collaborative/bridge'
+import { toJS, Cursor, Cursors } from '@collaborslate/bridge'
 
 import { AutomergeEditor } from './automerge-editor'
 

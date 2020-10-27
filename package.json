@@ -18,11 +18,11 @@
   "workspaces": [
     "packages/*"
   ],
-  "author": "cudr",
+  "author": "jnbarlow",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cudr/slate-collaborative.git"
+    "url": "git+https://github.com/docket-hq/collaborslate.git"
   },
   "husky": {
     "hooks": {

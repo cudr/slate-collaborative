@@ -1,20 +1,20 @@
 {
-  "name": "@slate-collaborative/bridge",
+  "name": "@collaborslate/bridge",
   "version": "0.7.0",
   "files": [
     "lib"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "description": "slate-collaborative bridge",
+  "description": "collaborslate bridge",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cudr/slate-collaborative.git"
+    "url": "git+https://github.com/docket-hq/collaborslate.git"
   },
   "publishConfig": {
     "access": "public"
   },
-  "author": "cudr",
+  "author": "jnbarlow",
   "license": "MIT",
   "scripts": {
     "prepublishOnly": "yarn run build:module",

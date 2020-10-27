@@ -3,8 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@slate-collaborative/bridge": ["../../bridge"],
-      "@slate-collaborative/client": ["../../client"]
+      "@collaborslate/bridge": ["../../bridge"],
+      "@collaborslate/client": ["../../client"]
     }
   },
   "references": [

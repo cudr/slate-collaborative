@@ -7,7 +7,7 @@
     "outDir": "./lib",
     "composite": true,
     "paths": {
-      "@slate-collaborative/bridge": ["../../bridge"]
+      "@collaborslate/bridge": ["../../bridge"]
     }
   },
   "references": [
