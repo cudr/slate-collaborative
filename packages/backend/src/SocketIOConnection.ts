@@ -26,11 +26,15 @@ export interface SocketIOCollaborationOptions {
   ) => Promise<Node[]> | Node[]
   onDocumentSave?: (pathname: string, doc: Node[]) => Promise<void> | void
 }
+export interface BackendCounts {
+  [key: string]: number
+}
 
 export default class SocketIOCollaboration {
   private io: SocketIO.Server
   private options: SocketIOCollaborationOptions
-  private backend: AutomergeBackend
+  private backends: AutomergeBackend[] = []
+  private backendCounts: BackendCounts[] = []
 
   /**
    * Constructor
@@ -38,8 +42,6 @@ export default class SocketIOCollaboration {
 
   constructor(options: SocketIOCollaborationOptions) {
     this.io = io(options.entry, options.connectOpts)
-
-    this.backend = new AutomergeBackend()
 
     this.options = options
 
@@ -63,20 +65,44 @@ export default class SocketIOCollaboration {
    */
 
   private nspMiddleware = async (path: string, query: any, next: any) => {
-    const { onDocumentLoad } = this.options
-
-    if (!this.backend.getDocument(path)) {
-      const doc = onDocumentLoad
-        ? await onDocumentLoad(path, query)
-        : this.options.defaultValue
-
-      if (!doc) return next(null, false)
-
-      this.backend.appendDocument(path, doc)
-    }
-
     return next(null, true)
+    //this is needed to set up the namespace, but it only runs once.
+    //the logic that WAS in here needs to be able to be ran multiple times.
   }
+
+  /**
+   * init function to set up new documents is they don't exist.  These get cleaned up once
+   * all the sockets disconnect.
+   * @param socket
+   */
+  private init = async (socket: SocketIO.Socket) => {
+    try {
+      const path = socket.nsp.name;
+      const query = socket.handshake.query;
+      const { onDocumentLoad } = this.options
+
+      //make some backends if this is the first time this meeting is loaded.
+      if(!this.backends[path]){
+        this.backends[path] = new AutomergeBackend();
+        this.backendCounts[path] = 0;
+
+        if (!this.backends[path].getDocument(path)) {
+          const doc = onDocumentLoad
+            ? await onDocumentLoad(path, query)
+            : this.options.defaultValue
+
+          if (doc) {
+            this.backends[path].appendDocument(path, doc)
+          }
+        }
+      }
+
+      this.backendCounts[path] = this.backendCounts[path] + 1;
+
+    } catch (e){
+      console.log('Error in slate-collab init', e);
+    }
+}
 
   /**
    * SocketIO auth middleware. Used for user authentification.
@@ -103,30 +129,36 @@ export default class SocketIOCollaboration {
    * On 'connect' handler.
    */
 
-  private onConnect = (socket: SocketIO.Socket) => {
-    const { id, conn } = socket
-    const { name } = socket.nsp
+  private onConnect = async (socket: SocketIO.Socket) => {
+    try{
+      const { id, conn } = socket
+      const { name } = socket.nsp
+      await this.init(socket);
 
-    this.backend.createConnection(id, ({ type, payload }: CollabAction) => {
-      socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
-    })
-
-    socket.on('msg', this.onMessage(id, name))
-
-    socket.on('disconnect', this.onDisconnect(id, socket))
-
-    socket.join(id, () => {
-      const doc = this.backend.getDocument(name)
-
-      socket.emit('msg', {
-        type: 'document',
-        payload: Automerge.save<SyncDoc>(doc)
+      this.backends[name].createConnection(id, ({ type, payload }: CollabAction) => {
+        socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
       })
 
-      this.backend.openConnection(id)
-    })
+      socket.on('msg', this.onMessage(id, name))
 
-    this.garbageCursors(name)
+      socket.on('disconnect', this.onDisconnect(id, socket))
+
+      socket.join(id, () => {
+        const doc = this.backends[name].getDocument(name)
+
+        socket.emit('msg', {
+          type: 'document',
+          payload: Automerge.save<SyncDoc>(doc)
+        })
+
+        this.backends[name].openConnection(id)
+      })
+
+      this.garbageCursors(name)
+    } catch (e) {
+      console.log('Error in slate-collab onConnect', e);
+    }
+
   }
 
   /**
@@ -137,7 +169,7 @@ export default class SocketIOCollaboration {
     switch (data.type) {
       case 'operation':
         try {
-          this.backend.receiveOperation(id, data)
+          this.backends[name].receiveOperation(id, data)
 
           this.autoSaveDoc(name)
 
@@ -173,7 +205,7 @@ export default class SocketIOCollaboration {
     try {
       const { onDocumentSave } = this.options
 
-      const doc = this.backend.getDocument(docId)
+      const doc = this.backends[docId].getDocument(docId)
 
       if (!doc) {
         throw new Error(`Can't receive document by id: ${docId}`)
@@ -190,15 +222,25 @@ export default class SocketIOCollaboration {
    */
 
   private onDisconnect = (id: string, socket: SocketIO.Socket) => async () => {
-    this.backend.closeConnection(id)
+    try {
+      this.backends[socket.nsp.name].closeConnection(id)
+      this.backendCounts[socket.nsp.name] = this.backendCounts[socket.nsp.name] - 1
 
-    await this.saveDocument(socket.nsp.name)
+      await this.saveDocument(socket.nsp.name)
 
-    this.garbageCursors(socket.nsp.name)
+      this.garbageCursors(socket.nsp.name)
 
-    socket.leave(id)
+      socket.leave(id)
 
-    this.garbageNsp()
+      this.garbageNsp()
+
+      //if all the sockets have disconnected, free up that precious, precious memory.
+      if(this.backendCounts[socket.nsp.name] == 0){
+        delete this.backends[socket.nsp.name]
+      }
+    } catch (e) {
+      console.log('Error in slate-collab onDisconnect', e);
+    }
   }
 
   /**
@@ -211,7 +253,7 @@ export default class SocketIOCollaboration {
       .forEach(nsp => {
         getClients(this.io, nsp).then((clientsList: any) => {
           if (!clientsList.length) {
-            this.backend.removeDocument(nsp)
+            this.backends[nsp].removeDocument(nsp)
 
             delete this.io.nsps[nsp]
           }
@@ -224,7 +266,7 @@ export default class SocketIOCollaboration {
    */
 
   garbageCursors = (nsp: string) => {
-    const doc = this.backend.getDocument(nsp)
+    const doc = this.backends[nsp].getDocument(nsp)
 
     if (!doc.cursors) return
 
@@ -232,7 +274,7 @@ export default class SocketIOCollaboration {
 
     Object.keys(doc?.cursors)?.forEach(key => {
       if (!namespace.sockets[key]) {
-        this.backend.garbageCursor(nsp, key)
+        this.backends[nsp].garbageCursor(nsp, key)
       }
     })
   }
