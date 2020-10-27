@@ -8,7 +8,7 @@ import randomColor from 'randomcolor'
 
 import styled from '@emotion/styled'
 
-import { withIOCollaboration, useCursor } from '@slate-collaborative/client'
+import { withIOCollaboration, useCursor } from '@hiveteams/collab-client'
 
 import { Instance, Title, H4, Button } from './Components'
 

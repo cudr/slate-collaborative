@@ -3,12 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@slate-collaborative/bridge": ["../../bridge"],
-      "@slate-collaborative/client": ["../../client"]
+      "@hiveteams/collab-bridge": ["../../bridge"],
+      "@hiveteams/collab-client": ["../../client"]
     }
   },
-  "references": [
-    { "path": "../client" },
-    { "path": "../backend" }
-  ]
+  "references": [{ "path": "../client" }, { "path": "../backend" }]
 }

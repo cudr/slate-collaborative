@@ -5,7 +5,7 @@ import { Server } from 'http'
 
 import throttle from 'lodash/throttle'
 
-import { SyncDoc, CollabAction, toJS } from '@slate-collaborative/bridge'
+import { SyncDoc, CollabAction, toJS } from '@hiveteams/collab-bridge'
 
 import { getClients } from './utils'
 

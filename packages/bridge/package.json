@@ -1,5 +1,5 @@
 {
-  "name": "@slate-collaborative/bridge",
+  "name": "@hiveteams/collab-bridge",
   "version": "0.7.1",
   "files": [
     "lib"

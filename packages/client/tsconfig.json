@@ -7,10 +7,8 @@
     "outDir": "./lib",
     "composite": true,
     "paths": {
-      "@slate-collaborative/bridge": ["../../bridge"]
+      "@hiveteams/collab-bridge": ["../../bridge"]
     }
   },
-  "references": [
-    { "path": "../bridge" }
-  ]
+  "references": [{ "path": "../bridge" }]
 }

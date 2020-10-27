@@ -7,7 +7,7 @@ import {
   toSync,
   SyncDoc,
   CollabAction
-} from '@slate-collaborative/bridge'
+} from '@hiveteams/collab-bridge'
 
 export interface Connections {
   [key: string]: Automerge.Connection<SyncDoc>

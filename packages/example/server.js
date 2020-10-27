@@ -1,4 +1,4 @@
-const { SocketIOConnection } = require('@slate-collaborative/backend')
+const { SocketIOConnection } = require('@hiveteams/collab-backend')
 const express = require('express')
 
 const defaultValue = [
