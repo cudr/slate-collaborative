@@ -1,11 +1,11 @@
 {
   "name": "@slate-collaborative/example",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "dependencies": {
     "@emotion/core": "^10.0.17",
     "@emotion/styled": "^10.0.17",
-    "@slate-collaborative/backend": "^0.7.0",
+    "@slate-collaborative/backend": "^0.7.1",
     "@slate-collaborative/client": "^0.7.0",
     "@types/faker": "^4.1.5",
     "@types/is-url": "^1.2.28",
