@@ -36,6 +36,7 @@ const withSocketIO = <T extends AutomergeEditor>(
   options: SocketIOPluginOptions
 ) => {
   const e = editor as T & WithSocketIOEditor
+  let socket: SocketIOClient.Socket
 
   const {
     onConnect,
@@ -51,11 +52,11 @@ const withSocketIO = <T extends AutomergeEditor>(
    */
 
   e.connect = () => {
-    if (!e.socket) {
-      e.socket = io(url, { ...connectOpts })
+    if (!socket) {
+      socket = io(url, { ...connectOpts })
 
-      e.socket.on('connect', () => {
-        e.clientId = e.socket.id
+      socket.on('connect', () => {
+        e.clientId = socket.id
 
         e.openConnection()
 
@@ -63,21 +64,21 @@ const withSocketIO = <T extends AutomergeEditor>(
       })
     }
 
-    e.socket.on('error', (msg: string) => {
+    socket.on('error', (msg: string) => {
       onError && onError(msg)
     })
 
-    e.socket.on('msg', (data: CollabAction) => {
+    socket.on('msg', (data: CollabAction) => {
       e.receive(data)
     })
 
-    e.socket.on('disconnect', () => {
+    socket.on('disconnect', () => {
       e.gabageCursor()
 
       onDisconnect && onDisconnect()
     })
 
-    e.socket.connect()
+    socket.connect()
 
     return e
   }
@@ -87,9 +88,9 @@ const withSocketIO = <T extends AutomergeEditor>(
    */
 
   e.disconnect = () => {
-    e.socket.removeListener('msg')
+    socket.removeListener('msg')
 
-    e.socket.close()
+    socket.close()
 
     e.closeConnection()
 
@@ -114,7 +115,7 @@ const withSocketIO = <T extends AutomergeEditor>(
    */
 
   e.send = (msg: CollabAction) => {
-    e.socket.emit('msg', msg)
+    socket.emit('msg', msg)
   }
 
   /**
@@ -122,7 +123,7 @@ const withSocketIO = <T extends AutomergeEditor>(
    */
 
   e.destroy = () => {
-    e.socket.close()
+    socket.close()
 
     e.closeConnection()
   }
