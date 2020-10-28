@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab-backend",
-  "version": "0.7.4",
+  "version": "0.7.6",
   "files": [
     "lib"
   ],
@@ -26,7 +26,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/runtime": "^7.6.3",
-    "@hiveteams/collab-bridge": "^0.7.4",
+    "@hiveteams/collab-bridge": "^0.7.6",
     "@types/lodash": "^4.14.150",
     "@types/socket.io": "^2.1.4",
     "automerge": "0.14.0",
