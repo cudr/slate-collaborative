@@ -19,6 +19,15 @@ const insertNodeOp = (
   const ops: any = []
 
   const iterate = ({ children, ...json }: any, path: any) => {
+    if (children && children.length === 1 && children[0].text === '') {
+      ops.push({
+        type: 'insert_node',
+        path,
+        node: { children, ...json }
+      })
+      return
+    }
+
     const node = children ? { ...json, children: [] } : json
 
     ops.push({
