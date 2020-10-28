@@ -29,8 +29,7 @@ const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
     type: 'remove_text',
     path: slatePath,
     offset: index,
-    text,
-    marks: []
+    text
   }
 }
 

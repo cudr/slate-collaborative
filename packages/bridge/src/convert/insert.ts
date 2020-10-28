@@ -8,8 +8,7 @@ const insertTextOp = ({ index, path, value }: Automerge.Diff) => () => ({
   type: 'insert_text',
   path: toSlatePath(path),
   offset: index,
-  text: value,
-  marks: []
+  text: value
 })
 
 const insertNodeOp = (

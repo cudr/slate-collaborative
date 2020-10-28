@@ -10,21 +10,18 @@ const transforms = [
     [createNode('paragraph', '')],
     [
       {
-        marks: [],
         offset: 0,
         path: [0, 0],
         text: 'Hello ',
         type: 'insert_text'
       },
       {
-        marks: [],
         offset: 6,
         path: [0, 0],
         text: 'collaborator',
         type: 'insert_text'
       },
       {
-        marks: [],
         offset: 18,
         path: [0, 0],
         text: '!',
