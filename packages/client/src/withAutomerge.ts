@@ -62,7 +62,11 @@ const withAutomerge = <T extends Editor>(
    */
 
   e.gabageCursor = () => {
-    AutomergeEditor.garbageCursor(e, docId)
+    try {
+      AutomergeEditor.garbageCursor(e, docId)
+    } catch (err) {
+      console.log('garbageCursor error', err)
+    }
   }
 
   /**
