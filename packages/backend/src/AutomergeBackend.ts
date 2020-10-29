@@ -8,26 +8,22 @@ import {
   SyncDoc,
   CollabAction
 } from '@hiveteams/collab-bridge'
-
-export interface Connections {
-  [key: string]: Automerge.Connection<SyncDoc>
-}
+import { debugCollabBackend } from 'utils/debug'
 
 /**
  * AutomergeBackend contains collaboration with Automerge
  */
 
 class AutomergeBackend {
-  connections: Connections = {}
-
-  docSet: Automerge.DocSet<SyncDoc> = new Automerge.DocSet()
+  connectionMap: { [key: string]: Automerge.Connection<SyncDoc> } = {}
+  documentSetMap: { [key: string]: Automerge.DocSet<SyncDoc> } = {}
 
   /**
    * Create Autmorge Connection
    */
 
-  createConnection = (id: string, send: any) => {
-    if (this.connections[id]) {
+  createConnection = (id: string, docId: string, send: any) => {
+    if (this.connectionMap[id]) {
       console.warn(
         `Already has connection with id: ${id}. It will be terminated before creating new connection`
       )
@@ -35,8 +31,12 @@ class AutomergeBackend {
       this.closeConnection(id)
     }
 
-    this.connections[id] = new Automerge.Connection(
-      this.docSet,
+    if (!this.documentSetMap[docId]) {
+      throw new Error('Cannot create connection for missing docSet')
+    }
+
+    this.connectionMap[id] = new Automerge.Connection(
+      this.documentSetMap[docId],
       toCollabAction('operation', send)
     )
   }
@@ -45,16 +45,16 @@ class AutomergeBackend {
    * Start Automerge Connection
    */
 
-  openConnection = (id: string) => this.connections[id].open()
+  openConnection = (id: string) => this.connectionMap[id].open()
 
   /**
    * Close Automerge Connection and remove it from connections
    */
 
   closeConnection(id: string) {
-    this.connections[id]?.close()
+    this.connectionMap[id]?.close()
 
-    delete this.connections[id]
+    delete this.connectionMap[id]
   }
 
   /**
@@ -63,7 +63,12 @@ class AutomergeBackend {
 
   receiveOperation = (id: string, data: CollabAction) => {
     try {
-      this.connections[id].receiveMsg(data.payload)
+      if (!this.connectionMap[id]) {
+        debugCollabBackend('Could not receive op for closed connection %s', id)
+        return
+      }
+
+      this.connectionMap[id].receiveMsg(data.payload)
     } catch (e) {
       console.error('Unexpected error in receiveOperation', e)
     }
@@ -73,7 +78,7 @@ class AutomergeBackend {
    * Get document from Automerge DocSet
    */
 
-  getDocument = (docId: string) => this.docSet.getDoc(docId)
+  getDocument = (docId: string) => this.documentSetMap[docId]?.getDoc(docId)
 
   /**
    * Append document to Automerge DocSet
@@ -89,7 +94,10 @@ class AutomergeBackend {
 
       const doc = Automerge.from<SyncDoc>(sync)
 
-      this.docSet.setDoc(docId, doc)
+      if (!this.documentSetMap[docId]) {
+        this.documentSetMap[docId] = new Automerge.DocSet<SyncDoc>()
+      }
+      this.documentSetMap[docId].setDoc(docId, doc)
     } catch (e) {
       console.error(e, docId)
     }
@@ -99,7 +107,12 @@ class AutomergeBackend {
    * Remove document from Automerge DocSet
    */
 
-  removeDocument = (docId: string) => this.docSet.removeDoc(docId)
+  removeDocument = (docId: string) => {
+    if (this.documentSetMap[docId]) {
+      this.documentSetMap[docId].removeDoc(docId)
+      delete this.documentSetMap[docId]
+    }
+  }
 
   /**
    * Remove client cursor data
@@ -109,13 +122,13 @@ class AutomergeBackend {
     try {
       const doc = this.getDocument(docId)
 
-      if (!doc.cursors) return
+      if (!doc || !doc.cursors) return
 
       const change = Automerge.change(doc, (d: any) => {
         delete d.cursors[id]
       })
 
-      this.docSet.setDoc(docId, change)
+      this.documentSetMap[docId].setDoc(docId, change)
     } catch (e) {
       console.error('Unexpected error in garbageCursor', e)
     }

@@ -10,11 +10,12 @@ import { SyncDoc, CollabAction, toJS } from '@hiveteams/collab-bridge'
 import { getClients } from './utils'
 
 import AutomergeBackend from './AutomergeBackend'
+import { debugCollabBackend } from 'utils/debug'
 
 export interface SocketIOCollaborationOptions {
   entry: Server
   connectOpts?: SocketIO.ServerOptions
-  defaultValue?: Node[]
+  defaultValue: Node[]
   saveFrequency?: number
   onAuthRequest?: (
     query: Object,
@@ -31,6 +32,7 @@ export default class SocketIOCollaboration {
   private io: SocketIO.Server
   private options: SocketIOCollaborationOptions
   private backend: AutomergeBackend
+  private autoSaveDoc: (id: string, docId: string) => void
 
   /**
    * Constructor
@@ -42,6 +44,15 @@ export default class SocketIOCollaboration {
     this.backend = new AutomergeBackend()
 
     this.options = options
+
+    /**
+     * Save document with throttle
+     */
+    this.autoSaveDoc = throttle(
+      async (id: string, docId: string) =>
+        this.backend.getDocument(docId) && this.saveDocument(id, docId),
+      this.options?.saveFrequency || 2000
+    )
 
     this.configure()
 
@@ -63,18 +74,6 @@ export default class SocketIOCollaboration {
    */
 
   private nspMiddleware = async (path: string, query: any, next: any) => {
-    const { onDocumentLoad } = this.options
-
-    if (!this.backend.getDocument(path)) {
-      const doc = onDocumentLoad
-        ? await onDocumentLoad(path, query)
-        : this.options.defaultValue
-
-      if (!doc) return next(null, false)
-
-      this.backend.appendDocument(path, doc)
-    }
-
     return next(null, true)
   }
 
@@ -86,8 +85,13 @@ export default class SocketIOCollaboration {
     socket: SocketIO.Socket,
     next: (e?: any) => void
   ) => {
+    const { id } = socket
     const { query } = socket.handshake
     const { onAuthRequest } = this.options
+
+    // we connect before any async logic so that we
+    // never miss a socket disconnection event
+    socket.on('disconnect', this.onDisconnect(id, socket))
 
     if (onAuthRequest) {
       const permit = await onAuthRequest(query, socket)
@@ -103,26 +107,63 @@ export default class SocketIOCollaboration {
    * On 'connect' handler.
    */
 
-  private onConnect = (socket: SocketIO.Socket) => {
+  private onConnect = async (socket: SocketIO.Socket) => {
     const { id, conn } = socket
-    const { name } = socket.nsp
+    // do nothing if the socket connection has already been closed
+    if (conn.readyState === 'closed') {
+      return
+    }
 
-    this.backend.createConnection(id, ({ type, payload }: CollabAction) => {
-      socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
-    })
+    const { name } = socket.nsp
+    const { onDocumentLoad } = this.options
+
+    if (!this.backend.getDocument(name)) {
+      const doc = onDocumentLoad
+        ? await onDocumentLoad(name)
+        : this.options.defaultValue
+
+      // Ensure socket is still opened
+      // recheck ready state after async operation
+      if (conn.readyState === 'closed') {
+        return
+      }
+
+      // recheck backend getDocument after async operation
+      if (!this.backend.getDocument(name)) {
+        debugCollabBackend('Append document\t\t%s', id)
+        this.backend.appendDocument(name, doc)
+      }
+    }
+
+    debugCollabBackend('Create connection\t%s', id)
+    this.backend.createConnection(
+      id,
+      name,
+      ({ type, payload }: CollabAction) => {
+        socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
+      }
+    )
 
     socket.on('msg', this.onMessage(id, name))
 
-    socket.on('disconnect', this.onDisconnect(id, socket))
-
     socket.join(id, () => {
       const doc = this.backend.getDocument(name)
+
+      if (!doc) {
+        debugCollabBackend(
+          'onConnect: No document available at the time of socket.io join docId=%s socketId=%s',
+          name,
+          id
+        )
+        return
+      }
 
       socket.emit('msg', {
         type: 'document',
         payload: Automerge.save<SyncDoc>(doc)
       })
 
+      debugCollabBackend('Open connection\t\t%s', id)
       this.backend.openConnection(id)
     })
 
@@ -139,7 +180,7 @@ export default class SocketIOCollaboration {
         try {
           this.backend.receiveOperation(id, data)
 
-          this.autoSaveDoc(name)
+          this.autoSaveDoc(id, name)
 
           this.garbageCursors(name)
         } catch (e) {
@@ -149,27 +190,20 @@ export default class SocketIOCollaboration {
   }
 
   /**
-   * Save document with throttle
-   */
-
-  private autoSaveDoc = throttle(
-    async (docId: string) =>
-      this.backend.getDocument(docId) && this.saveDocument(docId),
-    this.options?.saveFrequency || 2000
-  )
-
-  /**
    * Save document
    */
 
-  private saveDocument = async (docId: string) => {
+  private saveDocument = async (id: string, docId: string) => {
     try {
       const { onDocumentSave } = this.options
 
       const doc = this.backend.getDocument(docId)
 
+      // Return early if there is no valid document in our crdt backend
+      // Note: this will happen when user disconnects from the collab server
+      // before document load has completed
       if (!doc) {
-        throw new Error(`Can't receive document by id: ${docId}`)
+        return
       }
 
       onDocumentSave && (await onDocumentSave(docId, toJS(doc.children)))
@@ -183,29 +217,36 @@ export default class SocketIOCollaboration {
    */
 
   private onDisconnect = (id: string, socket: SocketIO.Socket) => async () => {
+    debugCollabBackend('Connection closed\t%s', id)
     this.backend.closeConnection(id)
 
-    await this.saveDocument(socket.nsp.name)
+    await this.saveDocument(id, socket.nsp.name)
 
+    // cleanup automerge cursor and socket connection
     this.garbageCursors(socket.nsp.name)
 
     socket.leave(id)
-
-    this.garbageNsp()
+    this.garbageNsp(id)
   }
 
   /**
    * Clean up unused SocketIO namespaces.
    */
 
-  garbageNsp = () => {
+  garbageNsp = (id: string) => {
     Object.keys(this.io.nsps)
       .filter(n => n !== '/')
       .forEach(nsp => {
         getClients(this.io, nsp).then((clientsList: any) => {
+          debugCollabBackend(
+            'Garbage namespace\t%s clientsList=%o %s',
+            id,
+            clientsList,
+            nsp
+          )
           if (!clientsList.length) {
+            debugCollabBackend('Removing document\t%s', id)
             this.backend.removeDocument(nsp)
-
             delete this.io.nsps[nsp]
           }
         })
@@ -218,13 +259,14 @@ export default class SocketIOCollaboration {
 
   garbageCursors = (nsp: string) => {
     const doc = this.backend.getDocument(nsp)
-
-    if (!doc.cursors) return
+    // if document has already been cleaned up, it is safe to return early
+    if (!doc || !doc.cursors) return
 
     const namespace = this.io.of(nsp)
 
     Object.keys(doc?.cursors)?.forEach(key => {
       if (!namespace.sockets[key]) {
+        debugCollabBackend('Garbage cursor\t\t%s', key)
         this.backend.garbageCursor(nsp, key)
       }
     })
