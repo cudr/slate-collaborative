@@ -12,7 +12,7 @@ export interface SocketIOPluginOptions {
   onConnect?: () => void
   onDisconnect?: () => void
 
-  onError?: (msg: string) => void
+  onError?: (msg: string | Error) => void
 }
 
 export interface WithSocketIOEditor {

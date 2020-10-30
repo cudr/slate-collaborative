@@ -10,6 +10,7 @@ export interface AutomergeOptions {
   docId: string
   cursorData?: CursorData
   preserveExternalHistory?: boolean
+  onError?: (msg: string | Error) => void
 }
 
 /**
@@ -24,7 +25,12 @@ const withAutomerge = <T extends Editor>(
 
   const { onChange } = e
 
-  const { docId, cursorData, preserveExternalHistory } = options || {}
+  const {
+    docId,
+    cursorData,
+    preserveExternalHistory,
+    onError = (err: string | Error) => console.log('AutomergeEditor error', err)
+  } = options || {}
 
   e.docSet = new Automerge.DocSet()
 
@@ -77,7 +83,9 @@ const withAutomerge = <T extends Editor>(
     const operations: any = e.operations
 
     if (!e.isRemote) {
-      AutomergeEditor.applySlateOps(e, docId, operations, cursorData)
+      AutomergeEditor.applySlateOps(e, docId, operations, cursorData).catch(
+        onError
+      )
 
       onChange()
     }

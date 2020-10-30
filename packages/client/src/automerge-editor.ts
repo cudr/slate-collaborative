@@ -57,29 +57,25 @@ export const AutomergeEditor = {
     operations: Operation[],
     cursorData?: CursorData
   ) => {
-    try {
-      const doc = e.docSet.getDoc(docId)
+    const doc = e.docSet.getDoc(docId)
 
-      if (!doc) {
-        throw new TypeError(`Unknown docId: ${docId}!`)
-      }
-
-      let changed
-
-      for await (let op of operations) {
-        changed = Automerge.change<SyncDoc>(changed || doc, d =>
-          applyOperation(d.children, op)
-        )
-      }
-
-      changed = Automerge.change(changed || doc, d => {
-        setCursor(e.clientId, e.selection, d, operations, cursorData || {})
-      })
-
-      e.docSet.setDoc(docId, changed as any)
-    } catch (e) {
-      console.error(e)
+    if (!doc) {
+      throw new TypeError(`Unknown docId: ${docId}!`)
     }
+
+    let changed
+
+    for await (let op of operations) {
+      changed = Automerge.change<SyncDoc>(changed || doc, d =>
+        applyOperation(d.children, op)
+      )
+    }
+
+    changed = Automerge.change(changed || doc, d => {
+      setCursor(e.clientId, e.selection, d, operations, cursorData || {})
+    })
+
+    e.docSet.setDoc(docId, changed as any)
   },
 
   /**
