@@ -35,8 +35,6 @@ const withAutomerge = <T extends Editor>(
   e.docSet = new Automerge.DocSet()
 
   const createConnection = () => {
-    if (e.connection) e.connection.close()
-
     e.connection = AutomergeEditor.createConnection(e, (data: CollabAction) =>
       //@ts-ignore
       e.send(data)
@@ -97,8 +95,6 @@ const withAutomerge = <T extends Editor>(
 
   e.receiveDocument = data => {
     AutomergeEditor.receiveDocument(e, docId, data)
-
-    createConnection()
   }
 
   /**
