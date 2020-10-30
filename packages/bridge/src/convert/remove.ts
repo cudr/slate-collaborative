@@ -57,6 +57,11 @@ const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
   try {
     const { index, path, obj, type } = op
 
+    // early return if no map obj available
+    if (!map) {
+      return [map, ops]
+    }
+
     if (
       map.hasOwnProperty(obj) &&
       typeof map[obj] !== 'string' &&
