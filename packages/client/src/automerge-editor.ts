@@ -138,7 +138,12 @@ export const AutomergeEditor = {
         Promise.resolve().then(_ => (e.isRemote = false))
       }
     } catch (e) {
-      console.error(e)
+      // unset remove flag
+      if (e.isRemote) {
+        e.isRemote = false
+      }
+
+      throw e
     }
   },
 

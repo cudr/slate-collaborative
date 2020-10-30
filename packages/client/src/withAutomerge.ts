@@ -108,7 +108,12 @@ const withAutomerge = <T extends Editor>(
   e.receiveOperation = data => {
     if (docId !== data.docId) return
 
-    AutomergeEditor.applyOperation(e, docId, data, preserveExternalHistory)
+    try {
+      AutomergeEditor.applyOperation(e, docId, data, preserveExternalHistory)
+    } catch (err) {
+      // report any errors during apply operation
+      onError(err)
+    }
   }
 
   return e
