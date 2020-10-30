@@ -45,8 +45,6 @@ const withAutomerge = <T extends Editor>(
     e.connection.open()
   }
 
-  createConnection()
-
   /**
    * Open Automerge Connection
    */

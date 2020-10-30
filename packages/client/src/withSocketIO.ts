@@ -7,7 +7,6 @@ import { CollabAction } from '@hiveteams/collab-bridge'
 export interface SocketIOPluginOptions {
   url: string
   connectOpts: SocketIOClient.ConnectOpts
-  autoConnect?: boolean
 
   onConnect?: () => void
   onDisconnect?: () => void
@@ -38,31 +37,22 @@ const withSocketIO = <T extends AutomergeEditor>(
   const e = editor as T & WithSocketIOEditor
   let socket: SocketIOClient.Socket
 
-  const {
-    onConnect,
-    onDisconnect,
-    onError,
-    connectOpts,
-    url,
-    autoConnect
-  } = options
+  const { onConnect, onDisconnect, onError, connectOpts, url } = options
 
   /**
    * Connect to Socket.
    */
 
   e.connect = () => {
-    if (!socket) {
-      socket = io(url, { ...connectOpts })
+    socket = io(url, { ...connectOpts })
 
-      socket.on('connect', () => {
-        e.clientId = socket.id
+    socket.on('connect', () => {
+      e.clientId = socket.id
 
-        e.openConnection()
+      e.openConnection()
 
-        onConnect && onConnect()
-      })
-    }
+      onConnect && onConnect()
+    })
 
     socket.on('error', (msg: string) => {
       onError && onError(msg)
@@ -126,8 +116,6 @@ const withSocketIO = <T extends AutomergeEditor>(
     socket.close()
     e.closeConnection()
   }
-
-  autoConnect && e.connect()
 
   return e
 }
