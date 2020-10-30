@@ -30,7 +30,7 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "nodemon server.js",
     "start:cra": "react-scripts start",
     "prebuild": "cp -f ./tsconfig.production.json ./tsconfig.json",
     "build": "cross-env NODE_ENV=production && react-scripts build",

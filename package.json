@@ -1,11 +1,12 @@
 {
   "private": true,
+  "version": "0.7.1",
   "description": "Slate collaborative plugin & microservice",
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "version": "auto-changelog -p ./packages/bridge/package.json --template changelog-template.hbs && git add CHANGELOG.md",
+    "changelog": "auto-changelog -p ./packages/bridge/package.json --template changelog-template.hbs && git add CHANGELOG.md",
     "clean": "rimraf ./packages/**/lib/ && rimraf ./packages/**/tsconfig.tsbuildinfo && lerna clean --yes",
-    "release": "yarn prebuild && yarn build && lerna version && lerna publish from-package",
+    "release": "yarn prebuild && yarn build && lerna version && lerna publish from-package && yarn changelog",
     "deploy:site": "git subtree push --prefix packages/example heroku master",
     "dev": "lerna run --stream build:js && concurrently \"yarn watch\" \"lerna run dev --stream\"",
     "build": "lerna run build:module --stream",
