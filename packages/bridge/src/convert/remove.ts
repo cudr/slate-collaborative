@@ -3,6 +3,7 @@ import { Element } from 'slate'
 
 import { toSlatePath, toJS } from '../utils'
 import { getTarget } from '../path'
+import { rootKey } from './constants'
 
 const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
   const { index, path, obj } = op
@@ -73,6 +74,8 @@ const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
     const key = path[path.length - 1]
 
     if (key === 'cursors') return [map, ops]
+    // if we don't have a valid key and this is the root obj no slate op is needed
+    if (key === undefined && obj === rootKey) return [map, ops]
 
     const fn = key === 'text' ? removeTextOp : removeNodeOp
 

@@ -8,6 +8,7 @@ import opCreate from './create'
 import { toJS } from '../utils'
 
 import { SyncDoc } from '../model'
+import { rootKey } from './constants'
 
 const byAction = {
   create: opCreate,
@@ -15,8 +16,6 @@ const byAction = {
   set: opSet,
   insert: opInsert
 }
-
-const rootKey = '00000000-0000-0000-0000-000000000000'
 
 const toSlateOp = (ops: Automerge.Diff[], doc: SyncDoc) => {
   const iterate = (acc: [any, any[]], op: Automerge.Diff): any => {
