@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab-client",
-  "version": "0.7.15",
+  "version": "0.7.16",
   "files": [
     "lib"
   ],
@@ -26,7 +26,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-react": "^7.0.0",
-    "@hiveteams/collab-bridge": "^0.7.15",
+    "@hiveteams/collab-bridge": "^0.7.16",
     "automerge": "0.14.0",
     "slate": "0.58.3",
     "slate-history": "0.58.3",
