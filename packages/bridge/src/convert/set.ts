@@ -1,6 +1,7 @@
 import * as Automerge from 'automerge'
 
 import { toSlatePath, toJS } from '../utils'
+import { rootKey } from './constants'
 
 const setDataOp = (
   { key = '', obj, path, value }: Automerge.Diff,
@@ -22,6 +23,11 @@ const opSet = (op: Automerge.Diff, [map, ops]: any, doc: any) => {
   const { link, value, path, obj, key } = op
 
   try {
+    // no slate op needed for root key cursor updates
+    if (obj === rootKey && key === 'cursors') {
+      return [map, ops]
+    }
+
     if (path && path[0] !== 'cursors') {
       ops.push(setDataOp(op, doc))
     } else if (map[obj]) {
