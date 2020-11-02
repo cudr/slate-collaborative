@@ -58,7 +58,10 @@ const withAutomerge = <T extends Editor>(
    */
 
   e.closeConnection = () => {
-    e.connection.close()
+    // close any actively open connections
+    if (e.connection) {
+      e.connection.close()
+    }
   }
 
   /**
