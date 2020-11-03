@@ -47,6 +47,11 @@ export default class SocketIOCollaboration {
 
     this.configure()
 
+    this.autoSaveDoc = throttle(
+      this.saveDocument,
+      options.saveFrequency || 2000
+    )
+
     return this
   }
 
@@ -77,14 +82,14 @@ export default class SocketIOCollaboration {
    */
   private init = async (socket: SocketIO.Socket) => {
     try {
-      const path = socket.nsp.name;
-      const query = socket.handshake.query;
+      const path = socket.nsp.name
+      const query = socket.handshake.query
       const { onDocumentLoad } = this.options
 
       //make some backends if this is the first time this meeting is loaded.
-      if(!this.backends[path]){
-        this.backends[path] = new AutomergeBackend();
-        this.backendCounts[path] = 0;
+      if (!this.backends[path]) {
+        this.backends[path] = new AutomergeBackend()
+        this.backendCounts[path] = 0
 
         if (!this.backends[path].getDocument(path)) {
           const doc = onDocumentLoad
@@ -97,12 +102,11 @@ export default class SocketIOCollaboration {
         }
       }
 
-      this.backendCounts[path] = this.backendCounts[path] + 1;
-
-    } catch (e){
-      console.log('Error in slate-collab init', e);
+      this.backendCounts[path] = this.backendCounts[path] + 1
+    } catch (e) {
+      console.log('Error in slate-collab init', e)
     }
-}
+  }
 
   /**
    * SocketIO auth middleware. Used for user authentification.
@@ -130,14 +134,17 @@ export default class SocketIOCollaboration {
    */
 
   private onConnect = async (socket: SocketIO.Socket) => {
-    try{
+    try {
       const { id, conn } = socket
       const { name } = socket.nsp
-      await this.init(socket);
+      await this.init(socket)
 
-      this.backends[name].createConnection(id, ({ type, payload }: CollabAction) => {
-        socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
-      })
+      this.backends[name].createConnection(
+        id,
+        ({ type, payload }: CollabAction) => {
+          socket.emit('msg', { type, payload: { id: conn.id, ...payload } })
+        }
+      )
 
       socket.on('msg', this.onMessage(id, name))
 
@@ -156,9 +163,8 @@ export default class SocketIOCollaboration {
 
       this.garbageCursors(name)
     } catch (e) {
-      console.log('Error in slate-collab onConnect', e);
+      console.log('Error in slate-collab onConnect', e)
     }
-
   }
 
   /**
@@ -178,23 +184,6 @@ export default class SocketIOCollaboration {
           console.log(e)
         }
     }
-  }
-
-  /**
-   * Save document with throttle
-   */
-
-  private autoSaveDoc = throttle(
-    async (docId: string) =>
-      this.saveDocument(docId),
-    this.getSaveFrequency()
-  )
-
-  /**
-   * function to abstract getting the save frequency so the throttle function above ACTUALLY works and compiles.
-   */
-  private getSaveFrequency(){
-    return this.options?.saveFrequency || 2000;
   }
 
   /**
@@ -224,7 +213,8 @@ export default class SocketIOCollaboration {
   private onDisconnect = (id: string, socket: SocketIO.Socket) => async () => {
     try {
       this.backends[socket.nsp.name].closeConnection(id)
-      this.backendCounts[socket.nsp.name] = this.backendCounts[socket.nsp.name] - 1
+      this.backendCounts[socket.nsp.name] =
+        this.backendCounts[socket.nsp.name] - 1
 
       await this.saveDocument(socket.nsp.name)
 
@@ -235,11 +225,11 @@ export default class SocketIOCollaboration {
       this.garbageNsp()
 
       //if all the sockets have disconnected, free up that precious, precious memory.
-      if(this.backendCounts[socket.nsp.name] == 0){
+      if (this.backendCounts[socket.nsp.name] == 0) {
         delete this.backends[socket.nsp.name]
       }
     } catch (e) {
-      console.log('Error in slate-collab onDisconnect', e);
+      console.log('Error in slate-collab onDisconnect', e)
     }
   }
 
