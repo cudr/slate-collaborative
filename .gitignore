@@ -6,7 +6,6 @@ lerna-debug.log
 /.npmrc
 .vscode/
 yarn-error.log
-package-lock.json
 .idea
 tsconfig.tsbuildinfo
 **.code-workspace
