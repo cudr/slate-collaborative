@@ -150,16 +150,12 @@ export default class SocketIOCollaboration {
 
       socket.on('disconnect', this.onDisconnect(id, socket))
 
-      socket.join(id, () => {
-        const doc = this.backends[name].getDocument(name)
-
-        socket.emit('msg', {
-          type: 'document',
-          payload: Automerge.save<SyncDoc>(doc)
-        })
-
-        this.backends[name].openConnection(id)
+      const doc = this.backends[name].getDocument(name)
+      socket.emit('msg', {
+        type: 'document',
+        payload: Automerge.save<SyncDoc>(doc)
       })
+      this.backends[name].openConnection(id)
 
       this.garbageCursors(name)
     } catch (e) {
@@ -184,6 +180,10 @@ export default class SocketIOCollaboration {
           console.log(e)
         }
     }
+  }
+
+  private autoSaveDoc = (name: string) => {
+    //noop to be overwritten by the constructor.
   }
 
   /**
@@ -220,35 +220,14 @@ export default class SocketIOCollaboration {
 
       this.garbageCursors(socket.nsp.name)
 
-      socket.leave(id)
-
-      this.garbageNsp()
-
       //if all the sockets have disconnected, free up that precious, precious memory.
       if (this.backendCounts[socket.nsp.name] == 0) {
         delete this.backends[socket.nsp.name]
+        delete this.io.nsps[socket.nsp.name]
       }
     } catch (e) {
       console.log('Error in slate-collab onDisconnect', e)
     }
-  }
-
-  /**
-   * Clean up unused SocketIO namespaces.
-   */
-
-  garbageNsp = () => {
-    Object.keys(this.io.nsps)
-      .filter(n => n !== '/')
-      .forEach(nsp => {
-        getClients(this.io, nsp).then((clientsList: any) => {
-          if (!clientsList.length) {
-            this.backends[nsp].removeDocument(nsp)
-
-            delete this.io.nsps[nsp]
-          }
-        })
-      })
   }
 
   /**
