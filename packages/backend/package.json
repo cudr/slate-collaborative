@@ -38,6 +38,7 @@
     "@types/lodash": "^4.14.150",
     "@types/socket.io": "^2.1.4",
     "automerge": "0.14.0",
+    "hot-shots": "^8.2.0",
     "lodash": "^4.17.15",
     "slate": "0.58.3",
     "socket.io": "^2.3.0",

@@ -3,6 +3,9 @@ import * as Automerge from 'automerge'
 import { Node } from 'slate'
 import { Server } from 'http'
 
+const StatsD = require('hot-shots')
+const dogstatsd = new StatsD()
+
 import throttle from 'lodash/throttle'
 
 import { SyncDoc, CollabAction, toJS } from '@slate-sheikah/bridge'
@@ -75,6 +78,23 @@ export default class SocketIOCollaboration {
     //the logic that WAS in here needs to be able to be ran multiple times.
   }
 
+  private logBackendStats = label => {
+    console.log(
+      `[slate: ${label}] active_backends: ${Object.keys(this.backends).length}`
+    )
+    dogstatsd.gauge('slate.active_backends', Object.keys(this.backends).length)
+
+    const values = Object.keys(this.backendCounts).map(key => {
+      const backendId = key.replace(/^\/+/g, '')
+      console.log(
+        `[slate: ${label}] backendCounts: ${backendId} = ${this.backendCounts[key]}`
+      )
+      dogstatsd.gauge('slate.backend_counts', this.backendCounts[key], 1, {
+        backend: backendId
+      })
+    })
+  }
+
   /**
    * init function to set up new documents is they don't exist.  These get cleaned up once
    * all the sockets disconnect.
@@ -103,6 +123,7 @@ export default class SocketIOCollaboration {
       }
 
       this.backendCounts[path] = this.backendCounts[path] + 1
+      this.logBackendStats('init')
     } catch (e) {
       console.log('Error in slate-collab init', e)
     }
@@ -223,8 +244,10 @@ export default class SocketIOCollaboration {
       //if all the sockets have disconnected, free up that precious, precious memory.
       if (this.backendCounts[socket.nsp.name] == 0) {
         delete this.backends[socket.nsp.name]
+        delete this.backendCounts[socket.nsp.name]
         delete this.io.nsps[socket.nsp.name]
       }
+      this.logBackendStats('onDisconnect')
     } catch (e) {
       console.log('Error in slate-collab onDisconnect', e)
     }
