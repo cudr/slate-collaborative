@@ -25,6 +25,14 @@ export interface SocketIOCollaborationOptions {
     query?: Object
   ) => Promise<Node[]> | Node[]
   onDocumentSave?: (pathname: string, doc: Node[]) => Promise<void> | void
+  onSocketConnection?: (
+    socket: SocketIO.Socket,
+    backendCounts: BackendCounts[]
+  ) => Promise<void> | void
+  onSocketDisconnection?: (
+    socket: SocketIO.Socket,
+    backendCounts: BackendCounts[]
+  ) => Promise<void> | void
 }
 export interface BackendCounts {
   [key: string]: number
@@ -122,8 +130,7 @@ export default class SocketIOCollaboration {
     if (onAuthRequest) {
       const permit = await onAuthRequest(query, socket)
 
-      if (!permit)
-        return next(new Error(`Authentification error: ${socket.id}`))
+      if (!permit) return next(new Error(`Authentication error: ${socket.id}`))
     }
 
     return next()
@@ -135,6 +142,7 @@ export default class SocketIOCollaboration {
 
   private onConnect = async (socket: SocketIO.Socket) => {
     try {
+      const { onSocketConnection } = this.options
       const { id, conn } = socket
       const { name } = socket.nsp
       await this.init(socket)
@@ -158,6 +166,9 @@ export default class SocketIOCollaboration {
       this.backends[name].openConnection(id)
 
       this.garbageCursors(name)
+
+      onSocketConnection &&
+        (await onSocketConnection(socket, this.backendCounts))
     } catch (e) {
       console.log('Error in slate-collab onConnect', e)
     }
@@ -212,6 +223,8 @@ export default class SocketIOCollaboration {
 
   private onDisconnect = (id: string, socket: SocketIO.Socket) => async () => {
     try {
+      const { onSocketDisconnection } = this.options
+
       this.backends[socket.nsp.name].closeConnection(id)
       this.backendCounts[socket.nsp.name] =
         this.backendCounts[socket.nsp.name] - 1
@@ -223,8 +236,11 @@ export default class SocketIOCollaboration {
       //if all the sockets have disconnected, free up that precious, precious memory.
       if (this.backendCounts[socket.nsp.name] == 0) {
         delete this.backends[socket.nsp.name]
+        delete this.backendCounts[socket.nsp.name]
         delete this.io.nsps[socket.nsp.name]
       }
+      onSocketDisconnection &&
+        (await onSocketDisconnection(socket, this.backendCounts))
     } catch (e) {
       console.log('Error in slate-collab onDisconnect', e)
     }

@@ -33,6 +33,20 @@ const config = {
   onDocumentSave: async (pathname, doc) => {
     // save document
     // console.log('onDocumentSave', pathname, doc)
+  },
+  onSocketConnection: async (socket, backendCounts) => {
+    const values = Object.keys(backendCounts).map(key => {
+      console.log(
+        `[onSocketConnection] backendCounts: ${key} = ${backendCounts[key]}`
+      )
+    })
+  },
+  onSocketDisconnection: async (socket, backendCounts) => {
+    const values = Object.keys(backendCounts).map(key => {
+      console.log(
+        `[onSocketDisconnection] backendCounts: ${key} = ${backendCounts[key]}`
+      )
+    })
   }
 }
 
