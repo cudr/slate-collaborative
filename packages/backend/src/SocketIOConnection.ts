@@ -233,14 +233,15 @@ export default class SocketIOCollaboration {
 
       this.garbageCursors(socket.nsp.name)
 
+      onSocketDisconnection &&
+        (await onSocketDisconnection(socket, this.backendCounts))
+
       //if all the sockets have disconnected, free up that precious, precious memory.
       if (this.backendCounts[socket.nsp.name] == 0) {
         delete this.backends[socket.nsp.name]
         delete this.backendCounts[socket.nsp.name]
         delete this.io.nsps[socket.nsp.name]
       }
-      onSocketDisconnection &&
-        (await onSocketDisconnection(socket, this.backendCounts))
     } catch (e) {
       console.log('Error in slate-collab onDisconnect', e)
     }
