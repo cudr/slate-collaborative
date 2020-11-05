@@ -1,6 +1,6 @@
 {
   "name": "@slate-sheikah/backend",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "files": [
     "lib"
   ],
@@ -34,7 +34,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/runtime": "^7.6.3",
-    "@slate-sheikah/bridge": "^1.0.2",
+    "@slate-sheikah/bridge": "^1.2.0",
     "@types/lodash": "^4.14.150",
     "@types/socket.io": "^2.1.4",
     "automerge": "0.14.0",

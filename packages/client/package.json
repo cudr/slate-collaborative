@@ -1,6 +1,6 @@
 {
   "name": "@slate-sheikah/client",
-  "version": "1.0.2",
+  "version": "1.2.0",
   "files": [
     "lib"
   ],
@@ -34,7 +34,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-react": "^7.0.0",
-    "@slate-sheikah/bridge": "^1.0.2",
+    "@slate-sheikah/bridge": "^1.2.0",
     "automerge": "0.14.0",
     "slate": "0.58.3",
     "slate-history": "0.58.3",
