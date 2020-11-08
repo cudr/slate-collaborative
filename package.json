@@ -38,7 +38,7 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^9.0.1",
+    "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^9.0.1",
     "auto-changelog": "^2.1.0",
     "concurrently": "^4.1.2",
