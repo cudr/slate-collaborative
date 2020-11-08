@@ -26,7 +26,7 @@
     "react-scripts": "3.1.2",
     "slate": "0.58.3",
     "slate-history": "0.58.3",
-    "slate-react": "0.58.3",
+    "slate-react": "0.59.0",
     "typescript": "^3.8.3"
   },
   "scripts": {
