@@ -74,9 +74,9 @@ const withAutomerge = <T extends Editor>(
 
     if (!e.isRemote) {
       AutomergeEditor.applySlateOps(e, docId, operations, cursorData)
-
-      onChange()
     }
+
+    onChange()
   }
 
   /**
