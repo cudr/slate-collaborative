@@ -33,6 +33,8 @@ export interface AutomergeEditor extends Editor {
   gabageCursor: () => void
 
   onCursor: (data: any) => void
+
+  automergeCleanup: () => void
 }
 
 /**
@@ -51,7 +53,7 @@ export const AutomergeEditor = {
    * Apply Slate operations to Automerge
    */
 
-  applySlateOps: async (
+  applySlateOps: (
     e: AutomergeEditor,
     docId: string,
     operations: Operation[],
@@ -63,19 +65,19 @@ export const AutomergeEditor = {
       throw new TypeError(`Unknown docId: ${docId}!`)
     }
 
-    let changed
+    let changed: any
 
-    for await (let op of operations) {
+    operations.forEach(op => {
       changed = Automerge.change<SyncDoc>(changed || doc, d =>
         applyOperation(d.children, op)
       )
-    }
+    })
 
     changed = Automerge.change(changed || doc, d => {
       setCursor(e.clientId, e.selection, d, operations, cursorData || {})
     })
 
-    e.docSet.setDoc(docId, changed as any)
+    e.docSet.setDoc(docId, changed)
   },
 
   /**
@@ -150,13 +152,17 @@ export const AutomergeEditor = {
   garbageCursor: (e: AutomergeEditor, docId: string) => {
     const doc = e.docSet.getDoc(docId)
 
+    // if the document has already been cleaned up
+    // return early and do nothing
+    if (!doc) return
+
     const changed = Automerge.change<SyncDoc>(doc, (d: any) => {
       delete d.cursors
     })
 
-    e.onCursor && e.onCursor(null)
-
     e.docSet.setDoc(docId, changed)
+
+    e.onCursor && e.onCursor(null)
 
     e.onChange()
   }

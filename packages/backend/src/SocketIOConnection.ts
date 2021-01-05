@@ -10,7 +10,7 @@ import { SyncDoc, CollabAction, toJS } from '@hiveteams/collab-bridge'
 import { getClients } from './utils'
 
 import AutomergeBackend from './AutomergeBackend'
-import { debugCollabBackend } from 'utils/debug'
+import { debugCollabBackend } from './utils/debug'
 
 export interface SocketIOCollaborationOptions {
   entry: Server

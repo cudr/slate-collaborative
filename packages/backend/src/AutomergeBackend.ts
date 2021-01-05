@@ -93,10 +93,7 @@ class AutomergeBackend {
       const sync = toSync({ cursors: {}, children: data })
 
       const doc = Automerge.from<SyncDoc>(sync)
-
-      if (!this.documentSetMap[docId]) {
-        this.documentSetMap[docId] = new Automerge.DocSet<SyncDoc>()
-      }
+      this.documentSetMap[docId] = new Automerge.DocSet<SyncDoc>()
       this.documentSetMap[docId].setDoc(docId, doc)
     } catch (e) {
       console.error(e, docId)

@@ -34,21 +34,15 @@ const withAutomerge = <T extends Editor>(
 
   e.docSet = new Automerge.DocSet()
 
-  const createConnection = () => {
-    e.connection = AutomergeEditor.createConnection(e, (data: CollabAction) =>
-      //@ts-ignore
-      e.send(data)
-    )
-
-    e.connection.open()
-  }
-
   /**
    * Open Automerge Connection
    */
 
   e.openConnection = () => {
-    createConnection()
+    e.connection = AutomergeEditor.createConnection(e, (data: CollabAction) =>
+      //@ts-ignore
+      e.send(data)
+    )
 
     e.connection.open()
   }
@@ -76,6 +70,10 @@ const withAutomerge = <T extends Editor>(
     }
   }
 
+  e.automergeCleanup = () => {
+    e.docSet = new Automerge.DocSet()
+  }
+
   /**
    * Editor onChange
    */
@@ -84,9 +82,11 @@ const withAutomerge = <T extends Editor>(
     const operations: any = e.operations
 
     if (!e.isRemote) {
-      AutomergeEditor.applySlateOps(e, docId, operations, cursorData).catch(
-        onError
-      )
+      try {
+        AutomergeEditor.applySlateOps(e, docId, operations, cursorData)
+      } catch (err) {
+        onError(err)
+      }
 
       onChange()
     }
@@ -97,7 +97,11 @@ const withAutomerge = <T extends Editor>(
    */
 
   e.receiveDocument = data => {
-    AutomergeEditor.receiveDocument(e, docId, data)
+    try {
+      AutomergeEditor.receiveDocument(e, docId, data)
+    } catch (err) {
+      onError(err)
+    }
   }
 
   /**
