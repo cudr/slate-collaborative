@@ -8,7 +8,7 @@ import {
   SyncDoc,
   CollabAction
 } from '@hiveteams/collab-bridge'
-import { debugCollabBackend } from 'utils/debug'
+import { debugCollabBackend } from './utils/debug'
 
 /**
  * AutomergeBackend contains collaboration with Automerge
