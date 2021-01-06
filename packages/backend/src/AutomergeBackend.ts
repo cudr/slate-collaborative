@@ -45,7 +45,7 @@ class AutomergeBackend {
    * Start Automerge Connection
    */
 
-  openConnection = (id: string) => this.connectionMap[id].open()
+  openConnection = (id: string) => this.connectionMap[id]?.open()
 
   /**
    * Close Automerge Connection and remove it from connections

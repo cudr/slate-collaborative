@@ -13,7 +13,11 @@ describe('automerge editor client tests', () => {
   }
   const editor = withAutomerge(createEditor(), automergeOptions)
   const automergeBackend = new AutomergeBackend()
+  const backendSend = (msg: any) => {
+    serverMessages.push(msg)
+  }
   const clientId = 'test-client'
+  editor.clientId = clientId
 
   /**
    * Initialize a basic automerge backend
@@ -24,10 +28,7 @@ describe('automerge editor client tests', () => {
   automergeBackend.appendDocument(docId, [
     { type: 'paragraph', children: [{ text: 'Hi' }] }
   ])
-  automergeBackend.createConnection(clientId, docId, (msg: any) => {
-    serverMessages.push(msg)
-  })
-  automergeBackend.openConnection(clientId)
+  automergeBackend.createConnection(clientId, docId, backendSend)
 
   // define an editor send function for the clientside automerge editor
   let clientMessages: any[] = []
@@ -35,6 +36,7 @@ describe('automerge editor client tests', () => {
     clientMessages.push(msg)
   }
 
+  automergeBackend.openConnection(clientId)
   // open the editor connection
   editor.openConnection()
 
@@ -42,7 +44,9 @@ describe('automerge editor client tests', () => {
    * Helper function to flush client messages and send them to the server
    */
   const sendClientMessagesToServer = () => {
-    // console.log('clientMessages', JSON.stringify(clientMessages))
+    if (!clientMessages.length) return
+
+    console.log('clientMessages', JSON.stringify(clientMessages))
     clientMessages.forEach(msg => {
       automergeBackend.receiveOperation(clientId, msg)
     })
@@ -53,9 +57,11 @@ describe('automerge editor client tests', () => {
    * Helper function to flush server messages and send them to the client
    */
   const receiveMessagesFromServer = () => {
+    if (!serverMessages.length) return
+
     console.log('serverMessages', JSON.stringify(serverMessages))
     serverMessages.forEach(msg => {
-      editor.receiveOperation(msg)
+      editor.receiveOperation(msg.payload)
     })
     serverMessages = []
   }
@@ -115,7 +121,6 @@ describe('automerge editor client tests', () => {
       sendClientMessagesToServer()
       receiveMessagesFromServer()
       const [, secondParagraph] = editor.children
-      console.log(secondParagraph)
       if (Node.string(secondParagraph) === 'ab') {
         clearInterval(handle)
         done()
@@ -123,14 +128,58 @@ describe('automerge editor client tests', () => {
     }, 10)
   })
 
-  // it('replicate old state error', done => {
-  //   serverConnection.close()
-  //   serverConnection = new Automerge.Connection(serverDocSet, msg => {
-  //     serverMessages.push(msg)
-  //   })
-  //   serverConnection.open()
+  it('should reapply server state client side when server restarts', done => {
+    automergeBackend.closeConnection(clientId)
+    automergeBackend.removeDocument(docId)
+    automergeBackend.appendDocument(docId, [
+      { type: 'paragraph', children: [{ text: 'Hi' }] }
+    ])
+    automergeBackend.createConnection(clientId, docId, backendSend)
+    automergeBackend.openConnection(clientId)
 
-  //   sendClientMessagesToServer()
-  //   receiveMessagesFromServer()
+    const docData = Automerge.save(automergeBackend.getDocument(docId))
+    editor.receiveDocument(docData)
+
+    const handle = setInterval(() => {
+      sendClientMessagesToServer()
+      receiveMessagesFromServer()
+      console.log('server doc', toJS(automergeBackend.getDocument(docId)))
+      if (editor.children.length === 1) {
+        done()
+        clearInterval(handle)
+      }
+    }, 1000)
+  })
+
+  // it('should ? on client restart', done => {
+  //   editor.closeConnection()
+
+  //   Transforms.insertNodes(
+  //     editor,
+  //     {
+  //       type: 'paragraph',
+  //       children: [{ text: 'a' }]
+  //     },
+  //     { at: [1] }
+  //   )
+
+  //   editor.openConnection()
+  //   const docData = Automerge.save(automergeBackend.getDocument(docId))
+  //   editor.receiveDocument(docData)
+  //   // ensure that we eventually send a message for the insert_node operation
+  //   const handle = setInterval(() => {
+  //     sendClientMessagesToServer()
+  //     receiveMessagesFromServer()
+
+  //     const serverDoc = toJS(automergeBackend.getDocument(docId))
+  //     console.log(JSON.stringify(serverDoc))
+  //     console.log(editor.children)
+  //     if (serverDoc.children.length === 2) {
+  //       const paragraphNode = serverDoc.children[1]
+  //       expect(Node.string(paragraphNode)).toEqual('a')
+  //       clearInterval(handle)
+  //       done()
+  //     }
+  //   }, 1000)
   // })
 })
