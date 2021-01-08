@@ -29,6 +29,7 @@
     "@babel/preset-react": "^7.0.0",
     "@hiveteams/collab-bridge": "^0.7.19",
     "automerge": "0.14.0",
+    "lodash": "^4.17.20",
     "slate": "0.58.3",
     "slate-history": "0.58.3",
     "socket.io-client": "^2.3.0",

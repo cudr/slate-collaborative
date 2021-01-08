@@ -13,35 +13,13 @@ import {
   toSlateOp,
   CursorData
 } from '@hiveteams/collab-bridge'
-
-export interface AutomergeEditor extends Editor {
-  clientId: string
-
-  isRemote: boolean
-
-  docSet: Automerge.DocSet<SyncDoc>
-  connection: Automerge.Connection<SyncDoc>
-
-  onConnectionMsg: (msg: Automerge.Message) => void
-
-  openConnection: () => void
-  closeConnection: () => void
-
-  receiveDocument: (data: string) => void
-  receiveOperation: (data: Automerge.Message) => void
-
-  gabageCursor: () => void
-
-  onCursor: (data: any) => void
-
-  automergeCleanup: () => void
-}
+import { AutomergeEditor } from './interfaces'
 
 /**
  * `AutomergeEditor` contains methods for collaboration-enabled editors.
  */
 
-export const AutomergeEditor = {
+export const AutomergeConnector = {
   /**
    * Create Automerge connection
    */
@@ -62,7 +40,7 @@ export const AutomergeEditor = {
     const doc = e.docSet.getDoc(docId)
 
     if (!doc) {
-      throw new TypeError(`Unknown docId: ${docId}!`)
+      throw new TypeError('Cannot apply slate ops for missing docId')
     }
 
     let changed: any
@@ -114,7 +92,7 @@ export const AutomergeEditor = {
     preserveExternalHistory?: boolean
   ) => {
     try {
-      const current: any = e.docSet.getDoc(docId)
+      const current = e.docSet.getDoc(docId)
 
       const updated = e.connection.receiveMsg(data)
 
@@ -160,7 +138,7 @@ export const AutomergeEditor = {
       delete d.cursors
     })
 
-    e.docSet.setDoc(docId, changed)
+    e.docSet.setDoc(docId, changed as any)
 
     e.onCursor && e.onCursor(null)
 

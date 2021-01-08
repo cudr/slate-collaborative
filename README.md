@@ -48,9 +48,9 @@ const decorator = useCursor(editor)
 ## Backend
 
 ```ts
-const { SocketIOConnection } = require('@hiveteams/collab-backend')
+const { AutomergeCollaboration } = require('@hiveteams/collab-backend')
 
-const connection = new SocketIOConnection(options)
+const collabBackend = new AutomergeCollaboration(options)
 ```
 
 ### options:

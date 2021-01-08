@@ -1,102 +1,85 @@
 import io from 'socket.io-client'
 
-import { AutomergeEditor } from './automerge-editor'
-
+import Automerge from 'automerge'
 import { CollabAction } from '@hiveteams/collab-bridge'
-
-export interface SocketIOPluginOptions {
-  url: string
-  connectOpts: SocketIOClient.ConnectOpts
-
-  onConnect?: () => void
-  onDisconnect?: () => void
-
-  onError?: (msg: string | Error) => void
-}
-
-export interface WithSocketIOEditor {
-  socket: SocketIOClient.Socket
-
-  connect: () => void
-  disconnect: () => void
-
-  send: (op: CollabAction) => void
-  receive: (op: CollabAction) => void
-
-  destroy: () => void
-}
+import {
+  AutomergeEditor,
+  AutomergeOptions,
+  SocketIOPluginOptions,
+  WithSocketIOEditor
+} from './interfaces'
 
 /**
  * The `withSocketIO` plugin contains SocketIO layer logic.
  */
 
 const withSocketIO = <T extends AutomergeEditor>(
-  editor: T,
-  options: SocketIOPluginOptions
+  slateEditor: T,
+  options: SocketIOPluginOptions & AutomergeOptions
 ) => {
-  const e = editor as T & WithSocketIOEditor
+  const { onConnect, onDisconnect, connectOpts, url } = options
+  const editor = slateEditor as T & WithSocketIOEditor & AutomergeEditor
   let socket: SocketIOClient.Socket
-
-  const { onConnect, onDisconnect, onError, connectOpts, url } = options
 
   /**
    * Connect to Socket.
    */
 
-  e.connect = () => {
+  editor.connect = () => {
     socket = io(url, { ...connectOpts })
 
+    // On socket io connect, open a new automerge connection
     socket.on('connect', () => {
-      e.clientId = socket.id
-
-      e.openConnection()
-
+      editor.clientId = socket.id
+      editor.openConnection()
       onConnect && onConnect()
     })
 
+    // On socket io error
     socket.on('error', (msg: string) => {
-      onError && onError(msg)
+      editor.handleError(msg)
     })
 
+    // On socket io msg, process the collab operation
     socket.on('msg', (data: CollabAction) => {
-      e.receive(data)
+      editor.receive(data)
     })
 
+    // On socket io disconnect, cleanup cursor and call the provided onDisconnect callback
     socket.on('disconnect', () => {
-      e.gabageCursor()
-
+      editor.gabageCursor()
       onDisconnect && onDisconnect()
     })
 
     socket.connect()
 
-    return e
+    return editor
   }
 
   /**
    * Disconnect from Socket.
    */
 
-  e.disconnect = () => {
+  editor.disconnect = () => {
     socket.removeListener('msg')
 
     socket.close()
 
-    e.closeConnection()
+    editor.closeConnection()
 
-    return e
+    return editor
   }
 
   /**
    * Receive transport msg.
    */
 
-  e.receive = (msg: CollabAction) => {
+  editor.receive = (msg: CollabAction) => {
     switch (msg.type) {
       case 'operation':
-        return e.receiveOperation(msg.payload)
+        return editor.receiveOperation(msg.payload)
       case 'document':
-        return e.receiveDocument(msg.payload)
+        return editor.receiveDocument(msg.payload)
     }
   }
 
@@ -104,7 +87,7 @@ const withSocketIO = <T extends AutomergeEditor>(
    * Send message to socket.
    */
 
-  e.send = (msg: CollabAction) => {
+  editor.send = (msg: CollabAction) => {
     socket.emit('msg', msg)
   }
 
@@ -112,13 +95,12 @@ const withSocketIO = <T extends AutomergeEditor>(
    * Close socket and connection.
    */
 
-  e.destroy = () => {
+  editor.destroy = () => {
     socket.close()
-    e.closeConnection()
-    e.automergeCleanup()
+    editor.closeConnection()
   }
 
-  return e
+  return editor
 }
 
 export default withSocketIO

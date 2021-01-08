@@ -4,8 +4,8 @@ import { Text, Range, Path, NodeEntry } from 'slate'
 
 import { toJS, Cursor, Cursors } from '@hiveteams/collab-bridge'
 
-import { AutomergeEditor } from './automerge-editor'
 import useMounted from './useMounted'
+import { AutomergeEditor } from './interfaces'
 
 const useCursor = (
   e: AutomergeEditor
