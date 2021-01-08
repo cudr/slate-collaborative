@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab-backend",
-  "version": "0.7.20-alpha.1",
+  "version": "0.7.20",
   "files": [
     "lib"
   ],
