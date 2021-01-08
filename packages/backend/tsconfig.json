@@ -7,7 +7,7 @@
     "outDir": "./lib",
     "composite": true,
     "paths": {
-      "@hiveteams/collab-bridge": ["../../bridge"]
+      "@hiveteams/collab-bridge": ["../../collab-bridge"]
     }
   },
   "references": [{ "path": "../bridge" }]
