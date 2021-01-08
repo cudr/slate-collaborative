@@ -28,7 +28,7 @@ export interface IAutomergeCollaborationOptions {
     user: any
   ) => Promise<void> | void
   onDisconnect?: (docId: string, user: any) => Promise<void> | void
-  onError: (error: Error, data: ErrorData) => Promise<void> | void
+  onError?: (error: Error, data: ErrorData) => Promise<void> | void
 }
 
 export default class AutomergeCollaboration {
