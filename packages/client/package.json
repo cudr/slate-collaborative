@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab-client",
-  "version": "0.7.20",
+  "version": "0.7.21",
   "files": [
     "lib"
   ],
@@ -42,7 +42,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.6.0",
-    "@hiveteams/collab-backend": "^0.7.20",
+    "@hiveteams/collab-backend": "^0.7.21",
     "@types/jest": "^24.9.0",
     "@types/react": "^16.9.34",
     "@types/socket.io-client": "^1.4.32",
