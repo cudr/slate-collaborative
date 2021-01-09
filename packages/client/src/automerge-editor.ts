@@ -149,6 +149,10 @@ export const AutomergeEditor = {
   garbageCursor: (e: AutomergeEditor, docId: string) => {
     const doc = e.docSet.getDoc(docId)
 
+    if (!doc) {
+      return
+    }
+
     const changed = Automerge.change<SyncDoc>(doc, (d: any) => {
       delete d.cusors
     })
