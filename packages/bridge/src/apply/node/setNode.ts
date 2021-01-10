@@ -9,7 +9,12 @@ const setNode = (doc: SyncValue, op: SetNodeOperation): SyncValue => {
   const { newProperties } = op
 
   for (let key in newProperties) {
-    node[key] = newProperties[key]
+    const value = newProperties[key]
+    if (value !== undefined) {
+      node[key] = value
+    } else {
+      delete node[key]
+    }
   }
 
   return doc
