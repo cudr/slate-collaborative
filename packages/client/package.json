@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab-client",
-  "version": "0.7.22",
+  "version": "0.7.23",
   "files": [
     "lib"
   ],
@@ -27,7 +27,7 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-react": "^7.0.0",
-    "@hiveteams/collab-bridge": "^0.7.22",
+    "@hiveteams/collab-bridge": "^0.7.23",
     "automerge": "0.14.0",
     "lodash": "^4.17.20",
     "slate": "0.58.3",
@@ -42,7 +42,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.6.0",
-    "@hiveteams/collab-backend": "^0.7.22",
+    "@hiveteams/collab-backend": "^0.7.23",
     "@types/jest": "^24.9.0",
     "@types/react": "^16.9.34",
     "@types/socket.io-client": "^1.4.32",
