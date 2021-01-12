@@ -8,13 +8,6 @@ import { getClients } from './utils/index'
 import { debugCollabBackend } from './utils/debug'
 import AutomergeBackend from './AutomergeBackend'
 
-interface ErrorData {
-  user: any
-  docId: string
-  serializedData: string
-  opData?: string
-}
-
 export interface IAutomergeCollaborationOptions {
   entry: Server
   connectOpts?: SocketIO.ServerOptions
@@ -28,7 +21,7 @@ export interface IAutomergeCollaborationOptions {
     user: any
   ) => Promise<void> | void
   onDisconnect?: (docId: string, user: any) => Promise<void> | void
-  onError?: (error: Error, data: ErrorData) => Promise<void> | void
+  onError?: (error: Error, data: any) => Promise<void> | void
 }
 
 export default class AutomergeCollaboration {
@@ -78,7 +71,7 @@ export default class AutomergeCollaboration {
   /**
    * Construct error data and call onError callback
    */
-  private handleError(socket: SocketIO.Socket, err: Error, opData?: string) {
+  private handleError(socket: SocketIO.Socket, err: Error, data: any = {}) {
     const { id } = socket
     const { name: docId } = socket.nsp
 
@@ -86,9 +79,9 @@ export default class AutomergeCollaboration {
       const document = this.backend.getDocument(docId)
       this.options.onError(err, {
         user: this.userMap[id],
-        docId: docId,
-        serializedData: document ? Automerge.save(document) : 'No document',
-        opData
+        docId,
+        automergeDocument: document ? Automerge.save(document) : null,
+        ...data
       })
     }
   }
@@ -221,8 +214,8 @@ export default class AutomergeCollaboration {
           this.autoSaveDoc(socket, docId)
 
           this.garbageCursors(socket)
-        } catch (e) {
-          this.handleError(socket, e, JSON.stringify(data))
+        } catch (err) {
+          this.handleError(socket, err, { onMessageData: data })
         }
     }
   }
@@ -250,8 +243,8 @@ export default class AutomergeCollaboration {
       if (onDocumentSave && user) {
         await onDocumentSave(docId, toJS(doc.children), user)
       }
-    } catch (e) {
-      this.handleError(socket, e)
+    } catch (err) {
+      this.handleError(socket, err)
     }
   }
 
