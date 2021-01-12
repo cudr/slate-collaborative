@@ -132,7 +132,7 @@ export const AutomergeConnector = {
       if (operations.length) {
         let slateOps: any[]
         try {
-          slateOps = toSlateOp(operations, current)
+          slateOps = toSlateOp(operations, current) || []
         } catch (err) {
           e.handleError(err, {
             type: 'applyOperation - toSlateOp',
