@@ -31,16 +31,10 @@ const withAutomerge = <T extends Editor>(
    * Helper function for handling errors
    */
 
-  editor.handleError = (err: Error | string, opData?: string) => {
-    const { docId, cursorData, onError } = options
-    if (onError && cursorData) {
-      const document = editor.docSet.getDoc(docId)
-      onError(err, {
-        docId: docId,
-        serializedData: document ? Automerge.save(document) : 'No document',
-        opData,
-        slateOperations: JSON.stringify(editor.operations)
-      })
+  editor.handleError = (err: Error | string, data: any = {}) => {
+    const { onError } = options
+    if (onError) {
+      onError(err, data)
     }
   }
 
@@ -72,12 +66,8 @@ const withAutomerge = <T extends Editor>(
    * Clear cursor data
    */
 
-  editor.gabageCursor = () => {
-    try {
-      AutomergeConnector.garbageCursor(editor, docId)
-    } catch (err) {
-      editor.handleError(err)
-    }
+  editor.garbageCursor = () => {
+    AutomergeConnector.garbageCursor(editor, docId)
   }
 
   /**
@@ -87,12 +77,7 @@ const withAutomerge = <T extends Editor>(
     const operations = editor.operations
 
     if (!editor.isRemote) {
-      try {
-        AutomergeConnector.applySlateOps(editor, docId, operations, cursorData)
-      } catch (err) {
-        editor.handleError(err)
-      }
-
+      AutomergeConnector.applySlateOps(editor, docId, operations, cursorData)
       onChange()
     }
   }
@@ -102,11 +87,7 @@ const withAutomerge = <T extends Editor>(
    */
 
   editor.receiveDocument = data => {
-    try {
-      AutomergeConnector.receiveDocument(editor, docId, data)
-    } catch (err) {
-      editor.handleError(err, JSON.stringify(data))
-    }
+    AutomergeConnector.receiveDocument(editor, docId, data)
   }
 
   /**
@@ -117,16 +98,12 @@ const withAutomerge = <T extends Editor>(
     // ignore document updates for differnt docIds
     if (docId !== data.docId) return
 
-    try {
-      AutomergeConnector.applyOperation(
-        editor,
-        docId,
-        data,
-        preserveExternalHistory
-      )
-    } catch (err) {
-      editor.handleError(err, JSON.stringify(data))
-    }
+    AutomergeConnector.applyOperation(
+      editor,
+      docId,
+      data,
+      preserveExternalHistory
+    )
   }
 
   return editor

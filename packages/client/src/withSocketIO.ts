@@ -47,7 +47,7 @@ const withSocketIO = <T extends AutomergeEditor>(
 
     // On socket io disconnect, cleanup cursor and call the provided onDisconnect callback
     socket.on('disconnect', () => {
-      editor.gabageCursor()
+      editor.garbageCursor()
       onDisconnect && onDisconnect()
     })
 

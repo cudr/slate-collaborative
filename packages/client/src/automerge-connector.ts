@@ -45,15 +45,38 @@ export const AutomergeConnector = {
 
     let changed: any
 
-    operations.forEach(op => {
-      changed = Automerge.change<SyncDoc>(changed || doc, d =>
-        applyOperation(d.children, op)
-      )
-    })
+    for (let i = 0; i < operations.length; i++) {
+      const op = operations[i]
 
-    changed = Automerge.change(changed || doc, d => {
-      setCursor(e.clientId, e.selection, d, operations, cursorData || {})
-    })
+      try {
+        changed = Automerge.change<SyncDoc>(changed || doc, d =>
+          applyOperation(d.children, op)
+        )
+      } catch (err) {
+        e.handleError(err, {
+          type: 'applySlateOps - applyOperation',
+          automergeChanged: Automerge.save(changed || doc),
+          operation: op
+        })
+
+        // return early to avoid applying any further operations after we encounter an error
+        return
+      }
+    }
+
+    try {
+      changed = Automerge.change(changed || doc, d => {
+        setCursor(e.clientId, e.selection, d, operations, cursorData || {})
+      })
+    } catch (err) {
+      e.handleError(err, {
+        type: 'applySlateOps - setCursor',
+        clientId: e.clientId,
+        automergeDocument: Automerge.save(changed || doc),
+        operations,
+        cursorData
+      })
+    }
 
     e.docSet.setDoc(docId, changed)
   },
@@ -63,22 +86,32 @@ export const AutomergeConnector = {
    */
 
   receiveDocument: (e: AutomergeEditor, docId: string, data: string) => {
-    const currentDoc = e.docSet.getDoc(docId)
+    let currentDoc: Automerge.FreezeObject<SyncDoc> | null = null
+    let externalDoc: Automerge.FreezeObject<SyncDoc> | null = null
+    let mergedDoc: Automerge.FreezeObject<SyncDoc> | null = null
 
-    const externalDoc = Automerge.load<SyncDoc>(data)
+    try {
+      currentDoc = e.docSet.getDoc(docId)
+      externalDoc = Automerge.load<SyncDoc>(data)
+      mergedDoc = Automerge.merge<SyncDoc>(
+        externalDoc,
+        currentDoc || Automerge.init()
+      )
 
-    const mergedDoc = Automerge.merge<SyncDoc>(
-      externalDoc,
-      currentDoc || Automerge.init()
-    )
+      e.docSet.setDoc(docId, mergedDoc)
 
-    e.docSet.setDoc(docId, mergedDoc)
-
-    Editor.withoutNormalizing(e, () => {
-      e.children = toJS(mergedDoc).children
-
-      e.onChange()
-    })
+      Editor.withoutNormalizing(e, () => {
+        e.children = toJS(mergedDoc).children
+        e.onChange()
+      })
+    } catch (err) {
+      e.handleError(err, {
+        type: 'receiveDocument',
+        currentDoc: currentDoc && Automerge.save(currentDoc),
+        externalDoc: externalDoc && Automerge.save(externalDoc),
+        mergedDoc: mergedDoc && Automerge.save(mergedDoc)
+      })
+    }
   },
 
   /**
@@ -93,13 +126,20 @@ export const AutomergeConnector = {
   ) => {
     try {
       const current = e.docSet.getDoc(docId)
-
       const updated = e.connection.receiveMsg(data)
-
       const operations = Automerge.diff(current, updated)
 
       if (operations.length) {
-        const slateOps = toSlateOp(operations, current)
+        let slateOps: any[]
+        try {
+          slateOps = toSlateOp(operations, current)
+        } catch (err) {
+          e.handleError(err, {
+            type: 'applyOperation - toSlateOp',
+            operations,
+            current: Automerge.save(current)
+          })
+        }
 
         e.isRemote = true
 
@@ -117,13 +157,18 @@ export const AutomergeConnector = {
 
         Promise.resolve().then(_ => (e.isRemote = false))
       }
-    } catch (e) {
-      // unset remove flag
+    } catch (err) {
+      // unset remote flag
       if (e.isRemote) {
         e.isRemote = false
       }
 
-      throw e
+      const current = e.docSet.getDoc(docId)
+      e.handleError(err, {
+        type: 'applyOperation',
+        data,
+        current: current ? Automerge.save(current) : null
+      })
     }
   },
 
