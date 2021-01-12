@@ -10,12 +10,12 @@ const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
 
   const slatePath = toSlatePath(path).slice(0, path?.length)
 
-  let node
+  const node = getTarget(doc, slatePath) || map[obj]
 
-  try {
-    node = getTarget(doc, slatePath) || map[obj]
-  } catch (e) {
-    console.error(e, op, doc)
+  // if we are removing text for a node that has already been removed
+  // treat this as a noop
+  if (!node) {
+    return
   }
 
   if (typeof index !== 'number') return
@@ -41,6 +41,11 @@ const removeNodeOp = ({ index, obj, path }: Automerge.Diff) => (
   const slatePath = toSlatePath(path)
 
   const parent = getTarget(doc, slatePath)
+
+  // if we are removing a node that has already been removed
+  // treat this as a noop
+  if (!parent) return
+
   const target = parent?.children?.[index as number] || { children: [] }
 
   if (!map.hasOwnProperty(obj)) {

@@ -6,10 +6,8 @@ export const isTree = (node: Node): boolean => Boolean(node?.children)
 
 export const getTarget = (doc: SyncValue | Element, path: Path) => {
   const iterate = (current: any, idx: number) => {
-    if (!(isTree(current) || current[idx])) {
-      throw new TypeError(
-        `path ${path.toString()} does not match tree ${JSON.stringify(current)}`
-      )
+    if (current === null || !(isTree(current) || current[idx])) {
+      return null
     }
 
     return current[idx] || current?.children[idx]

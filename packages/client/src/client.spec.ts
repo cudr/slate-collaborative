@@ -1,7 +1,9 @@
+import Automerge, { Frontend } from 'automerge'
 import { createServer } from 'http'
+import fs from 'fs'
 import isEqual from 'lodash/isEqual'
 import { createEditor, Node, Transforms } from 'slate'
-import { toJS } from '@hiveteams/collab-bridge'
+import { SyncDoc, toJS, toSlateOp } from '@hiveteams/collab-bridge'
 import AutomergeCollaboration from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
 import withIOCollaboration from './withIOCollaboration'
 import { AutomergeOptions, SocketIOPluginOptions } from './interfaces'
@@ -184,6 +186,23 @@ describe('automerge editor client tests', () => {
 
     editor1.destroy()
     editor2.destroy()
+  })
+
+  it('deep nested tree error', () => {
+    // Ready from our test json file for the deep tree error
+    // This allows us to easily reproduce real production errors
+    // and create test cases that resolve those errors
+    const rawData = fs.readFileSync(
+      `${__dirname}/test-json/deep-tree.json`,
+      'utf-8'
+    )
+    const parsedData = JSON.parse(rawData)
+    const { current, operations } = parsedData
+    const currentDoc = Automerge.load<SyncDoc>(current)
+
+    // ensure no errors throw when removing a deep tree node
+    // that has already been removed
+    toSlateOp(operations, currentDoc)
   })
 
   afterAll(() => {
