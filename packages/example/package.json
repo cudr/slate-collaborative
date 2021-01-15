@@ -21,7 +21,7 @@
     "lodash": "^4.17.15",
     "nodemon": "^2.0.6",
     "randomcolor": "^0.5.4",
-    "react": "^16.9.0",
+    "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "3.1.2",
     "slate": "0.59.0",
