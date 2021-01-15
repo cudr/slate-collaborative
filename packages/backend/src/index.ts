@@ -1,3 +1,3 @@
-import SocketIOConnection from './SocketIOConnection'
+import AutomergeCollaboration from './AutomergeCollaboration'
 
-export { SocketIOConnection }
+export { AutomergeCollaboration }

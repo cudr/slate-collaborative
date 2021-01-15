@@ -8,7 +8,7 @@ import {
   SyncDoc,
   CollabAction
 } from '@hiveteams/collab-bridge'
-import { debugCollabBackend } from 'utils/debug'
+import { debugCollabBackend } from './utils/debug'
 
 /**
  * AutomergeBackend contains collaboration with Automerge
@@ -45,7 +45,7 @@ class AutomergeBackend {
    * Start Automerge Connection
    */
 
-  openConnection = (id: string) => this.connectionMap[id].open()
+  openConnection = (id: string) => this.connectionMap[id]?.open()
 
   /**
    * Close Automerge Connection and remove it from connections
@@ -53,7 +53,6 @@ class AutomergeBackend {
 
   closeConnection(id: string) {
     this.connectionMap[id]?.close()
-
     delete this.connectionMap[id]
   }
 
@@ -62,16 +61,12 @@ class AutomergeBackend {
    */
 
   receiveOperation = (id: string, data: CollabAction) => {
-    try {
-      if (!this.connectionMap[id]) {
-        debugCollabBackend('Could not receive op for closed connection %s', id)
-        return
-      }
-
-      this.connectionMap[id].receiveMsg(data.payload)
-    } catch (e) {
-      console.error('Unexpected error in receiveOperation', e)
+    if (!this.connectionMap[id]) {
+      debugCollabBackend('Could not receive op for closed connection %s', id)
+      return
     }
+
+    this.connectionMap[id].receiveMsg(data.payload)
   }
 
   /**
@@ -85,22 +80,15 @@ class AutomergeBackend {
    */
 
   appendDocument = (docId: string, data: Node[]) => {
-    try {
-      if (this.getDocument(docId)) {
-        throw new Error(`Already has document with id: ${docId}`)
-      }
-
-      const sync = toSync({ cursors: {}, children: data })
-
-      const doc = Automerge.from<SyncDoc>(sync)
-
-      if (!this.documentSetMap[docId]) {
-        this.documentSetMap[docId] = new Automerge.DocSet<SyncDoc>()
-      }
-      this.documentSetMap[docId].setDoc(docId, doc)
-    } catch (e) {
-      console.error(e, docId)
+    if (this.getDocument(docId)) {
+      throw new Error(`Already has document with id: ${docId}`)
     }
+
+    const sync = toSync({ cursors: {}, children: data })
+
+    const doc = Automerge.from<SyncDoc>(sync)
+    this.documentSetMap[docId] = new Automerge.DocSet<SyncDoc>()
+    this.documentSetMap[docId].setDoc(docId, doc)
   }
 
   /**
@@ -108,10 +96,8 @@ class AutomergeBackend {
    */
 
   removeDocument = (docId: string) => {
-    if (this.documentSetMap[docId]) {
-      this.documentSetMap[docId].removeDoc(docId)
-      delete this.documentSetMap[docId]
-    }
+    this.documentSetMap[docId]?.removeDoc(docId)
+    delete this.documentSetMap[docId]
   }
 
   /**
@@ -119,19 +105,16 @@ class AutomergeBackend {
    */
 
   garbageCursor = (docId: string, id: string) => {
-    try {
-      const doc = this.getDocument(docId)
+    const doc = this.getDocument(docId)
 
-      if (!doc || !doc.cursors) return
+    // no need to delete cursor if the document or cursors have already been deleted
+    if (!doc || !doc.cursors) return
 
-      const change = Automerge.change(doc, (d: any) => {
-        delete d.cursors[id]
-      })
+    const change = Automerge.change(doc, (d: any) => {
+      delete d.cursors[id]
+    })
 
-      this.documentSetMap[docId].setDoc(docId, change)
-    } catch (e) {
-      console.error('Unexpected error in garbageCursor', e)
-    }
+    this.documentSetMap[docId].setDoc(docId, change)
   }
 }
 

@@ -1,4 +1,4 @@
-const { SocketIOConnection } = require('@hiveteams/collab-backend')
+const { AutomergeCollaboration } = require('@hiveteams/collab-backend')
 const express = require('express')
 
 const defaultValue = [
@@ -36,4 +36,4 @@ const config = {
   }
 }
 
-const connection = new SocketIOConnection(config)
+const connection = new AutomergeCollaboration(config)

@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab-client",
-  "version": "0.7.17",
+  "version": "0.7.23",
   "files": [
     "lib"
   ],
@@ -21,13 +21,15 @@
     "build:module": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "watch": "yarn build:js -w"
+    "watch": "yarn build:js -w",
+    "test": "jest"
   },
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-react": "^7.0.0",
-    "@hiveteams/collab-bridge": "^0.7.16",
+    "@hiveteams/collab-bridge": "^0.7.23",
     "automerge": "0.14.0",
+    "lodash": "^4.17.20",
     "slate": "0.58.3",
     "slate-history": "0.58.3",
     "socket.io-client": "^2.3.0",
@@ -40,11 +42,30 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.6.0",
+    "@hiveteams/collab-backend": "^0.7.23",
+    "@types/jest": "^24.9.0",
     "@types/react": "^16.9.34",
-    "@types/socket.io-client": "^1.4.32"
+    "@types/socket.io-client": "^1.4.32",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.4.4"
   },
   "directories": {
     "lib": "lib"
   },
-  "gitHead": "89dd1657ba1b39db298e00a380f45089b8b52a91"
+  "gitHead": "89dd1657ba1b39db298e00a380f45089b8b52a91",
+  "jest": {
+    "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "babelConfig": ".babelrc"
+      }
+    },
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$"
+  }
 }

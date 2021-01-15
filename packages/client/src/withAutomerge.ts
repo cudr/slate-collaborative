@@ -2,65 +2,63 @@ import Automerge from 'automerge'
 
 import { Editor } from 'slate'
 
-import { AutomergeEditor } from './automerge-editor'
+import { AutomergeConnector } from './automerge-connector'
 
-import { CursorData, CollabAction } from '@hiveteams/collab-bridge'
-
-export interface AutomergeOptions {
-  docId: string
-  cursorData?: CursorData
-  preserveExternalHistory?: boolean
-  onError?: (msg: string | Error) => void
-}
+import { CollabAction } from '@hiveteams/collab-bridge'
+import {
+  AutomergeEditor,
+  AutomergeOptions,
+  WithSocketIOEditor
+} from './interfaces'
 
 /**
  * The `withAutomerge` plugin contains core collaboration logic.
  */
 
 const withAutomerge = <T extends Editor>(
-  editor: T,
+  slateEditor: T,
   options: AutomergeOptions
 ) => {
-  const e = editor as T & AutomergeEditor
+  const { docId, cursorData, preserveExternalHistory } = options || {}
 
-  const { onChange } = e
+  const editor = slateEditor as T & AutomergeEditor & WithSocketIOEditor
 
-  const {
-    docId,
-    cursorData,
-    preserveExternalHistory,
-    onError = (err: string | Error) => console.log('AutomergeEditor error', err)
-  } = options || {}
+  const { onChange } = editor
 
-  e.docSet = new Automerge.DocSet()
+  editor.docSet = new Automerge.DocSet()
 
-  const createConnection = () => {
-    e.connection = AutomergeEditor.createConnection(e, (data: CollabAction) =>
-      //@ts-ignore
-      e.send(data)
-    )
+  /**
+   * Helper function for handling errors
+   */
 
-    e.connection.open()
+  editor.handleError = (err: Error | string, data: any = {}) => {
+    const { onError } = options
+    if (onError) {
+      onError(err, data)
+    }
   }
 
   /**
    * Open Automerge Connection
    */
 
-  e.openConnection = () => {
-    createConnection()
+  editor.openConnection = () => {
+    editor.connection = AutomergeConnector.createConnection(
+      editor,
+      (data: CollabAction) => editor.send(data)
+    )
 
-    e.connection.open()
+    editor.connection.open()
   }
 
   /**
    * Close Automerge Connection
    */
 
-  e.closeConnection = () => {
+  editor.closeConnection = () => {
     // close any actively open connections
-    if (e.connection) {
-      e.connection.close()
+    if (editor.connection) {
+      editor.connection.close()
     }
   }
 
@@ -68,26 +66,18 @@ const withAutomerge = <T extends Editor>(
    * Clear cursor data
    */
 
-  e.gabageCursor = () => {
-    try {
-      AutomergeEditor.garbageCursor(e, docId)
-    } catch (err) {
-      console.log('garbageCursor error', err)
-    }
+  editor.garbageCursor = () => {
+    AutomergeConnector.garbageCursor(editor, docId)
   }
 
   /**
    * Editor onChange
    */
+  editor.onChange = () => {
+    const operations = editor.operations
 
-  e.onChange = () => {
-    const operations: any = e.operations
-
-    if (!e.isRemote) {
-      AutomergeEditor.applySlateOps(e, docId, operations, cursorData).catch(
-        onError
-      )
-
+    if (!editor.isRemote) {
+      AutomergeConnector.applySlateOps(editor, docId, operations, cursorData)
       onChange()
     }
   }
@@ -96,26 +86,27 @@ const withAutomerge = <T extends Editor>(
    * Receive document value
    */
 
-  e.receiveDocument = data => {
-    AutomergeEditor.receiveDocument(e, docId, data)
+  editor.receiveDocument = data => {
+    AutomergeConnector.receiveDocument(editor, docId, data)
   }
 
   /**
    * Receive Automerge sync operations
    */
 
-  e.receiveOperation = data => {
+  editor.receiveOperation = data => {
+    // ignore document updates for differnt docIds
     if (docId !== data.docId) return
 
-    try {
-      AutomergeEditor.applyOperation(e, docId, data, preserveExternalHistory)
-    } catch (err) {
-      // report any errors during apply operation
-      onError(err)
-    }
+    AutomergeConnector.applyOperation(
+      editor,
+      docId,
+      data,
+      preserveExternalHistory
+    )
   }
 
-  return e
+  return editor
 }
 
 export default withAutomerge

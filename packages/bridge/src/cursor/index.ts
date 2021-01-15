@@ -1,6 +1,7 @@
 import { Operation, Range } from 'slate'
 
 import { CursorData } from '../model'
+import { toJS } from '../utils'
 
 export const setCursor = (
   id: string,
@@ -9,26 +10,30 @@ export const setCursor = (
   operations: Operation[],
   cursorData: CursorData
 ) => {
-  const cursorOps = operations.filter(op => op.type === 'set_selection')
+  try {
+    const cursorOps = operations.filter(op => op.type === 'set_selection')
 
-  if (!doc.cursors) doc.cursors = {}
+    if (!doc.cursors) doc.cursors = {}
 
-  const newCursor = cursorOps[cursorOps.length - 1]?.newProperties || {}
+    const newCursor = cursorOps[cursorOps.length - 1]?.newProperties || {}
 
-  if (selection) {
-    const newCursorData = Object.assign(
-      (doc.cursors[id] && JSON.parse(doc.cursors[id])) || {},
-      newCursor,
-      selection,
-      {
-        ...cursorData,
-        isForward: Range.isForward(selection)
-      }
-    )
+    if (selection) {
+      const newCursorData = Object.assign(
+        (doc.cursors[id] && JSON.parse(doc.cursors[id])) || {},
+        newCursor,
+        selection,
+        {
+          ...cursorData,
+          isForward: Range.isForward(selection)
+        }
+      )
 
-    doc.cursors[id] = JSON.stringify(newCursorData)
-  } else {
-    delete doc.cursors[id]
+      doc.cursors[id] = JSON.stringify(newCursorData)
+    } else {
+      delete doc.cursors[id]
+    }
+  } catch (e) {
+    console.error(e, toJS(doc))
   }
 
   return doc

@@ -22,6 +22,10 @@ export const removeText = (
 ): SyncValue => {
   const node = getTarget(doc, op.path)
 
+  // if we are removing text for a node that no longer exists
+  // treat this as a noop
+  if (!node) return doc
+
   const offset = Math.min(node.text.length, op.offset)
 
   node.text.deleteAt(offset, op.text.length)

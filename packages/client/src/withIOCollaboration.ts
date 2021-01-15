@@ -1,11 +1,13 @@
 import { Editor } from 'slate'
-import { AutomergeEditor } from './automerge-editor'
 
-import withAutomerge, { AutomergeOptions } from './withAutomerge'
-import withSocketIO, {
-  WithSocketIOEditor,
-  SocketIOPluginOptions
-} from './withSocketIO'
+import withAutomerge from './withAutomerge'
+import {
+  AutomergeEditor,
+  AutomergeOptions,
+  SocketIOPluginOptions,
+  WithSocketIOEditor
+} from './interfaces'
+import withSocketIO from './withSocketIO'
 
 /**
  * The `withIOCollaboration` plugin contains collaboration with SocketIO.
