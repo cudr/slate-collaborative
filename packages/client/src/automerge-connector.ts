@@ -130,9 +130,9 @@ export const AutomergeConnector = {
       const operations = Automerge.diff(current, updated)
 
       if (operations.length) {
-        let slateOps: any[]
+        let slateOps: any[] = []
         try {
-          slateOps = toSlateOp(operations, current) || []
+          slateOps = toSlateOp(operations, current)
         } catch (err) {
           e.handleError(err, {
             type: 'applyOperation - toSlateOp',

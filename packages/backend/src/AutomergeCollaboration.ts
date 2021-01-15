@@ -4,7 +4,6 @@ import { Node } from 'slate'
 import { Server } from 'http'
 import throttle from 'lodash/throttle'
 import { SyncDoc, CollabAction, toJS } from '@hiveteams/collab-bridge'
-import { getClients } from './utils/index'
 import { debugCollabBackend } from './utils/debug'
 import AutomergeBackend from './AutomergeBackend'
 
@@ -153,13 +152,13 @@ export default class AutomergeCollaboration {
         // recheck backend getDocument after async operation
         // to avoid duplicatively loading a document
         if (!this.backend.getDocument(docId)) {
-          debugCollabBackend('Append document\t\t%s', id)
+          debugCollabBackend('Append document %s', id)
           this.backend.appendDocument(docId, doc)
         }
       }
 
       // Create a new backend connection for this socketId and docId
-      debugCollabBackend('Create connection\t%s', id)
+      debugCollabBackend('Create connection %s', id)
       this.backend.createConnection(
         id,
         docId,
@@ -190,7 +189,7 @@ export default class AutomergeCollaboration {
         payload: Automerge.save<SyncDoc>(doc)
       })
 
-      debugCollabBackend('Open connection\t\t%s', id)
+      debugCollabBackend('Open connection %s', id)
       this.backend.openConnection(id)
       this.garbageCursors(socket)
     } catch (err) {
@@ -256,27 +255,33 @@ export default class AutomergeCollaboration {
     try {
       const { id } = socket
       const { name: docId } = socket.nsp
-      socket.leave(docId)
 
-      debugCollabBackend('Connection closed\t%s', id)
+      // promises for the cleanup operations so that we
+      // perform all the necessary cleanup here synchronously
+      const cleanupPromises: (Promise<void> | void)[] = []
+      cleanupPromises.push(this.saveDocument(socket, docId))
+
+      // Note not sure if both of these are necessary
+      socket.leave(id)
+
+      // close automerge connection
+      debugCollabBackend('Connection closed %s', id)
       this.backend.closeConnection(id)
 
-      await this.saveDocument(socket, docId)
+      // cleanup cursors and namespace for socket
+      this.garbageCursors(socket)
+      this.garbageNsp(socket)
+
+      // grab current user and cleanup the user map
+      const user = this.userMap[id]
+      delete this.userMap[id]
 
       // trigger onDisconnect callback if one was provided
       // and if a user has been loaded for this socket connection
-      const user = this.userMap[id]
       if (this.options.onDisconnect && user) {
-        await this.options.onDisconnect(docId, user)
+        cleanupPromises.push(this.options.onDisconnect(docId, user))
       }
-
-      // cleanup automerge cursor and socket connection
-      this.garbageCursors(socket)
-      socket.leave(id)
-      this.garbageNsp(socket)
-
-      // cleanup usermap
-      delete this.userMap[id]
+      await Promise.all(cleanupPromises)
     } catch (err) {
       this.handleError(socket, err)
     }
@@ -288,21 +293,21 @@ export default class AutomergeCollaboration {
 
   garbageNsp = (socket: SocketIO.Socket) => {
     const { name: docId } = socket.nsp
-    Object.keys(this.io.nsps)
-      .filter(n => n !== '/')
-      .forEach(nsp => {
-        getClients(this.io, nsp)
-          .then((clientsList: any) => {
-            if (!clientsList.length) {
-              debugCollabBackend('Removing document\t%s', docId)
-              this.backend.removeDocument(nsp)
-              delete this.io.nsps[nsp]
-            }
-          })
-          .catch(err => {
-            this.handleError(socket, err)
-          })
-      })
+
+    // This is the only way to synchronously check the number of active Automerge.Connections
+    // for this docId.
+    // @ts-ignore
+    const activeConnectionsCount = this.backend.documentSetMap[docId]?.handlers
+      .size
+
+    debugCollabBackend(
+      'Garbage namespace activeConnections=%s',
+      activeConnectionsCount
+    )
+    // If we have no more active connections for this docId, removeDocument from our backend
+    if (activeConnectionsCount === 0) {
+      this.backend.removeDocument(docId)
+    }
   }
 
   /**
@@ -320,7 +325,7 @@ export default class AutomergeCollaboration {
 
       Object.keys(doc?.cursors)?.forEach(key => {
         if (!namespace.sockets[key]) {
-          debugCollabBackend('Garbage cursor\t\t%s', key)
+          debugCollabBackend('Garbage cursor %s', key)
           this.backend.garbageCursor(docId, key)
         }
       })
