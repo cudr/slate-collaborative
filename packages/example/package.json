@@ -19,7 +19,7 @@
     "faker": "^4.1.0",
     "is-url": "^1.2.4",
     "lodash": "^4.17.15",
-    "nodemon": "^1.19.2",
+    "nodemon": "^2.0.6",
     "randomcolor": "^0.5.4",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
