@@ -122,6 +122,8 @@ const withSocketIO = <T extends AutomergeEditor>(
    */
 
   e.destroy = () => {
+    e.socket.removeListener('disconnect')
+
     e.socket.close()
 
     e.closeConnection()
