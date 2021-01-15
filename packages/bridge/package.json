@@ -39,7 +39,7 @@
     "@babel/preset-typescript": "^7.6.0",
     "@types/jest": "^24.9.0",
     "jest": "^24.9.0",
-    "ts-jest": "^25.4.0"
+    "ts-jest": "^26.4.4"
   },
   "directories": {
     "lib": "lib"
