@@ -8,7 +8,10 @@ const splitNode = (doc: SyncValue, op: SplitNodeOperation): SyncValue => {
   const [parent, index]: [any, number] = getParent(doc, op.path)
 
   const target = getChildren(parent)[index]
-  const inject = cloneNode(target)
+  const inject = {
+    ...cloneNode(target),
+    ...op.properties
+  }
 
   if (target.text) {
     target.text.length > op.position &&
