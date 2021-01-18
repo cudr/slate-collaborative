@@ -7,16 +7,9 @@
     "@emotion/styled": "^10.0.17",
     "@slate-collaborative/backend": "^0.7.1",
     "@slate-collaborative/client": "^0.7.0",
-    "@types/faker": "^4.1.5",
-    "@types/is-url": "^1.2.28",
-    "@types/jest": "24.0.18",
-    "@types/node": "14.14.6",
-    "@types/randomcolor": "^0.5.4",
-    "@types/react-dom": "^16.9.6",
     "concurrently": "^4.1.2",
     "cross-env": "^6.0.3",
     "express": "^4.17.1",
-    "faker": "^5.1.0",
     "is-url": "^1.2.4",
     "lodash": "^4.17.15",
     "nodemon": "^2.0.6",
@@ -26,8 +19,7 @@
     "react-scripts": "3.1.2",
     "slate": "0.59.0",
     "slate-history": "0.58.3",
-    "slate-react": "0.59.0",
-    "typescript": "^3.8.3"
+    "slate-react": "0.59.0"
   },
   "scripts": {
     "start": "nodemon server.js",
@@ -54,5 +46,15 @@
   },
   "engines": {
     "node": "12.x"
+  },
+  "devDependencies": {
+    "@types/faker": "^4.1.5",
+    "@types/is-url": "^1.2.28",
+    "@types/jest": "24.0.18",
+    "@types/node": "14.14.6",
+    "@types/randomcolor": "^0.5.4",
+    "@types/react-dom": "^16.9.6",
+    "faker": "^5.1.0",
+    "typescript": "^3.8.3"
   }
 }

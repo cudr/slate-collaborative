@@ -10,10 +10,10 @@ const setDataOp = (
     type: 'set_node',
     path: toSlatePath(path),
     properties: {
-      [key]: Automerge.getObjectById(doc, obj)?.[key]
+      [key]: toJS(Automerge.getObjectById(doc, obj)?.[key])
     },
     newProperties: {
-      [key]: value
+      [key]: map?.[value] || value
     }
   }
 }
@@ -22,7 +22,7 @@ const opSet = (op: Automerge.Diff, [map, ops]: any, doc: any) => {
   const { link, value, path, obj, key } = op
 
   try {
-    if (path && path[0] !== 'cursors') {
+    if (path && path.length && path[0] !== 'cursors') {
       ops.push(setDataOp(op, doc))
     } else if (map[obj]) {
       map[obj][key as any] = link ? map[value] : value
