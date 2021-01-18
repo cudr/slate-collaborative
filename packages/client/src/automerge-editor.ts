@@ -130,7 +130,9 @@ export const AutomergeEditor = {
         Editor.withoutNormalizing(e, () => {
           if (HistoryEditor.isHistoryEditor(e) && !preserveExternalHistory) {
             HistoryEditor.withoutSaving(e, () => {
-              slateOps.forEach((o: Operation) => e.apply(o))
+              slateOps.forEach((o: Operation) => {
+                e.apply(o)
+              })
             })
           } else {
             slateOps.forEach((o: Operation) => e.apply(o))
