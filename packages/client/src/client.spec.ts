@@ -1,4 +1,4 @@
-import Automerge, { Frontend } from 'automerge'
+import Automerge from 'automerge'
 import { createServer } from 'http'
 import fs from 'fs'
 import isEqual from 'lodash/isEqual'
@@ -60,9 +60,17 @@ describe('automerge editor client tests', () => {
   })
 
   const createCollabEditor = async (
-    editorOptions: AutomergeOptions & SocketIOPluginOptions = options
+    editorOptions?: Partial<AutomergeOptions> & Partial<SocketIOPluginOptions>
   ) => {
-    const editor = withIOCollaboration(createEditor(), editorOptions)
+    // Given a docId we an generate the collab url
+    if (editorOptions?.docId) {
+      editorOptions.url = `http://localhost:5000${editorOptions?.docId}`
+    }
+
+    const editor = withIOCollaboration(createEditor(), {
+      ...options,
+      ...editorOptions
+    })
 
     const oldReceiveDocument = editor.receiveDocument
     const promise = new Promise<void>(resolve => {
@@ -188,8 +196,8 @@ describe('automerge editor client tests', () => {
     editor2.destroy()
   })
 
-  it('deep nested tree error', () => {
-    // Ready from our test json file for the deep tree error
+  it('should not throw deep nested tree error', () => {
+    // Read from our test json file for the deep tree error
     // This allows us to easily reproduce real production errors
     // and create test cases that resolve those errors
     const rawData = fs.readFileSync(
@@ -203,6 +211,26 @@ describe('automerge editor client tests', () => {
     // ensure no errors throw when removing a deep tree node
     // that has already been removed
     toSlateOp(operations, currentDoc)
+  })
+
+  it('should update children for a root level children operation', async () => {
+    const editor = await createCollabEditor()
+
+    const oldDoc = collabBackend.backend.documentSetMap[docId].getDoc(docId)
+    const newDoc = Automerge.change(oldDoc, changed => {
+      // @ts-ignore
+      changed.children = [
+        { type: 'paragraph', children: [{ text: 'new' }] },
+        { type: 'paragraph', children: [{ text: 'nodes' }] }
+      ]
+    })
+    collabBackend.backend.documentSetMap[docId].setDoc(docId, newDoc)
+
+    await waitForCondition(() => editor.children.length === 2)
+
+    expect(editor.children.length).toEqual(2)
+    expect(Node.string(editor.children[0])).toEqual('new')
+    expect(Node.string(editor.children[1])).toEqual('nodes')
   })
 
   afterAll(() => {

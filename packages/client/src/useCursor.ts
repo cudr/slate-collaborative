@@ -16,19 +16,34 @@ const useCursor = (
   useEffect(() => {
     e.onCursor = (data: Cursors) => {
       if (!mountedRef.current) return
+
       const ranges: Cursor[] = []
 
-      const cursors = toJS(data)
-
-      for (let cursor in cursors) {
-        if (cursor !== e.clientId && cursors[cursor]) {
-          ranges.push(JSON.parse(cursors[cursor]))
-        }
+      // If the cursor data is null or undefined, unset all active cursors
+      if (!data) {
+        setCursorData(ranges)
+        return
       }
 
-      // only update state if this component is still mounted
-      if (mountedRef.current) {
-        setCursorData(ranges)
+      try {
+        const cursors = toJS(data)
+
+        for (let cursor in cursors) {
+          if (cursor !== e.clientId && cursors[cursor]) {
+            ranges.push(JSON.parse(cursors[cursor]))
+          }
+        }
+
+        // only update state if this component is still mounted
+        if (mountedRef.current) {
+          setCursorData(ranges)
+        }
+      } catch (err) {
+        e.handleError(err, {
+          type: 'onCursor',
+          data,
+          ranges
+        })
       }
     }
   }, [])

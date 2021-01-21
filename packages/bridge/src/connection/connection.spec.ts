@@ -5,7 +5,6 @@ interface TestDoc {
   status: string
 }
 
-// TODO: delete this?
 describe('old state error replication', () => {
   const clientDocSet = new Automerge.DocSet()
   const serverDocSet = new Automerge.DocSet()

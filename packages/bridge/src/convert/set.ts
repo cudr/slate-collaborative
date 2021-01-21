@@ -23,8 +23,33 @@ const opSet = (op: Automerge.Diff, [map, ops]: any, doc: any) => {
   const { link, value, path, obj, key } = op
 
   try {
-    // no slate op needed for root key cursor updates
+    // We can ignore any root level cursor updates since those
+    // will not correspond to any slate operations
     if (obj === rootKey && key === 'cursors') {
+      return [map, ops]
+    }
+
+    // Handle updates received for the root children array
+    if (obj === rootKey && key === 'children' && map[value]) {
+      // First remove all existing child nodes
+      for (let i = doc.children.length - 1; i >= 0; i--) {
+        ops.push((map: any) => ({
+          type: 'remove_node',
+          path: [i],
+          node: doc.children[i]
+        }))
+      }
+
+      // Then add all the newly defined nodes
+      const newChildren: Node[] = map[value]
+      newChildren.forEach((child, index) => {
+        ops.push((map: any) => ({
+          type: 'insert_node',
+          path: [index],
+          node: child
+        }))
+      })
+
       return [map, ops]
     }
 

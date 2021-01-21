@@ -137,19 +137,30 @@ export const AutomergeConnector = {
           e.handleError(err, {
             type: 'applyOperation - toSlateOp',
             operations,
-            current: Automerge.save(current)
+            current: Automerge.save(current),
+            updated: Automerge.save(updated)
           })
         }
 
         e.isRemote = true
 
         Editor.withoutNormalizing(e, () => {
-          if (HistoryEditor.isHistoryEditor(e) && !preserveExternalHistory) {
-            HistoryEditor.withoutSaving(e, () => {
+          try {
+            if (HistoryEditor.isHistoryEditor(e) && !preserveExternalHistory) {
+              HistoryEditor.withoutSaving(e, () => {
+                slateOps.forEach((o: Operation) => e.apply(o))
+              })
+            } else {
               slateOps.forEach((o: Operation) => e.apply(o))
+            }
+          } catch (err) {
+            e.handleError(err, {
+              type: 'applyOperation - slateOps apply',
+              operations,
+              slateOps,
+              current: Automerge.save(current),
+              updated: Automerge.save(updated)
             })
-          } else {
-            slateOps.forEach((o: Operation) => e.apply(o))
           }
 
           e.onCursor && e.onCursor(updated.cursors)
@@ -180,7 +191,7 @@ export const AutomergeConnector = {
     if (!doc) return
 
     const changed = Automerge.change<SyncDoc>(doc, (d: any) => {
-      delete d.cursors
+      d.cursors = {}
     })
 
     e.docSet.setDoc(docId, changed as any)
