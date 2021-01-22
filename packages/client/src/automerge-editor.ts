@@ -103,6 +103,7 @@ export const AutomergeEditor = {
     })
 
     // onChange expect valid doc, we make sure do normalization before that.
+    Editor.normalize(e, { force: true })
     e.onChange()
   },
 
