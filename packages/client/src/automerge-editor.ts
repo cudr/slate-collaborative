@@ -100,9 +100,10 @@ export const AutomergeEditor = {
 
     Editor.withoutNormalizing(e, () => {
       e.children = toJS(mergedDoc).children
-
-      e.onChange()
     })
+
+    // onChange expect valid doc, we make sure do normalization before that.
+    e.onChange()
   },
 
   /**
