@@ -2,8 +2,8 @@ import Automerge from 'automerge'
 import { createServer } from 'http'
 import fs from 'fs'
 import isEqual from 'lodash/isEqual'
-import { createEditor, Node, Transforms } from 'slate'
-import { SyncDoc, toJS, toSlateOp } from '@hiveteams/collab-bridge'
+import { createEditor, Editor, Node, Transforms } from 'slate'
+import { createDoc, SyncDoc, toJS, toSlateOp } from '@hiveteams/collab-bridge'
 import AutomergeCollaboration from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
 import withIOCollaboration from './withIOCollaboration'
 import { AutomergeOptions, SocketIOPluginOptions } from './interfaces'
@@ -213,6 +213,23 @@ describe('automerge editor client tests', () => {
     toSlateOp(operations, currentDoc)
   })
 
+  it('should not throw index error', () => {
+    // Read from our test json file for the deep tree error
+    // This allows us to easily reproduce real production errors
+    // and create test cases that resolve those errors
+    const rawData = fs.readFileSync(
+      `${__dirname}/test-json/index-error.json`,
+      'utf-8'
+    )
+    const parsedData = JSON.parse(rawData)
+    const { current, operations } = parsedData
+    const currentDoc = Automerge.load<SyncDoc>(current)
+
+    // ensure no errors throw when removing a deep tree node
+    // that has already been removed
+    toSlateOp(operations, currentDoc)
+  })
+
   it('should update children for a root level children operation', async () => {
     const editor = await createCollabEditor()
 
@@ -231,6 +248,30 @@ describe('automerge editor client tests', () => {
     expect(editor.children.length).toEqual(2)
     expect(Node.string(editor.children[0])).toEqual('new')
     expect(Node.string(editor.children[1])).toEqual('nodes')
+  })
+
+  it('set node for children with missing value should not throw error', () => {
+    const operations: Automerge.Diff[] = [
+      {
+        action: 'set',
+        type: 'map',
+        obj: '00000000-0000-0000-0000-000000000000',
+        key: 'children',
+        path: [],
+        value: '6c7bf8a5-d0e0-4b08-a4a2-32df65b807e5',
+        link: true,
+        conflicts: [
+          {
+            actor: '8c5d5ada-3db9-4189-9e04-2e7c101d057d',
+            value: 'e198d171-a00a-4d5c-a597-c0ff35a7f639',
+            link: true
+          }
+        ]
+      }
+    ]
+
+    const slateOps = toSlateOp(operations, createDoc())
+    expect(slateOps.length).toEqual(0)
   })
 
   afterAll(() => {
