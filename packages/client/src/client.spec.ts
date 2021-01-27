@@ -7,6 +7,7 @@ import { createDoc, SyncDoc, toJS, toSlateOp } from '@hiveteams/collab-bridge'
 import AutomergeCollaboration from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
 import withIOCollaboration from './withIOCollaboration'
 import { AutomergeOptions, SocketIOPluginOptions } from './interfaces'
+import { getTarget } from '@hiveteams/collab-bridge/src/path'
 
 const connectionSlug = 'test'
 const docId = `/${connectionSlug}`
@@ -213,23 +214,6 @@ describe('automerge editor client tests', () => {
     toSlateOp(operations, currentDoc)
   })
 
-  it('should not throw index error', () => {
-    // Read from our test json file for the deep tree error
-    // This allows us to easily reproduce real production errors
-    // and create test cases that resolve those errors
-    const rawData = fs.readFileSync(
-      `${__dirname}/test-json/index-error.json`,
-      'utf-8'
-    )
-    const parsedData = JSON.parse(rawData)
-    const { current, operations } = parsedData
-    const currentDoc = Automerge.load<SyncDoc>(current)
-
-    // ensure no errors throw when removing a deep tree node
-    // that has already been removed
-    toSlateOp(operations, currentDoc)
-  })
-
   it('should update children for a root level children operation', async () => {
     const editor = await createCollabEditor()
 
@@ -272,6 +256,13 @@ describe('automerge editor client tests', () => {
 
     const slateOps = toSlateOp(operations, createDoc())
     expect(slateOps.length).toEqual(0)
+  })
+
+  it('should not throw index error', () => {
+    const doc: any = { children: [] }
+    const target = getTarget(doc, [0, 0])
+
+    expect(target).toEqual(null)
   })
 
   afterAll(() => {
