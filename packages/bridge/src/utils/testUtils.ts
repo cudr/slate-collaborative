@@ -3,6 +3,7 @@ import * as Automerge from 'automerge'
 import { toSync } from '../'
 
 import { Node } from 'slate'
+import { SyncDoc } from '../model'
 
 export const createText = (text: string = '') => ({
   text
@@ -25,4 +26,4 @@ export const createValue = (children?: any): { children: Node[] } => ({
 export const createDoc = (children?: any) =>
   Automerge.from(toSync(createValue(children)))
 
-export const cloneDoc = (doc: any) => Automerge.change(doc, '', d => d)
+export const cloneDoc = (doc: SyncDoc) => Automerge.change(doc, '', d => d)

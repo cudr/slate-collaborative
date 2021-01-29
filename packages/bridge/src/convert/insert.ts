@@ -2,7 +2,8 @@ import * as Automerge from 'automerge'
 
 import { toSlatePath, toJS } from '../utils'
 
-import { SyncDoc } from '../model'
+import { CollabMap, CollabOperation, SyncDoc } from '../model'
+import { Operation } from 'slate'
 
 const insertTextOp = ({ index, path, value }: Automerge.Diff) => () => ({
   type: 'insert_text',
@@ -13,9 +14,9 @@ const insertTextOp = ({ index, path, value }: Automerge.Diff) => () => ({
 
 const insertNodeOp = (
   { value, obj, index, path }: Automerge.Diff,
-  doc: any
-) => (map: any) => {
-  const ops: any = []
+  doc: SyncDoc
+) => (map: CollabMap) => {
+  const ops: Operation[] = []
 
   const iterate = ({ children, ...json }: any, path: any) => {
     if (children && children.length === 1 && children[0].text === '') {
@@ -56,7 +57,11 @@ const insertByType = {
   list: insertNodeOp
 }
 
-const opInsert = (op: Automerge.Diff, [map, ops]: any, doc: SyncDoc) => {
+const opInsert = (
+  op: Automerge.Diff,
+  [map, ops]: [CollabMap, CollabOperation[]],
+  doc: SyncDoc
+) => {
   try {
     const { link, obj, path, index, type, value } = op
 

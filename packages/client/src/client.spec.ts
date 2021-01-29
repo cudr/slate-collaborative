@@ -2,7 +2,7 @@ import Automerge from 'automerge'
 import { createServer } from 'http'
 import fs from 'fs'
 import isEqual from 'lodash/isEqual'
-import { createEditor, Editor, Node, Transforms } from 'slate'
+import { createEditor, Editor, Element, Node, Transforms } from 'slate'
 import { createDoc, SyncDoc, toJS, toSlateOp } from '@hiveteams/collab-bridge'
 import AutomergeCollaboration from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
 import withIOCollaboration from './withIOCollaboration'
@@ -259,7 +259,7 @@ describe('automerge editor client tests', () => {
   })
 
   it('should not throw index error', () => {
-    const doc: any = { children: [] }
+    const doc: Element = { children: [] }
     const target = getTarget(doc, [0, 0])
 
     expect(target).toEqual(null)
