@@ -6,7 +6,7 @@ import text from './text'
 import { SyncValue } from '../model'
 import { toJS } from '../utils'
 
-const setSelection = (doc: any) => doc
+const setSelection = (doc: SyncValue) => doc
 
 const opType = {
   ...text,

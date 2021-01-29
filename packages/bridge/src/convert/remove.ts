@@ -1,11 +1,12 @@
 import * as Automerge from 'automerge'
-import { Element } from 'slate'
+import { Element, Operation } from 'slate'
 
 import { toSlatePath, toJS } from '../utils'
 import { getTarget } from '../path'
 import { rootKey } from './constants'
+import { CollabMap, CollabOperation } from '../model'
 
-const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
+const removeTextOp = (op: Automerge.Diff) => (map: CollabMap, doc: Element) => {
   const { index, path, obj } = op
 
   const slatePath = toSlatePath(path).slice(0, path?.length)
@@ -59,7 +60,10 @@ const removeNodeOp = ({ index, obj, path }: Automerge.Diff) => (
   }
 }
 
-const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
+const opRemove = (
+  op: Automerge.Diff,
+  [map, ops]: [CollabMap, CollabOperation[]]
+) => {
   try {
     const { index, path, obj, type } = op
 

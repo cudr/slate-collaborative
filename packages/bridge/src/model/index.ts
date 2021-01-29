@@ -1,11 +1,19 @@
 import Automerge from 'automerge'
-import { Node, Range } from 'slate'
+import { Element, Node, Operation, Range } from 'slate'
 
 export type SyncValue = Automerge.List<Node>
 
 export type SyncDoc = Automerge.Doc<{ children: SyncValue; cursors: Cursors }>
 
 export type CollabActionType = 'operation' | 'document'
+
+export type CollabMap = { [key: string]: any }
+
+export type CollabOperation =
+  | Operation
+  | Operation[]
+  | ((map: CollabMap, doc: Element) => Operation)
+  | ((map: CollabMap, doc: Element) => Operation[])
 
 export interface CollabAction {
   type: CollabActionType
