@@ -6,7 +6,7 @@
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "description": "slate-collaborative bridge",
+  "description": "slate-collaborative client",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cudr/slate-collaborative.git"
