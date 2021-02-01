@@ -37,7 +37,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.6.0",
-    "@types/jest": "^24.9.0",
+    "@types/jest": "^26.0.20",
     "jest": "^24.9.0",
     "ts-jest": "^26.4.4"
   },
