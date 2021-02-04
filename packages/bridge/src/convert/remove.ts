@@ -23,7 +23,9 @@ const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
     const text = node?.text?.[index] || '*'
 
     if (node) {
-      node.text = node?.text ? (node.text.slice(0, index) + node.text.slice(index + 1)) : ''
+      node.text = node?.text
+        ? node.text.slice(0, index) + node.text.slice(index + 1)
+        : ''
     }
 
     return {
@@ -38,17 +40,15 @@ const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
   }
 }
 
-const removeNodeOp = (op: Automerge.Diff) => (
-  map: any,
-  doc: Element
-) => {
+const removeNodeOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
   try {
     const { index, obj, path } = op
 
     const slatePath = toSlatePath(path)
 
     const parent = getTarget(doc, slatePath)
-    const target = parent?.children?.[index as number] || parent?.[index as number] || { children: [] }
+    const target = parent?.children?.[index as number] ||
+      parent?.[index as number] || { children: [] }
 
     if (!target) {
       throw new TypeError('Target is not found!')
@@ -62,6 +62,12 @@ const removeNodeOp = (op: Automerge.Diff) => (
       throw new TypeError('Index is not a number')
     }
 
+    if (parent?.children?.[index as number]) {
+      parent.children.splice(index, 1)
+    } else if (parent?.[index as number]) {
+      parent.splice(index, 1)
+    }
+
     return {
       type: 'remove_node',
       path: slatePath.length ? slatePath.concat(index) : [index],
@@ -72,7 +78,12 @@ const removeNodeOp = (op: Automerge.Diff) => (
   }
 }
 
-const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
+const opRemove = (
+  op: Automerge.Diff,
+  [map, ops]: any,
+  doc: any,
+  tmpDoc: Element
+) => {
   try {
     const { index, path, obj, type } = op
 
@@ -95,7 +106,7 @@ const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
 
     const fn = key === 'text' ? removeTextOp : removeNodeOp
 
-    return [map, [...ops, fn(op)]]
+    return [map, [...ops, fn(op)(map, tmpDoc)]]
   } catch (e) {
     console.error(e, op, toJS(map))
 

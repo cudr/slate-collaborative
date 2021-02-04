@@ -19,10 +19,12 @@ const byAction = {
 const rootKey = '00000000-0000-0000-0000-000000000000'
 
 const toSlateOp = (ops: Automerge.Diff[], doc: SyncDoc) => {
+  const tempDoc = toJS(doc)
+
   const iterate = (acc: [any, any[]], op: Automerge.Diff): any => {
     const action = byAction[op.action]
 
-    const result = action ? action(op, acc, doc) : acc
+    const result = action ? action(op, acc, doc, tempDoc) : acc
 
     return result
   }
@@ -34,9 +36,7 @@ const toSlateOp = (ops: Automerge.Diff[], doc: SyncDoc) => {
     []
   ])
 
-  const tempDoc = toJS(doc)
-
-  return defer.flatMap(op => op(tempTree, tempDoc)).filter(op => op)
+  return defer.flatMap(op => op).filter(op => op)
 }
 
 export { toSlateOp }
