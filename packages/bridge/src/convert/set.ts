@@ -3,7 +3,7 @@ import { Element, Node } from 'slate'
 
 import { toSlatePath, toJS } from '../utils'
 
-const setDataOp = (
+export const setDataOp = (
   { key = '', obj, path, value }: Automerge.Diff,
   doc: any
 ) => (map: any, tmpDoc: Element) => {

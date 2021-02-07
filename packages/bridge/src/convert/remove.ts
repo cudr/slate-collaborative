@@ -3,6 +3,7 @@ import { Element } from 'slate'
 
 import { toSlatePath, toJS } from '../utils'
 import { getTarget } from '../path'
+import { setDataOp } from './set'
 
 const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
   try {
@@ -86,6 +87,12 @@ const opRemove = (
 ) => {
   try {
     const { index, path, obj, type } = op
+
+    if (type === 'map' && path) {
+      // remove a key from map, mapping to slate set a key's value to undefined.
+      ops.push(setDataOp(op, doc)(map, tmpDoc))
+      return [map, ops]
+    }
 
     if (
       map.hasOwnProperty(obj) &&
