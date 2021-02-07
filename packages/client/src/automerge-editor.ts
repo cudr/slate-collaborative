@@ -141,7 +141,12 @@ export const AutomergeEditor = {
           e.onCursor && e.onCursor(updated.cursors)
         })
 
-        Promise.resolve().then(_ => (e.isRemote = false))
+        if (slateOps.length > 0) {
+          // XXX: only schedule set isRemote false when we did scheduled onChange by apply.
+          Promise.resolve().then(_ => (e.isRemote = false))
+        } else {
+          e.isRemote = false
+        }
       }
     } catch (e) {
       console.error(e)
