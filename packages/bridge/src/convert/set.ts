@@ -9,15 +9,24 @@ export const setDataOp = (
 ) => (map: any, tmpDoc: Element) => {
   const slatePath = toSlatePath(path)
   const node = Node.get(tmpDoc, slatePath)
-  node[key] = toJS(map?.[value] || value)
+  const oldValue = node[key]
+  const newValue = toJS(map?.[value] || value)
+  map[obj] = node // node from tmpDoc is the newest value at the moment, keep map sync
+
+  if (newValue == null) {
+    // slate does this check.
+    delete node[key]
+  } else {
+    node[key] = newValue
+  }
   return {
     type: 'set_node',
     path: slatePath,
     properties: {
-      [key]: toJS(Automerge.getObjectById(doc, obj)?.[key])
+      [key]: toJS(oldValue)
     },
     newProperties: {
-      [key]: toJS(node[key])
+      [key]: toJS(newValue)
     }
   }
 }
@@ -26,7 +35,7 @@ const opSet = (op: Automerge.Diff, [map, ops]: any, doc: any, tmpDoc: any) => {
   const { link, value, path, obj, key } = op
 
   try {
-    if (path && path.length && path[0] !== 'cursors') {
+    if (path && path.length && path[0] === 'children') {
       ops.push(setDataOp(op, doc)(map, tmpDoc))
     } else if (map[obj]) {
       map[obj][key as any] = link ? map[value] : value
