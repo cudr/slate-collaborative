@@ -90,7 +90,9 @@ const opRemove = (
 
     if (type === 'map' && path) {
       // remove a key from map, mapping to slate set a key's value to undefined.
-      ops.push(setDataOp(op, doc)(map, tmpDoc))
+      if (path[0] === 'children') {
+        ops.push(setDataOp(op, doc)(map, tmpDoc))
+      }
       return [map, ops]
     }
 
@@ -108,8 +110,6 @@ const opRemove = (
     if (!path) return [map, ops]
 
     const key = path[path.length - 1]
-
-    if (key === 'cursors' || op.key === 'cursors') return [map, ops]
 
     const fn = key === 'text' ? removeTextOp : removeNodeOp
 
