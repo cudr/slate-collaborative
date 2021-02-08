@@ -125,6 +125,8 @@ export const AutomergeEditor = {
       if (operations.length) {
         const slateOps = toSlateOp(operations, current)
 
+        // do not change isRemote flag for no-op case.
+        const wasRemote = e.isRemote
         e.isRemote = true
 
         Editor.withoutNormalizing(e, () => {
@@ -141,7 +143,12 @@ export const AutomergeEditor = {
           e.onCursor && e.onCursor(updated.cursors)
         })
 
-        Promise.resolve().then(_ => (e.isRemote = false))
+        if (slateOps.length > 0) {
+          // XXX: only schedule set isRemote false when we did scheduled onChange by apply.
+          Promise.resolve().then(_ => (e.isRemote = false))
+        } else {
+          e.isRemote = wasRemote
+        }
       }
     } catch (e) {
       console.error(e)
