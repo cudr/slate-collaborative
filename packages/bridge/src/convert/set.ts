@@ -1,29 +1,42 @@
 import * as Automerge from 'automerge'
+import { Element, Node } from 'slate'
 
 import { toSlatePath, toJS } from '../utils'
 
-const setDataOp = (
+export const setDataOp = (
   { key = '', obj, path, value }: Automerge.Diff,
   doc: any
-) => (map: any) => {
+) => (map: any, tmpDoc: Element) => {
+  const slatePath = toSlatePath(path)
+  const node = Node.get(tmpDoc, slatePath)
+  const oldValue = node[key]
+  const newValue = toJS(map?.[value] || value)
+  map[obj] = node // node from tmpDoc is the newest value at the moment, keep map sync
+
+  if (newValue == null) {
+    // slate does this check.
+    delete node[key]
+  } else {
+    node[key] = newValue
+  }
   return {
     type: 'set_node',
-    path: toSlatePath(path),
+    path: slatePath,
     properties: {
-      [key]: toJS(Automerge.getObjectById(doc, obj)?.[key])
+      [key]: toJS(oldValue)
     },
     newProperties: {
-      [key]: map?.[value] || value
+      [key]: toJS(newValue)
     }
   }
 }
 
-const opSet = (op: Automerge.Diff, [map, ops]: any, doc: any) => {
+const opSet = (op: Automerge.Diff, [map, ops]: any, doc: any, tmpDoc: any) => {
   const { link, value, path, obj, key } = op
 
   try {
-    if (path && path.length && path[0] !== 'cursors') {
-      ops.push(setDataOp(op, doc))
+    if (path && path.length && path[0] === 'children') {
+      ops.push(setDataOp(op, doc)(map, tmpDoc))
     } else if (map[obj]) {
       map[obj][key as any] = link ? map[value] : value
     }

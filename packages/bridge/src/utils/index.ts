@@ -6,6 +6,9 @@ import { CollabAction } from '../model'
 export * from './testUtils'
 
 const toJS = (node: any) => {
+  if (node === undefined) {
+    return undefined
+  }
   try {
     return JSON.parse(JSON.stringify(node))
   } catch (e) {

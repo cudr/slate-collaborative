@@ -3,6 +3,7 @@ import { Element } from 'slate'
 
 import { toSlatePath, toJS } from '../utils'
 import { getTarget } from '../path'
+import { setDataOp } from './set'
 
 const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
   try {
@@ -23,7 +24,9 @@ const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
     const text = node?.text?.[index] || '*'
 
     if (node) {
-      node.text = node?.text ? (node.text.slice(0, index) + node.text.slice(index + 1)) : ''
+      node.text = node?.text
+        ? node.text.slice(0, index) + node.text.slice(index + 1)
+        : ''
     }
 
     return {
@@ -38,28 +41,30 @@ const removeTextOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
   }
 }
 
-const removeNodeOp = (op: Automerge.Diff) => (
-  map: any,
-  doc: Element
-) => {
+const removeNodeOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
   try {
     const { index, obj, path } = op
 
     const slatePath = toSlatePath(path)
 
     const parent = getTarget(doc, slatePath)
-    const target = parent?.children?.[index as number] || parent?.[index as number] || { children: [] }
+    const target = parent?.children?.[index as number] ||
+      parent?.[index as number] || { children: [] }
 
     if (!target) {
       throw new TypeError('Target is not found!')
     }
 
-    if (!map.hasOwnProperty(obj)) {
-      map[obj] = target
-    }
-
     if (!Number.isInteger(index)) {
       throw new TypeError('Index is not a number')
+    }
+
+    if (parent?.children?.[index as number]) {
+      parent.children.splice(index, 1)
+      map[obj] = parent?.children
+    } else if (parent?.[index as number]) {
+      parent.splice(index, 1)
+      map[obj] = parent
     }
 
     return {
@@ -72,9 +77,22 @@ const removeNodeOp = (op: Automerge.Diff) => (
   }
 }
 
-const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
+const opRemove = (
+  op: Automerge.Diff,
+  [map, ops]: any,
+  doc: any,
+  tmpDoc: Element
+) => {
   try {
     const { index, path, obj, type } = op
+
+    if (type === 'map' && path) {
+      // remove a key from map, mapping to slate set a key's value to undefined.
+      if (path[0] === 'children') {
+        ops.push(setDataOp(op, doc)(map, tmpDoc))
+      }
+      return [map, ops]
+    }
 
     if (
       map.hasOwnProperty(obj) &&
@@ -91,11 +109,9 @@ const opRemove = (op: Automerge.Diff, [map, ops]: any) => {
 
     const key = path[path.length - 1]
 
-    if (key === 'cursors' || op.key === 'cursors') return [map, ops]
-
     const fn = key === 'text' ? removeTextOp : removeNodeOp
 
-    return [map, [...ops, fn(op)]]
+    return [map, [...ops, fn(op)(map, tmpDoc)]]
   } catch (e) {
     console.error(e, op, toJS(map))
 
