@@ -55,18 +55,16 @@ const removeNodeOp = (op: Automerge.Diff) => (map: any, doc: Element) => {
       throw new TypeError('Target is not found!')
     }
 
-    if (!map.hasOwnProperty(obj)) {
-      map[obj] = target
-    }
-
     if (!Number.isInteger(index)) {
       throw new TypeError('Index is not a number')
     }
 
     if (parent?.children?.[index as number]) {
       parent.children.splice(index, 1)
+      map[obj] = parent?.children
     } else if (parent?.[index as number]) {
       parent.splice(index, 1)
+      map[obj] = parent
     }
 
     return {
