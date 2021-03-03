@@ -278,7 +278,7 @@ describe('automerge editor client tests', () => {
     expect(target).toEqual(null)
   })
 
-  it('should work with concurrent insert text operations', async () => {
+  it.only('should work with concurrent insert text operations', async () => {
     const editor1 = await createCollabEditor()
     const editor2 = await createCollabEditor()
 
@@ -288,17 +288,20 @@ describe('automerge editor client tests', () => {
       return getActiveConnections(collabBackend.backend, docId) === 1
     })
 
-    editor2.insertNode({ type: 'paragraph', children: [{ text: 'hi' }] })
-
-    await waitForCondition(() => {
-      return collabBackend.backend.getDocument(docId)?.children.length === 2
-    })
+    // editor2.insertNode({ type: 'paragraph', children: [{ text: 'hi' }] })
+    // await waitForCondition(() => {
+    //   return collabBackend.backend.getDocument(docId)?.children.length === 1
+    // })
 
     editor1.connect()
 
-    await waitForCondition(() => {
-      return editor1.children.length === 2
-    })
+    await waitForCondition(
+      () => getActiveConnections(collabBackend.backend, docId) === 2
+    )
+
+    // await waitForCondition(() => {
+    //   return editor1.children.length === 1
+    // })
 
     editor2.destroy()
 
@@ -306,7 +309,13 @@ describe('automerge editor client tests', () => {
       return getActiveConnections(collabBackend.backend, docId) === 1
     })
 
+    console.log('destroying last editor')
+
     editor1.destroy()
+
+    await waitForCondition(() => {
+      return getActiveConnections(collabBackend.backend, docId) === 0
+    })
   })
 
   afterAll(() => {
