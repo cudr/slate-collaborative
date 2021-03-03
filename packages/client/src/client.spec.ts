@@ -41,7 +41,12 @@ const server = createServer(function(req, res) {
   res.end()
 })
 
-const defaultSlateJson = [{ type: 'paragraph', children: [{ text: '' }] }]
+const defaultSlateJson = [
+  {
+    type: 'paragraph',
+    children: [{ text: 'hello world' }, { text: 'goodbye world' }]
+  }
+]
 const collabBackend = new AutomergeCollaboration({
   entry: server,
   defaultValue: defaultSlateJson,
@@ -280,37 +285,27 @@ describe('automerge editor client tests', () => {
 
   it.only('should work with concurrent insert text operations', async () => {
     const editor1 = await createCollabEditor()
-    const editor2 = await createCollabEditor()
+    console.log('----\neditor1 disconnect\n-----')
+    await waitForCondition(() => {
+      return getActiveConnections(collabBackend.backend, docId) === 1
+    })
 
     editor1.disconnect()
 
-    await waitForCondition(() => {
-      return getActiveConnections(collabBackend.backend, docId) === 1
-    })
+    await waitForCondition(
+      () => getActiveConnections(collabBackend.backend, docId) === 0
+    )
 
-    // editor2.insertNode({ type: 'paragraph', children: [{ text: 'hi' }] })
-    // await waitForCondition(() => {
-    //   return collabBackend.backend.getDocument(docId)?.children.length === 1
-    // })
-
+    console.log('----\neditor1 reconnect\n-----')
     editor1.connect()
 
     await waitForCondition(
-      () => getActiveConnections(collabBackend.backend, docId) === 2
+      () => getActiveConnections(collabBackend.backend, docId) === 1
     )
 
-    // await waitForCondition(() => {
-    //   return editor1.children.length === 1
-    // })
-
-    editor2.destroy()
-
-    await waitForCondition(() => {
-      return getActiveConnections(collabBackend.backend, docId) === 1
-    })
+    await new Promise(res => setTimeout(res, 3000))
 
     console.log('destroying last editor')
-
     editor1.destroy()
 
     await waitForCondition(() => {
