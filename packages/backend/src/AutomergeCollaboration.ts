@@ -3,9 +3,23 @@ import * as Automerge from 'automerge'
 import { Node } from 'slate'
 import { Server } from 'http'
 import throttle from 'lodash/throttle'
+import flatten from 'lodash/flatten'
 import { SyncDoc, CollabAction, toJS } from '@hiveteams/collab-bridge'
 import { debugCollabBackend } from './utils/debug'
 import AutomergeBackend from './AutomergeBackend'
+
+export interface IAutomergeMetaData {
+  docId: string
+  userId: string
+  type: string
+  opText?: string
+  opCount?: number
+}
+
+export type ITraceFunction = (
+  metaData: IAutomergeMetaData,
+  computationFunction: () => void
+) => void
 
 export interface IAutomergeCollaborationOptions {
   entry: Server
@@ -21,6 +35,11 @@ export interface IAutomergeCollaborationOptions {
   ) => Promise<void> | void
   onDisconnect?: (docId: string, user: any) => Promise<void> | void
   onError?: (error: Error, data: any) => Promise<void> | void
+  onTrace?: ITraceFunction
+}
+
+const defaultOnTrace: ITraceFunction = (metaData, computation) => {
+  computation()
 }
 
 export default class AutomergeCollaboration {
@@ -29,6 +48,7 @@ export default class AutomergeCollaboration {
   public backend: AutomergeBackend
   private userMap: { [key: string]: any | undefined }
   private autoSaveDoc: (socket: SocketIO.Socket, docId: string) => void
+  private onTrace: ITraceFunction
 
   /**
    * Constructor
@@ -44,6 +64,8 @@ export default class AutomergeCollaboration {
     this.configure()
 
     this.userMap = {}
+
+    this.onTrace = options.onTrace || defaultOnTrace
 
     /**
      * Save document with throttle
@@ -182,11 +204,20 @@ export default class AutomergeCollaboration {
         return
       }
 
-      // Emit the socket message needed for receiving the automerge document
-      // on connect and reconnect
-      socket.emit('msg', {
-        type: 'document',
-        payload: Automerge.save<SyncDoc>(doc)
+      const user = this.userMap[id]
+      const metaData: IAutomergeMetaData = {
+        type: 'connect',
+        userId: user?._id,
+        docId
+      }
+
+      this.onTrace(metaData, () => {
+        // Emit the socket message needed for receiving the automerge document
+        // on connect and reconnect
+        socket.emit('msg', {
+          type: 'document',
+          payload: Automerge.save<SyncDoc>(doc)
+        })
       })
 
       debugCollabBackend('Open connection %s', id)
@@ -205,18 +236,37 @@ export default class AutomergeCollaboration {
     data: any
   ) => {
     const { id } = socket
-    switch (data.type) {
-      case 'operation':
-        try {
-          this.backend.receiveOperation(id, data)
+    const user = this.userMap[id]
 
-          this.autoSaveDoc(socket, docId)
-
-          this.garbageCursors(socket)
-        } catch (err) {
-          this.handleError(socket, err, { onMessageData: data })
-        }
+    // parse out the changes contained in this automerge change
+    const collabActions = flatten(
+      data.payload.changes?.map((change: Automerge.Change) =>
+        change.ops.map(op => op.action)
+      )
+    )
+    const metaData: IAutomergeMetaData = {
+      type: 'operation',
+      userId: user?._id,
+      docId,
+      // cap max operation text by 1000 chars
+      opText: collabActions.join(',').slice(0, 1000),
+      opCount: collabActions.length
     }
+
+    this.onTrace(metaData, () => {
+      switch (data.type) {
+        case 'operation':
+          try {
+            this.backend.receiveOperation(id, data)
+
+            this.autoSaveDoc(socket, docId)
+
+            this.garbageCursors(socket)
+          } catch (err) {
+            this.handleError(socket, err, { onMessageData: data })
+          }
+      }
+    })
   }
 
   /**
