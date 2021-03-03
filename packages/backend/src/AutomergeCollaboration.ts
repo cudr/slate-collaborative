@@ -7,6 +7,7 @@ import flatten from 'lodash/flatten'
 import { SyncDoc, CollabAction, toJS } from '@hiveteams/collab-bridge'
 import { debugCollabBackend } from './utils/debug'
 import AutomergeBackend from './AutomergeBackend'
+import getActiveConnections from './utils/getActiveConnections'
 
 export interface IAutomergeMetaData {
   docId: string
@@ -253,6 +254,10 @@ export default class AutomergeCollaboration {
       opCount: collabActions.length
     }
 
+    if (collabActions.length > 10) {
+      console.log(JSON.stringify(data.payload.changes, null, 2))
+    }
+
     this.onTrace(metaData, () => {
       switch (data.type) {
         case 'operation':
@@ -344,11 +349,7 @@ export default class AutomergeCollaboration {
   garbageNsp = (socket: SocketIO.Socket) => {
     const { name: docId } = socket.nsp
 
-    // This is the only way to synchronously check the number of active Automerge.Connections
-    // for this docId.
-    // @ts-ignore
-    const activeConnectionsCount = this.backend.documentSetMap[docId]?.handlers
-      .size
+    const activeConnectionsCount = getActiveConnections(this.backend, docId)
 
     debugCollabBackend(
       'Garbage namespace activeConnections=%s',

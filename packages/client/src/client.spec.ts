@@ -8,6 +8,7 @@ import AutomergeCollaboration from '@hiveteams/collab-backend/lib/AutomergeColla
 import withIOCollaboration from './withIOCollaboration'
 import { AutomergeOptions, SocketIOPluginOptions } from './interfaces'
 import { getTarget } from '@hiveteams/collab-bridge/src/path'
+import getActiveConnections from '@hiveteams/collab-backend/src/utils/getActiveConnections'
 
 const connectionSlug = 'test'
 const docId = `/${connectionSlug}`
@@ -50,6 +51,12 @@ const collabBackend = new AutomergeCollaboration({
   },
   async onDocumentLoad(pathname) {
     return defaultSlateJson
+  },
+  onTrace(metaData, computationFn) {
+    if (metaData.opCount && metaData.opCount > 100) {
+    }
+    console.log('metaData', metaData)
+    computationFn()
   }
 })
 
@@ -58,6 +65,10 @@ describe('automerge editor client tests', () => {
     //pass a callback to tell jest it is async
     //start the server before any test
     server.listen(5000, () => done())
+  })
+
+  afterEach(done => {
+    waitForCondition(() => !collabBackend.backend.getDocument(docId)).then(done)
   })
 
   const createCollabEditor = async (
@@ -232,6 +243,8 @@ describe('automerge editor client tests', () => {
     expect(editor.children.length).toEqual(2)
     expect(Node.string(editor.children[0])).toEqual('new')
     expect(Node.string(editor.children[1])).toEqual('nodes')
+
+    editor.destroy()
   })
 
   it('set node for children with missing value should not throw error', () => {
@@ -263,6 +276,37 @@ describe('automerge editor client tests', () => {
     const target = getTarget(doc, [0, 0])
 
     expect(target).toEqual(null)
+  })
+
+  it('should work with concurrent insert text operations', async () => {
+    const editor1 = await createCollabEditor()
+    const editor2 = await createCollabEditor()
+
+    editor1.disconnect()
+
+    await waitForCondition(() => {
+      return getActiveConnections(collabBackend.backend, docId) === 1
+    })
+
+    editor2.insertNode({ type: 'paragraph', children: [{ text: 'hi' }] })
+
+    await waitForCondition(() => {
+      return collabBackend.backend.getDocument(docId)?.children.length === 2
+    })
+
+    editor1.connect()
+
+    await waitForCondition(() => {
+      return editor1.children.length === 2
+    })
+
+    editor2.destroy()
+
+    await waitForCondition(() => {
+      return getActiveConnections(collabBackend.backend, docId) === 1
+    })
+
+    editor1.destroy()
   })
 
   afterAll(() => {
