@@ -38,6 +38,7 @@ export interface SocketIOPluginOptions {
   onConnect?: () => void
   onDisconnect?: () => void
   onError?: (msg: string | Error, data: any) => void
+  resetOnReconnect?: boolean
 }
 
 export interface WithSocketIOEditor {

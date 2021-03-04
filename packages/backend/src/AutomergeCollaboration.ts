@@ -254,8 +254,6 @@ export default class AutomergeCollaboration {
       opCount: collabActions.length
     }
 
-    console.log(JSON.stringify(data.payload, null, 2))
-
     this.onTrace(metaData, () => {
       switch (data.type) {
         case 'operation':

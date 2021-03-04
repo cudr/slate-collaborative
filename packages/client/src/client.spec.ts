@@ -4,9 +4,16 @@ import fs from 'fs'
 import isEqual from 'lodash/isEqual'
 import { createEditor, Editor, Element, Node, Transforms } from 'slate'
 import { createDoc, SyncDoc, toJS, toSlateOp } from '@hiveteams/collab-bridge'
-import AutomergeCollaboration from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
+import AutomergeCollaboration, {
+  IAutomergeMetaData
+} from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
 import withIOCollaboration from './withIOCollaboration'
-import { AutomergeOptions, SocketIOPluginOptions } from './interfaces'
+import {
+  AutomergeEditor,
+  AutomergeOptions,
+  SocketIOPluginOptions,
+  WithSocketIOEditor
+} from './interfaces'
 import { getTarget } from '@hiveteams/collab-bridge/src/path'
 import getActiveConnections from '@hiveteams/collab-backend/src/utils/getActiveConnections'
 
@@ -41,12 +48,8 @@ const server = createServer(function(req, res) {
   res.end()
 })
 
-const defaultSlateJson = [
-  {
-    type: 'paragraph',
-    children: [{ text: 'hello world' }, { text: 'goodbye world' }]
-  }
-]
+const defaultSlateJson = [{ type: 'paragraph', children: [{ text: '' }] }]
+let operationTraces: IAutomergeMetaData[] = []
 const collabBackend = new AutomergeCollaboration({
   entry: server,
   defaultValue: defaultSlateJson,
@@ -58,9 +61,7 @@ const collabBackend = new AutomergeCollaboration({
     return defaultSlateJson
   },
   onTrace(metaData, computationFn) {
-    if (metaData.opCount && metaData.opCount > 100) {
-    }
-    console.log('metaData', metaData)
+    operationTraces.push(metaData)
     computationFn()
   }
 })
@@ -72,7 +73,12 @@ describe('automerge editor client tests', () => {
     server.listen(5000, () => done())
   })
 
+  let collabEditors: (Editor & WithSocketIOEditor & AutomergeEditor)[] = []
   afterEach(done => {
+    operationTraces = []
+    collabEditors.forEach(editor => editor.destroy())
+    collabEditors = []
+
     waitForCondition(() => !collabBackend.backend.getDocument(docId)).then(done)
   })
 
@@ -98,6 +104,7 @@ describe('automerge editor client tests', () => {
     })
     editor.connect()
 
+    collabEditors.push(editor)
     await promise
     return editor
   }
@@ -117,8 +124,6 @@ describe('automerge editor client tests', () => {
       const serverDoc = toJS(collabBackend.backend.getDocument(docId))
       return serverDoc.children.length === 2
     })
-
-    editor.destroy()
   })
 
   it('should sync updates across two clients', async () => {
@@ -131,9 +136,6 @@ describe('automerge editor client tests', () => {
       const serverDoc = toJS(collabBackend.backend.getDocument(docId))
       return serverDoc.children.length === 2 && editor2.children.length === 2
     })
-
-    editor1.destroy()
-    editor2.destroy()
   })
 
   it('should sync offline changes on reconnect', async () => {
@@ -159,9 +161,6 @@ describe('automerge editor client tests', () => {
     })
 
     expect(Node.string(editor2.children[2])).toEqual('offline')
-
-    editor1.destroy()
-    editor2.destroy()
   })
 
   it('should work with concurrent edits', async () => {
@@ -182,9 +181,6 @@ describe('automerge editor client tests', () => {
     })
 
     expect(isEqual(editor1.children, editor2.children)).toBeTruthy()
-
-    editor1.destroy()
-    editor2.destroy()
   })
 
   it('should work with concurrent insert text operations', async () => {
@@ -208,9 +204,6 @@ describe('automerge editor client tests', () => {
     })
 
     expect(isEqual(editor1.children, editor2.children)).toBeTruthy()
-
-    editor1.destroy()
-    editor2.destroy()
   })
 
   it('should not throw deep nested tree error', () => {
@@ -248,8 +241,6 @@ describe('automerge editor client tests', () => {
     expect(editor.children.length).toEqual(2)
     expect(Node.string(editor.children[0])).toEqual('new')
     expect(Node.string(editor.children[1])).toEqual('nodes')
-
-    editor.destroy()
   })
 
   it('set node for children with missing value should not throw error', () => {
@@ -283,8 +274,8 @@ describe('automerge editor client tests', () => {
     expect(target).toEqual(null)
   })
 
-  it.only('should work with concurrent insert text operations', async () => {
-    const editor1 = await createCollabEditor()
+  it('should reconnect with no opCount', async () => {
+    const editor1 = await createCollabEditor({ resetOnReconnect: true })
     console.log('----\neditor1 disconnect\n-----')
     await waitForCondition(() => {
       return getActiveConnections(collabBackend.backend, docId) === 1
@@ -303,14 +294,17 @@ describe('automerge editor client tests', () => {
       () => getActiveConnections(collabBackend.backend, docId) === 1
     )
 
+    // Wait for a few seconds to allow the client and server to synchronize their
+    // document states
     await new Promise(res => setTimeout(res, 3000))
 
-    console.log('destroying last editor')
-    editor1.destroy()
-
-    await waitForCondition(() => {
-      return getActiveConnections(collabBackend.backend, docId) === 0
-    })
+    // Expect that reconnecting with resetOnReconnect option set to true
+    // does not result in any operations being sent from the client to the server
+    expect(
+      operationTraces.some(
+        trace => trace.opCount !== undefined && trace.opCount > 0
+      )
+    ).toBeFalsy
   })
 
   afterAll(() => {

@@ -17,7 +17,14 @@ const withSocketIO = <T extends AutomergeEditor>(
   slateEditor: T,
   options: SocketIOPluginOptions & AutomergeOptions
 ) => {
-  const { onConnect, onDisconnect, connectOpts, url } = options
+  const {
+    onConnect,
+    onDisconnect,
+    connectOpts,
+    url,
+    docId,
+    resetOnReconnect
+  } = options
   const editor = slateEditor as T & WithSocketIOEditor & AutomergeEditor
   let socket: SocketIOClient.Socket
 
@@ -31,6 +38,17 @@ const withSocketIO = <T extends AutomergeEditor>(
     // On socket io connect, open a new automerge connection
     socket.on('connect', () => {
       editor.clientId = socket.id
+
+      // If the resetOnReconnect option is true we should close our connection
+      // and remove our document from the docSet if the user has already received
+      // a document from our collab server
+      if (resetOnReconnect && editor.docSet.getDoc(docId)) {
+        if (editor.connection) {
+          editor.connection.close()
+        }
+        editor.docSet.removeDoc(docId)
+      }
+
       editor.openConnection()
       onConnect && onConnect()
     })
