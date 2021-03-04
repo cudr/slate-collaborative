@@ -4,10 +4,18 @@ import fs from 'fs'
 import isEqual from 'lodash/isEqual'
 import { createEditor, Editor, Element, Node, Transforms } from 'slate'
 import { createDoc, SyncDoc, toJS, toSlateOp } from '@hiveteams/collab-bridge'
-import AutomergeCollaboration from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
+import AutomergeCollaboration, {
+  IAutomergeMetaData
+} from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
 import withIOCollaboration from './withIOCollaboration'
-import { AutomergeOptions, SocketIOPluginOptions } from './interfaces'
+import {
+  AutomergeEditor,
+  AutomergeOptions,
+  SocketIOPluginOptions,
+  WithSocketIOEditor
+} from './interfaces'
 import { getTarget } from '@hiveteams/collab-bridge/src/path'
+import getActiveConnections from '@hiveteams/collab-backend/src/utils/getActiveConnections'
 
 const connectionSlug = 'test'
 const docId = `/${connectionSlug}`
@@ -41,6 +49,7 @@ const server = createServer(function(req, res) {
 })
 
 const defaultSlateJson = [{ type: 'paragraph', children: [{ text: '' }] }]
+let operationTraces: IAutomergeMetaData[] = []
 const collabBackend = new AutomergeCollaboration({
   entry: server,
   defaultValue: defaultSlateJson,
@@ -50,6 +59,10 @@ const collabBackend = new AutomergeCollaboration({
   },
   async onDocumentLoad(pathname) {
     return defaultSlateJson
+  },
+  onTrace(metaData, computationFn) {
+    operationTraces.push(metaData)
+    computationFn()
   }
 })
 
@@ -58,6 +71,19 @@ describe('automerge editor client tests', () => {
     //pass a callback to tell jest it is async
     //start the server before any test
     server.listen(5000, () => done())
+  })
+
+  let collabEditors: (Editor & WithSocketIOEditor & AutomergeEditor)[] = []
+  afterEach(done => {
+    // Clear our operation traces after each test
+    operationTraces = []
+
+    // Destroy any created collab editors after each test
+    collabEditors.forEach(editor => editor.destroy())
+    collabEditors = []
+
+    // Ensure that the collab document has been cleaned up on the backend
+    waitForCondition(() => !collabBackend.backend.getDocument(docId)).then(done)
   })
 
   const createCollabEditor = async (
@@ -82,6 +108,7 @@ describe('automerge editor client tests', () => {
     })
     editor.connect()
 
+    collabEditors.push(editor)
     await promise
     return editor
   }
@@ -101,8 +128,6 @@ describe('automerge editor client tests', () => {
       const serverDoc = toJS(collabBackend.backend.getDocument(docId))
       return serverDoc.children.length === 2
     })
-
-    editor.destroy()
   })
 
   it('should sync updates across two clients', async () => {
@@ -115,9 +140,6 @@ describe('automerge editor client tests', () => {
       const serverDoc = toJS(collabBackend.backend.getDocument(docId))
       return serverDoc.children.length === 2 && editor2.children.length === 2
     })
-
-    editor1.destroy()
-    editor2.destroy()
   })
 
   it('should sync offline changes on reconnect', async () => {
@@ -143,9 +165,6 @@ describe('automerge editor client tests', () => {
     })
 
     expect(Node.string(editor2.children[2])).toEqual('offline')
-
-    editor1.destroy()
-    editor2.destroy()
   })
 
   it('should work with concurrent edits', async () => {
@@ -166,9 +185,6 @@ describe('automerge editor client tests', () => {
     })
 
     expect(isEqual(editor1.children, editor2.children)).toBeTruthy()
-
-    editor1.destroy()
-    editor2.destroy()
   })
 
   it('should work with concurrent insert text operations', async () => {
@@ -192,9 +208,6 @@ describe('automerge editor client tests', () => {
     })
 
     expect(isEqual(editor1.children, editor2.children)).toBeTruthy()
-
-    editor1.destroy()
-    editor2.destroy()
   })
 
   it('should not throw deep nested tree error', () => {
@@ -263,6 +276,38 @@ describe('automerge editor client tests', () => {
     const target = getTarget(doc, [0, 0])
 
     expect(target).toEqual(null)
+  })
+
+  it('should reconnect with no opCount', async () => {
+    const editor1 = await createCollabEditor({ resetOnReconnect: true })
+
+    await waitForCondition(() => {
+      return getActiveConnections(collabBackend.backend, docId) === 1
+    })
+
+    editor1.disconnect()
+
+    await waitForCondition(
+      () => getActiveConnections(collabBackend.backend, docId) === 0
+    )
+
+    editor1.connect()
+
+    await waitForCondition(
+      () => getActiveConnections(collabBackend.backend, docId) === 1
+    )
+
+    // Wait for a few seconds to allow the client and server to synchronize their
+    // document states
+    await new Promise(res => setTimeout(res, 3000))
+
+    // Expect that reconnecting with resetOnReconnect option set to true
+    // does not result in any operations being sent from the client to the server
+    expect(
+      operationTraces.some(
+        trace => trace.opCount !== undefined && trace.opCount > 0
+      )
+    ).toBeFalsy
   })
 
   afterAll(() => {

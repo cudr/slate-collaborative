@@ -22,7 +22,7 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
     "watch": "yarn build:js -w",
-    "test": "jest"
+    "test": "DEBUG=app* jest"
   },
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
