@@ -75,10 +75,14 @@ describe('automerge editor client tests', () => {
 
   let collabEditors: (Editor & WithSocketIOEditor & AutomergeEditor)[] = []
   afterEach(done => {
+    // Clear our operation traces after each test
     operationTraces = []
+
+    // Destroy any created collab editors after each test
     collabEditors.forEach(editor => editor.destroy())
     collabEditors = []
 
+    // Ensure that the collab document has been cleaned up on the backend
     waitForCondition(() => !collabBackend.backend.getDocument(docId)).then(done)
   })
 
@@ -276,7 +280,7 @@ describe('automerge editor client tests', () => {
 
   it('should reconnect with no opCount', async () => {
     const editor1 = await createCollabEditor({ resetOnReconnect: true })
-    console.log('----\neditor1 disconnect\n-----')
+
     await waitForCondition(() => {
       return getActiveConnections(collabBackend.backend, docId) === 1
     })
@@ -287,7 +291,6 @@ describe('automerge editor client tests', () => {
       () => getActiveConnections(collabBackend.backend, docId) === 0
     )
 
-    console.log('----\neditor1 reconnect\n-----')
     editor1.connect()
 
     await waitForCondition(

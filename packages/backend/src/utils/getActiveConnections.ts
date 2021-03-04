@@ -1,5 +1,8 @@
 import AutomergeBackend from '../AutomergeBackend'
 
+/**
+ * Get the number of active connections for the specified docId
+ */
 const getActiveConnections = (backend: AutomergeBackend, docId: string) => {
   const automergeDocument = backend.documentSetMap[docId]
 
