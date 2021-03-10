@@ -60,7 +60,7 @@ const collabBackend = new AutomergeCollaboration({
   async onDocumentLoad(pathname) {
     return defaultSlateJson
   },
-  onTrace(metaData, computationFn) {
+  onTrace(metaData, socket, computationFn) {
     operationTraces.push(metaData)
     computationFn()
   }
