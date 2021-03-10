@@ -19,6 +19,7 @@ export interface IAutomergeMetaData {
 
 export type ITraceFunction = (
   metaData: IAutomergeMetaData,
+  socket: SocketIO.Socket,
   computationFunction: () => void
 ) => void
 
@@ -39,7 +40,7 @@ export interface IAutomergeCollaborationOptions {
   onTrace?: ITraceFunction
 }
 
-const defaultOnTrace: ITraceFunction = (metaData, computation) => {
+const defaultOnTrace: ITraceFunction = (metaData, socket, computation) => {
   computation()
 }
 
@@ -212,7 +213,7 @@ export default class AutomergeCollaboration {
         docId
       }
 
-      this.onTrace(metaData, () => {
+      this.onTrace(metaData, socket, () => {
         // Emit the socket message needed for receiving the automerge document
         // on connect and reconnect
         socket.emit('msg', {
@@ -254,7 +255,7 @@ export default class AutomergeCollaboration {
       opCount: collabActions.length
     }
 
-    this.onTrace(metaData, () => {
+    this.onTrace(metaData, socket, () => {
       switch (data.type) {
         case 'operation':
           try {
