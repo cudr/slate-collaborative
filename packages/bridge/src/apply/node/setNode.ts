@@ -10,7 +10,7 @@ const setNode = (doc: SyncValue, op: SetNodeOperation): SyncValue => {
 
   for (let key in newProperties) {
     const value = newProperties[key]
-    if (value !== undefined) {
+    if (value != null) {
       node[key] = value
     } else {
       delete node[key]
