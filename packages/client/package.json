@@ -29,7 +29,7 @@
     "@slate-collaborative/bridge": "^0.7.2",
     "automerge": "0.14.0",
     "slate": "0.59.0",
-    "slate-history": "0.58.3",
+    "slate-history": "0.62.0",
     "socket.io-client": "^2.3.0",
     "typescript": "^3.8.3"
   },
