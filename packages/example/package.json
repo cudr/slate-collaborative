@@ -48,7 +48,7 @@
     "node": "12.x"
   },
   "devDependencies": {
-    "@types/faker": "^4.1.5",
+    "@types/faker": "^5.5.6",
     "@types/is-url": "^1.2.28",
     "@types/jest": "24.0.18",
     "@types/node": "14.14.6",
