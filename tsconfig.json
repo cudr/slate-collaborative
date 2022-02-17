@@ -15,7 +15,7 @@
     "sourceMap": true,
     "strict": true,
     "suppressImplicitAnyIndexErrors": true,
-    "target": "esnext"
+    "target": "es2019"
   },
   "exclude": ["node_modules"],
   "include": ["**/*.ts", "**/*.tsx"]
