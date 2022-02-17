@@ -1,7 +1,7 @@
 import io from 'socket.io-client'
 
 import Automerge from 'automerge'
-import { CollabAction } from '@hiveteams/collab-bridge'
+import { CollabAction } from 'bridge/index'
 import {
   AutomergeEditor,
   AutomergeOptions,

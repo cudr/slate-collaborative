@@ -12,7 +12,7 @@ import {
   setCursor,
   toSlateOp,
   CursorData
-} from '@hiveteams/collab-bridge'
+} from 'src/bridge/index'
 import { AutomergeEditor } from './interfaces'
 
 /**

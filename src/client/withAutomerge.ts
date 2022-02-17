@@ -4,7 +4,7 @@ import { Editor } from 'slate'
 
 import { AutomergeConnector } from './automerge-connector'
 
-import { CollabAction } from '@hiveteams/collab-bridge'
+import { CollabAction } from 'bridge/index'
 import {
   AutomergeEditor,
   AutomergeOptions,
@@ -31,7 +31,7 @@ const withAutomerge = <T extends Editor>(
    * Helper function for handling errors
    */
 
-  editor.handleError = (err: Error | string, data: any = {}) => {
+  editor.handleError = (err: unknown | string, data: any = {}) => {
     const { onError } = options
     if (onError) {
       onError(err, data)

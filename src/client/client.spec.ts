@@ -3,10 +3,13 @@ import { createServer } from 'http'
 import fs from 'fs'
 import isEqual from 'lodash/isEqual'
 import { createEditor, Editor, Element, Node, Transforms } from 'slate'
-import { createDoc, SyncDoc, toJS, toSlateOp } from '@hiveteams/collab-bridge'
-import AutomergeCollaboration, {
-  IAutomergeMetaData
-} from '@hiveteams/collab-backend/lib/AutomergeCollaboration'
+
+import { createDoc, SyncDoc, toJS, toSlateOp, getTarget } from '../bridge/index'
+import {
+  AutomergeCollaboration,
+  IAutomergeMetaData,
+  getActiveConnections
+} from '../backend/index'
 import withIOCollaboration from './withIOCollaboration'
 import {
   AutomergeEditor,
@@ -14,8 +17,6 @@ import {
   SocketIOPluginOptions,
   WithSocketIOEditor
 } from './interfaces'
-import { getTarget } from '@hiveteams/collab-bridge/src/path'
-import getActiveConnections from '@hiveteams/collab-backend/src/utils/getActiveConnections'
 
 const connectionSlug = 'test'
 const docId = `/${connectionSlug}`
@@ -54,13 +55,13 @@ const collabBackend = new AutomergeCollaboration({
   entry: server,
   defaultValue: defaultSlateJson,
   saveFrequency: 1000,
-  async onAuthRequest(query) {
+  async onAuthRequest(query: string) {
     return { _id: 'test-id', name: 'Eric' }
   },
-  async onDocumentLoad(pathname) {
+  async onDocumentLoad(pathname: string) {
     return defaultSlateJson
   },
-  onTrace(metaData, socket, computationFn) {
+  onTrace(metaData: any, socket: any, computationFn: () => void) {
     operationTraces.push(metaData)
     computationFn()
   }

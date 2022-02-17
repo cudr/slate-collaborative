@@ -48,7 +48,7 @@ const decorator = useCursor(editor)
 ## Backend
 
 ```ts
-const { AutomergeCollaboration } = require('@hiveteams/collab-backend')
+const { AutomergeCollaboration } = require('backend/index')
 
 const collabBackend = new AutomergeCollaboration(options)
 ```

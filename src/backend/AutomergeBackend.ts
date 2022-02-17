@@ -2,12 +2,7 @@ import * as Automerge from 'automerge'
 
 import { Node } from 'slate'
 
-import {
-  toCollabAction,
-  toSync,
-  SyncDoc,
-  CollabAction
-} from '@hiveteams/collab-bridge'
+import { toCollabAction, toSync, SyncDoc, CollabAction } from 'bridge/index'
 import { debugCollabBackend } from './utils/debug'
 
 /**

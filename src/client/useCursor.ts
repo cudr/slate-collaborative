@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react'
 
 import { Text, Range, Path, NodeEntry } from 'slate'
 
-import { toJS, Cursor, Cursors } from '@hiveteams/collab-bridge'
+import { toJS, Cursor, Cursors } from 'bridge/index'
 
 import useMounted from './useMounted'
 import { AutomergeEditor } from './interfaces'

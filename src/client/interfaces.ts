@@ -1,12 +1,12 @@
 import Automerge from 'automerge'
 import { Editor } from 'slate'
-import { CollabAction, CursorData, SyncDoc } from '@hiveteams/collab-bridge'
+import { CollabAction, CursorData, SyncDoc } from 'bridge/index'
 
 export interface AutomergeOptions {
   docId: string
   cursorData?: CursorData
   preserveExternalHistory?: boolean
-  onError?: (msg: string | Error, data: any) => void
+  onError?: (msg: string | unknown, data: any) => void
 }
 
 export interface AutomergeEditor extends Editor {
@@ -29,7 +29,7 @@ export interface AutomergeEditor extends Editor {
 
   onCursor: (data: any) => void
 
-  handleError: (err: Error | string, data?: any) => void
+  handleError: (err: unknown | string, data?: any) => void
 }
 
 export interface SocketIOPluginOptions {
