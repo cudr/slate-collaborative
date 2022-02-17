@@ -1,13 +1,14 @@
 {
   "name": "@hiveteams/collab",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.4",
   "main": "",
-  "private": true,
   "description": "Slate collaborative editing",
   "scripts": {
     "format": "prettier --write",
     "test": "jest",
-    "build": "./node_modules/typescript/bin/tsc -p ./tsconfig.json"
+    "clean": "rm -rf ./build",
+    "build": "./node_modules/typescript/bin/tsc -p ./tsconfig.json",
+    "deploy": "npm run clean && npm run build && cp package.json ./build && npm publish build"
   },
   "author": "cudr",
   "license": "MIT",

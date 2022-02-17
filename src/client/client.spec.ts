@@ -4,7 +4,7 @@ import fs from 'fs'
 import isEqual from 'lodash/isEqual'
 import { createEditor, Editor, Element, Node, Transforms } from 'slate'
 
-import { createDoc, SyncDoc, toJS, toSlateOp, getTarget } from 'bridge'
+import { createDoc, SyncDoc, toJS, toSlateOp, getTarget } from '../bridge/index'
 import {
   AutomergeCollaboration,
   IAutomergeMetaData,
