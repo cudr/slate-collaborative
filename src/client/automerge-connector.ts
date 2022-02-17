@@ -12,7 +12,7 @@ import {
   setCursor,
   toSlateOp,
   CursorData
-} from 'src/bridge/index'
+} from 'bridge'
 import { AutomergeEditor } from './interfaces'
 
 /**
