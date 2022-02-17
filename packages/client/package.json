@@ -30,10 +30,10 @@
     "@hiveteams/collab-bridge": "^0.7.27",
     "automerge": "0.14.0",
     "lodash": "^4.17.20",
-    "slate": "0.58.3",
-    "slate-history": "0.58.3",
+    "slate": "0.72.8",
+    "slate-history": "0.66.0",
     "socket.io-client": "^2.3.0",
-    "typescript": "^3.8.3"
+    "typescript": "4.5.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
