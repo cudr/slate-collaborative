@@ -1,4 +1,4 @@
-import { Operation, Range } from 'slate'
+import { BaseSetNodeOperation, Operation, Range } from 'slate'
 
 import { CursorData } from '../model'
 import { toJS } from '../utils'
@@ -15,7 +15,9 @@ export const setCursor = (
 
     if (!doc.cursors) doc.cursors = {}
 
-    const newCursor = cursorOps[cursorOps.length - 1]?.newProperties || {}
+    const newCursor =
+      (cursorOps[cursorOps.length - 1] as BaseSetNodeOperation)
+        ?.newProperties || {}
 
     if (selection) {
       const newCursorData = Object.assign(

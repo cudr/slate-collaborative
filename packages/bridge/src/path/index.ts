@@ -1,8 +1,8 @@
-import { Element, Node, Path } from 'slate'
+import { Element, Path } from 'slate'
 
 import { SyncValue } from '../model'
 
-export const isTree = (node: Node): boolean => Boolean(node?.children)
+export const isTree = (node: Element): boolean => Boolean(node?.children)
 
 export const getTarget = (doc: SyncValue | Element, path: Path) => {
   const iterate = (current: any, idx: number) => {

@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab-bridge",
-  "version": "0.7.27",
+  "version": "0.7.28",
   "files": [
     "lib"
   ],
@@ -18,9 +18,8 @@
   "license": "MIT",
   "scripts": {
     "prepublishOnly": "yarn run build:module",
-    "build:module": "yarn run build:types && yarn run build:js",
-    "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "build:module": "yarn run build:js",
+    "build:js": "./node_modules/typescript/bin/tsc -p ./tsconfig.json",
     "watch": "yarn build:js -w",
     "test": "jest"
   },
