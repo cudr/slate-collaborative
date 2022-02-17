@@ -94,13 +94,13 @@ export default class AutomergeCollaboration {
   /**
    * Construct error data and call onError callback
    */
-  private handleError(socket: SocketIO.Socket, err: Error, data: any = {}) {
+  private handleError(socket: SocketIO.Socket, err: unknown, data: any = {}) {
     const { id } = socket
     const { name: docId } = socket.nsp
 
     if (this.options.onError) {
       const document = this.backend.getDocument(docId)
-      this.options.onError(err, {
+      this.options.onError(err as Error, {
         user: this.userMap[id],
         docId,
         automergeDocument: document ? Automerge.save(document) : null,

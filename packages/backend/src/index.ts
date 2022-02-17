@@ -1,3 +1,6 @@
-import AutomergeCollaboration from './AutomergeCollaboration'
+import AutomergeCollaboration, {
+  IAutomergeMetaData
+} from './AutomergeCollaboration'
+import getActiveConnections from 'utils/getActiveConnections'
 
-export { AutomergeCollaboration }
+export { AutomergeCollaboration, IAutomergeMetaData, getActiveConnections }

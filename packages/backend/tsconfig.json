@@ -6,6 +6,8 @@
     "baseUrl": "./src",
     "outDir": "./lib",
     "composite": true,
+    "declaration": true,
+    "declarationMap": true,
     "paths": {
       "@hiveteams/collab-bridge": ["../../collab-bridge"]
     }

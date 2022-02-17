@@ -17,10 +17,8 @@
   "author": "cudr",
   "license": "MIT",
   "scripts": {
-    "prepublishOnly": "yarn run build:module",
-    "build:module": "yarn run build:types && yarn run build:js",
-    "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "prepublishOnly": "yarn run build:js",
+    "build:js": "./node_modules/typescript/bin/tsc -p ./tsconfig.json",
     "watch": "yarn build:js -w"
   },
   "dependencies": {
