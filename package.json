@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "exports": {
     "bridge": "./build/bridge",
     "client": "./build/client",
@@ -55,14 +55,14 @@
   "dependencies": {
     "@types/jest": "^24.9.0",
     "@types/lodash": "^4.14.178",
-    "@types/react": "^17.0.39",
+    "@types/react": "^16.12.0",
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "1.4.32",
     "@types/debug": "^4.1.7",
     "automerge": "0.14.0",
     "debug": "^4.3.3",
     "lodash": "4.17.21",
-    "react": "^17.0.2",
+    "react": "16.12.0",
     "slate": "0.72.8",
     "slate-history": "0.66.0",
     "socket.io": "^2.3.0"
