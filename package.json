@@ -1,7 +1,12 @@
 {
   "name": "@hiveteams/collab",
-  "version": "1.0.0-alpha.5",
-  "main": "",
+  "version": "1.0.0-alpha.7",
+  "exports": {
+    "bridge": "./build/bridge",
+    "client": "./build/client",
+    "backend": "./build/backend"
+  },
+  "type": "module",
   "description": "Slate collaborative editing",
   "scripts": {
     "format": "prettier --write",
@@ -39,11 +44,6 @@
     "@babel/preset-typescript": "^7.6.0",
     "@commitlint/cli": "^9.0.1",
     "@commitlint/config-conventional": "^9.0.1",
-    "@types/jest": "^24.9.0",
-    "@types/lodash": "^4.14.178",
-    "@types/react": "^17.0.39",
-    "@types/socket.io": "^2.1.4",
-    "@types/socket.io-client": "1.4.32",
     "auto-changelog": "^2.1.0",
     "husky": "^3.0.5",
     "jest": "^24.9.0",
@@ -53,6 +53,11 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
+    "@types/jest": "^24.9.0",
+    "@types/lodash": "^4.14.178",
+    "@types/react": "^17.0.39",
+    "@types/socket.io": "^2.1.4",
+    "@types/socket.io-client": "1.4.32",
     "@types/debug": "^4.1.7",
     "automerge": "0.14.0",
     "debug": "^4.3.3",

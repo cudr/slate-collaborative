@@ -3,19 +3,16 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "outDir": "./build",
-    "lib": ["dom", "dom.iterable", "esnext"],
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "skipLibCheck": true,
     "declarationMap": true,
     "esModuleInterop": true,
     "jsx": "react",
-    "module": "esnext",
     "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "target": "es2019"
+    "suppressImplicitAnyIndexErrors": true
   },
   "exclude": ["node_modules"],
   "include": ["**/*.ts", "**/*.tsx"]
