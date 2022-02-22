@@ -3,13 +3,11 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "outDir": "./build",
-    "allowSyntheticDefaultImports": true,
     "declaration": true,
     "skipLibCheck": true,
     "declarationMap": true,
     "esModuleInterop": true,
     "jsx": "react",
-    "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
     "suppressImplicitAnyIndexErrors": true

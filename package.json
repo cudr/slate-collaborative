@@ -1,11 +1,6 @@
 {
   "name": "@hiveteams/collab",
-  "version": "1.0.0",
-  "exports": {
-    "./bridge": "./build/bridge",
-    "./client": "./build/client",
-    "./backend": "./build/backend"
-  },
+  "version": "1.0.1",
   "description": "Slate collaborative editing",
   "scripts": {
     "format": "prettier --write",
