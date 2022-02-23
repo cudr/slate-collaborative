@@ -13,7 +13,7 @@ export type CustomRange = {
   isCaret?: boolean
 } & BaseRange
 
-export type FormattedText = { text: string; bold?: true }
+export type FormattedText = { text: string; bold?: boolean }
 
 export type CustomText = FormattedText
 
