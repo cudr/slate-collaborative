@@ -57,7 +57,7 @@
     "debug": "^4.3.3",
     "lodash": "4.17.21",
     "react": "16.12.0",
-    "slate": "0.72.8",
+    "slate": "0.73.1",
     "slate-history": "0.66.0",
     "socket.io": "^2.3.0"
   },
