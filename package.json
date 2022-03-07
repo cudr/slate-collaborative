@@ -1,23 +1,14 @@
 {
-  "private": true,
-  "description": "Slate collaborative plugin & microservice",
+  "name": "@hiveteams/collab",
+  "version": "1.0.3",
+  "description": "Slate collaborative editing",
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "version": "auto-changelog -p ./packages/bridge/package.json --template changelog-template.hbs && git add CHANGELOG.md",
-    "clean": "rimraf ./packages/**/lib/ && rimraf ./packages/**/tsconfig.tsbuildinfo && lerna clean --yes",
-    "release": "yarn prebuild && yarn build && lerna version && lerna publish from-package",
-    "deploy:site": "git subtree push --prefix packages/example heroku master",
-    "dev": "lerna run --stream build:js && concurrently \"yarn watch\" \"lerna run dev --stream\"",
-    "build": "lerna run build:module --stream",
-    "watch": "lerna run --parallel watch",
-    "clean:module": "lerna clean --yes",
-    "prebuild": "yarn clean",
-    "test": "lerna run test --stream",
-    "format": "prettier --write"
+    "format": "prettier --write",
+    "test": "jest",
+    "clean": "rm -rf ./build",
+    "build": "./node_modules/typescript/bin/tsc -p ./tsconfig.json",
+    "deploy": "npm run clean && npm run build && cp package.json ./build && npm publish build"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "author": "cudr",
   "license": "MIT",
   "repository": {
@@ -32,19 +23,62 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,babelrc}": [
-      "yarn run format",
+      "npm run format",
       "git add"
     ]
   },
   "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/preset-typescript": "^7.6.0",
     "@commitlint/cli": "^9.0.1",
     "@commitlint/config-conventional": "^9.0.1",
     "auto-changelog": "^2.1.0",
-    "concurrently": "^4.1.2",
     "husky": "^3.0.5",
-    "lerna": "^3.20.2",
+    "jest": "^24.9.0",
     "lint-staged": "^9.2.5",
     "prettier": "^1.18.2",
-    "rimraf": "^3.0.2"
+    "ts-jest": "^25.4.0",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@types/jest": "^24.9.0",
+    "@types/lodash": "^4.14.178",
+    "@types/react": "^16.12.0",
+    "@types/socket.io": "^2.1.4",
+    "@types/socket.io-client": "1.4.32",
+    "@types/debug": "^4.1.7",
+    "automerge": "0.14.0",
+    "debug": "^4.3.3",
+    "lodash": "4.17.21",
+    "react": "16.12.0",
+    "slate": "0.73.1",
+    "slate-history": "0.66.0",
+    "socket.io": "^2.3.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "globals": {
+      "ts-jest": {
+        "babelConfig": ".babelrc",
+        "tsConfig": "tsconfig.json"
+      }
+    },
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$"
   }
 }
