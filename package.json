@@ -1,6 +1,6 @@
 {
   "name": "@hiveteams/collab",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Slate collaborative editing",
   "scripts": {
     "format": "prettier --write",
